@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models\SDE;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Race extends Model
+{
+    protected $table = 'races';
+
+    protected $primaryKey = '_key';
+
+    public $incrementing = false;
+
+    public $timestamps = false;
+
+    protected $fillable = [
+        '_key',
+        'name',
+        'description',
+        'iconID',
+        'shipTypeID',
+        'skills',
+    ];
+
+    protected $casts = [
+        '_key'          => 'integer',
+        'name'          => 'array',
+        'description'   => 'array',
+        'skills'        => 'array',
+        'iconID'        => 'integer',
+        'shipTypeID'    => 'integer',
+    ];
+}
