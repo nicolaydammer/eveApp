@@ -7,10 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class PlanetSchematic extends Model
 {
     protected $table = 'planet_schematics';
+
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    protected $guarded = [];
+
+    protected $fillable = [
+        '_key',
+        'cycleTime',
+        'name',
+        'pins',
+        'types',
+        'hash',
+    ];
 
     protected $casts = [
         'name' => 'array',

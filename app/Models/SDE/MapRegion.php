@@ -10,8 +10,13 @@ class MapRegion extends Model
     use HasFactory;
 
     protected $table = 'map_regions';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -23,6 +28,7 @@ class MapRegion extends Model
         'nebulaID',
         'position',
         'wormholeClassID',
+        'hash',
     ];
 
     protected $casts = [

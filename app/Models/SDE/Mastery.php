@@ -13,6 +13,8 @@ class Mastery extends Model
 
     protected $primaryKey = '_key';
 
+    public $timestamps = false;
+
     public $incrementing = false;
 
     protected $keyType = 'integer';
@@ -20,6 +22,7 @@ class Mastery extends Model
     protected $fillable = [
         '_key',
         '_value',
+        'hash',
     ];
 
     protected $casts = [

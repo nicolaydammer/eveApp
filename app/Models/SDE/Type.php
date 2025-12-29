@@ -15,13 +15,18 @@ class Type extends Model
 
     public $incrementing = false;
 
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'groupID',
+        'metaGroupID',
+        'factionID',
         'name',
         'description',
+        'variationParentTypeID',
         'mass',
         'portionSize',
         'published',
@@ -34,6 +39,7 @@ class Type extends Model
         'basePrice',
         'capacity',
         'marketGroupID',
+        'hash',
     ];
 
     protected $casts = [

@@ -10,20 +10,29 @@ class Faction extends Model
     use HasFactory;
 
     protected $table = 'factions';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'corporationID',
         'description',
-        'isUnique',
+        'uniqueName',
         'name',
-
         'solarSystemID',
+        'flatLogo',
+        'flatLogoWithName',
+        'iconID',
+        'memberRaces',
+        'sizeFactor',
         'stationCount',
         'stationSystemCount',
+        'militiaCorporationID',
+        'hash',
     ];
 
     protected $casts = [
@@ -32,9 +41,9 @@ class Faction extends Model
         'description' => 'array',
         'isUnique' => 'boolean',
         'name' => 'array',
-
         'solarSystemID' => 'integer',
         'stationCount' => 'integer',
         'stationSystemCount' => 'integer',
+        'militiaCorporationID' => 'integer',
     ];
 }

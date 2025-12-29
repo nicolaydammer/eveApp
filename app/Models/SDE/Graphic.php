@@ -19,9 +19,12 @@ class Graphic extends Model
     protected $fillable = [
         '_key',
         'graphicFile',
+        'sofMaterialSetID',
         'iconFolder',
         'sofFactionName',
         'sofHullName',
         'sofRaceName',
+        'sofLayout',
+        'hash',
     ];
 }

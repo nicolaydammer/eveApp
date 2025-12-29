@@ -7,21 +7,51 @@ use Illuminate\Database\Eloquent\Model;
 class NpcCorporation extends Model
 {
     protected $table = 'npc_corporations';
+
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    protected $guarded = [];
+
+    protected $fillable = [
+        '_key',
+        'ceoID',
+        'enemyID',
+        'deleted',
+        'description',
+        'divisions',
+        'extent',
+        'hasPlayerPersonnelManager',
+        'initialPrice',
+        'memberLimit',
+        'minSecurity',
+        'minimumJoinStanding',
+        'name',
+        'sendCharTerminationMessage',
+        'investors',
+        'shares',
+        'size',
+        'stationID',
+        'exchangeRates',
+        'factionID',
+        'friendID',
+        'secondaryActivityID',
+        'taxRate',
+        'tickerName',
+        'uniqueName',
+        'iconID',
+        'raceID',
+        'allowedMemberRaces',
+        'corporationTrades',
+        'lpOfferTables',
+        'sizeFactor',
+        'solarSystemID',
+        'mainActivityID',
+        'hash',
+    ];
 
     protected $casts = [
-        'deleted' => 'boolean',
-        'hasPlayerPersonnelManager' => 'boolean',
-        'sendCharTerminationMessage' => 'boolean',
-        'uniqueName' => 'boolean',
-        'minSecurity' => 'float',
-        'taxRate' => 'float',
-        'description' => 'array',
-        'name' => 'array',
-        'allowedMemberRaces' => 'array',
-        'corporationTrades' => 'array',
+
     ];
 }

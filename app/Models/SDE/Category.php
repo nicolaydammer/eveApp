@@ -25,12 +25,13 @@ class Category extends Model
         'name',
         'iconID',
         'published',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'      => 'integer',
-        'name'      => 'array', // Casts the multilingual name to a PHP array/object
-        'iconID'    => 'integer',
+        '_key' => 'integer',
+        'name' => 'array', // Casts the multilingual name to a PHP array/object
+        'iconID' => 'integer',
         'published' => 'boolean',
     ];
 }

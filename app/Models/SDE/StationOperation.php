@@ -10,17 +10,18 @@ class StationOperation extends Model
     use HasFactory;
 
     protected $table = 'station_operations';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'activityID',
-
         'operationName',
         'description',
-
         'border',
         'corridor',
         'fringe',
@@ -28,18 +29,16 @@ class StationOperation extends Model
         'ratio',
         'manufacturingFactor',
         'researchFactor',
-
         'services',
         'stationTypes',
+        'hash',
     ];
 
     protected $casts = [
         '_key' => 'integer',
         'activityID' => 'integer',
-
         'operationName' => 'array',
         'description' => 'array',
-
         'border' => 'float',
         'corridor' => 'float',
         'fringe' => 'float',
@@ -47,7 +46,6 @@ class StationOperation extends Model
         'ratio' => 'float',
         'manufacturingFactor' => 'float',
         'researchFactor' => 'float',
-
         'services' => 'array',
         'stationTypes' => 'array',
     ];

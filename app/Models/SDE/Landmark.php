@@ -10,15 +10,23 @@ class Landmark extends Model
     use HasFactory;
 
     protected $table = 'landmarks';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'description',
         'locationID',
+        'iconID',
         'name',
+        'position',
+        'hash',
     ];
 
     protected $casts = [

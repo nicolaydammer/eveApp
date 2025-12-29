@@ -18,7 +18,8 @@ class Blueprint extends Model
         '_key',
         'activities',
         'blueprintTypeID',
-        'maxProductionLimit'
+        'maxProductionLimit',
+        'hash',
     ];
 
     protected $casts = [

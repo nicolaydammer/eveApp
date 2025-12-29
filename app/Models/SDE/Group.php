@@ -10,8 +10,13 @@ class Group extends Model
     use HasFactory;
 
     protected $table = 'groups';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -20,10 +25,11 @@ class Group extends Model
         'name',
         'published',
         'useBasePrice',
-
         'anchorable',
         'anchored',
         'fittableNonSingleton',
+        'iconID',
+        'hash',
     ];
 
     protected $casts = [
@@ -32,7 +38,6 @@ class Group extends Model
         'name' => 'array',
         'published' => 'boolean',
         'useBasePrice' => 'boolean',
-
         'anchorable' => 'boolean',
         'anchored' => 'boolean',
         'fittableNonSingleton' => 'boolean',

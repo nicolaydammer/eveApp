@@ -10,8 +10,13 @@ class MarketGroup extends Model
     use HasFactory;
 
     protected $table = 'market_groups';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -21,6 +26,7 @@ class MarketGroup extends Model
         'iconID',
         'name',
         'parentGroupID',
+        'hash',
     ];
 
     protected $casts = [

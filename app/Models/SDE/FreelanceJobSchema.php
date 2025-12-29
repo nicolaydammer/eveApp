@@ -13,33 +13,19 @@ class FreelanceJobSchema extends Model
 
     protected $fillable = [
         'key',
-        'content_tags',
-        'title',
-        'description',
-        'progress_description',
-        'reward_description',
-        'target_description',
-        'max_contributions',
-        'parameters',
-        'icon_id',
+        '_value',
+        'hash',
     ];
 
     protected $casts = [
-        'content_tags' => 'array',
-        'title' => 'array',
-        'description' => 'array',
-        'progress_description' => 'array',
-        'reward_description' => 'array',
-        'target_description' => 'array',
-        'max_contributions' => 'array',
-        'parameters' => 'array',
+        '_value' => 'array',
     ];
 
     protected $primaryKey = 'key';
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     public $incrementing = false;
 
-    protected $keyType = 'string';
+    protected $keyType = 'integer';
 }

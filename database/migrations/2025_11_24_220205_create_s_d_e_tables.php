@@ -442,12 +442,9 @@ return new class extends Migration
             $table->unsignedInteger('corporationID')->nullable();
             $table->json('description')->nullable();
             $table->json('shortDescription')->nullable();
-            $table->boolean('isUnique')->nullable();
             $table->integer('uniqueName')->nullable();
             $table->json('name');
             $table->unsignedInteger('solarSystemID')->nullable();
-            $table->unsignedBigInteger('stationCount')->nullable();
-            $table->unsignedBigInteger('stationSystemCount')->nullable();
             $table->string('flatLogo')->nullable();
             $table->string('flatLogoWithName')->nullable();
             $table->unsignedBigInteger('iconID')->nullable();

@@ -7,16 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 class NpcStation extends Model
 {
     protected $table = 'npc_stations';
+
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    protected $guarded = [];
+
+    protected $fillable = [
+        '_key',
+        'celestialIndex',
+        'operationID',
+        'orbitID',
+        'orbitIndex',
+        'ownerID',
+        'position',
+        'reprocessingEfficiency',
+        'reprocessingHangarFlag',
+        'reprocessingStationsTake',
+        'solarSystemID',
+        'typeID',
+        'useOperationName',
+        'hash',
+    ];
 
     protected $casts = [
         'useOperationName' => 'boolean',
-        'position_x' => 'double',
-        'position_y' => 'double',
-        'position_z' => 'double',
+        'position' => 'array',
         'reprocessingEfficiency' => 'float',
         'reprocessingStationsTake' => 'float',
     ];

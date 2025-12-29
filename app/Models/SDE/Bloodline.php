@@ -26,19 +26,20 @@ class Bloodline extends Model
         'iconID',
         'corporationID',
         'raceID',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'          => 'integer',
-        'name'          => 'array',
-        'description'   => 'array',
-        'charisma'      => 'integer',
-        'intelligence'  => 'integer',
-        'memory'        => 'integer',
-        'perception'    => 'integer',
-        'willpower'     => 'integer',
-        'iconID'        => 'integer',
+        '_key' => 'integer',
+        'name' => 'array',
+        'description' => 'array',
+        'charisma' => 'integer',
+        'intelligence' => 'integer',
+        'memory' => 'integer',
+        'perception' => 'integer',
+        'willpower' => 'integer',
+        'iconID' => 'integer',
         'corporationID' => 'integer',
-        'raceID'        => 'integer',
+        'raceID' => 'integer',
     ];
 }

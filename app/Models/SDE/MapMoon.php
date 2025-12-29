@@ -24,19 +24,16 @@ class MapMoon extends Model
         'celestialIndex',
         'orbitIndex',
         'radius',
-        'x',
-        'y',
-        'z',
+        'position',
         'attributes',
         'statistics',
-        'npcStationIDs'
+        'npcStationIDs',
+        'hash',
     ];
 
     protected $casts = [
         'radius' => 'float',
-        'x' => 'float',
-        'y' => 'float',
-        'z' => 'float',
+        'position' => 'array',
         'attributes' => 'array',
         'statistics' => 'array',
         'npcStationIDs' => 'array',

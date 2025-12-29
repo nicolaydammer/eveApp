@@ -10,8 +10,13 @@ class Ancestry extends Model
     use HasFactory;
 
     protected $table = 'ancestries';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -26,6 +31,7 @@ class Ancestry extends Model
         'iconID',
         'name',
         'shortDescription',
+        'hash',
     ];
 
     protected $casts = [

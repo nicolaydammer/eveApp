@@ -10,8 +10,13 @@ class DbuffCollection extends Model
     use HasFactory;
 
     protected $table = 'dbuff_collections';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -21,17 +26,16 @@ class DbuffCollection extends Model
         'displayName',
         'operationName',
         'showOutputValueInUI',
-
         'itemModifiers',
         'locationGroupModifiers',
         'locationModifiers',
         'locationRequiredSkillModifiers',
+        'hash',
     ];
 
     protected $casts = [
         '_key' => 'integer',
         'displayName' => 'array',
-
         'itemModifiers' => 'array',
         'locationGroupModifiers' => 'array',
         'locationModifiers' => 'array',

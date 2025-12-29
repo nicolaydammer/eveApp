@@ -10,8 +10,13 @@ class DogmaAttribute extends Model
     use HasFactory;
 
     protected $table = 'dogma_attributes';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -23,7 +28,6 @@ class DogmaAttribute extends Model
         'name',
         'published',
         'stackable',
-
         'displayName',
         'displayWhenZero',
         'highIsGood',
@@ -31,6 +35,7 @@ class DogmaAttribute extends Model
         'tooltipDescription',
         'tooltipTitle',
         'unitID',
+        'hash',
     ];
 
     protected $casts = [
@@ -40,7 +45,6 @@ class DogmaAttribute extends Model
         'defaultValue' => 'float',
         'published' => 'boolean',
         'stackable' => 'boolean',
-
         'displayName' => 'array',
         'displayWhenZero' => 'boolean',
         'highIsGood' => 'boolean',

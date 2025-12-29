@@ -21,6 +21,7 @@ class AgentInSpace extends Model
         'dungeonID',
         'solarSystemID',
         'spawnPointID',
-        'typeID'
+        'typeID',
+        'hash',
     ];
 }

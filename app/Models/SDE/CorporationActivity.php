@@ -10,13 +10,19 @@ class CorporationActivity extends Model
     use HasFactory;
 
     protected $table = 'corporation_activities';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'name',
+        'hash',
     ];
 
     protected $casts = [

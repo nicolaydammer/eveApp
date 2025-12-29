@@ -12,7 +12,9 @@ class Icon extends Model
     protected $table = 'icons';
 
     protected $fillable = [
+        '_key',
         'iconFile',
+        'hash',
     ];
 
     protected $casts = [
@@ -21,7 +23,7 @@ class Icon extends Model
 
     protected $primaryKey = '_key';
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     public $incrementing = false;
 

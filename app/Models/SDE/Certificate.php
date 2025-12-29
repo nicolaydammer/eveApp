@@ -12,7 +12,7 @@ class Certificate extends Model
 
     public $incrementing = false;
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $fillable = [
         '_key',
@@ -21,14 +21,15 @@ class Certificate extends Model
         'name',
         'recommendedFor',
         'skillTypes',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'           => 'integer',
-        'description'    => 'array',
-        'groupID'        => 'integer',
-        'name'           => 'array',
+        '_key' => 'integer',
+        'description' => 'array',
+        'groupID' => 'integer',
+        'name' => 'array',
         'recommendedFor' => 'array',
-        'skillTypes'     => 'array',
+        'skillTypes' => 'array',
     ];
 }

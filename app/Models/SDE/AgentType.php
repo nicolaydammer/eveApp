@@ -18,6 +18,7 @@ class AgentType extends Model
 
     protected $fillable = [
         '_key',
-        'name'
+        'name',
+        'hash',
     ];
 }

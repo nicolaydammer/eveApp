@@ -7,16 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class MapStar extends Model
 {
     protected $table = 'map_stars';
+
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    protected $guarded = [];
+
+    protected $fillable = [
+        '_key',
+        'radius',
+        'solarSystemID',
+        'statistics',
+        'typeID',
+        'hash',
+    ];
 
     protected $casts = [
-        'radius' => 'double',
-        'age' => 'double',
-        'life' => 'double',
-        'luminosity' => 'double',
-        'temperature' => 'double',
+        'statistics' => 'array',
     ];
 }

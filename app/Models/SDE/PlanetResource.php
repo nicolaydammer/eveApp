@@ -19,12 +19,12 @@ class PlanetResource extends Model
         'power',
         'workforce',
         'reagent',
+        'hash',
     ];
 
     protected $casts = [
-        'power'     => 'integer',
+        'power' => 'integer',
         'workforce' => 'integer',
-        // Casting 'reagent' as array will automatically decode it into a PHP array/object
-        'reagent'   => 'array',
+        'reagent' => 'array',
     ];
 }

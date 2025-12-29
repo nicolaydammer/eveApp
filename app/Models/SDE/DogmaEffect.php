@@ -10,8 +10,13 @@ class DogmaEffect extends Model
     use HasFactory;
 
     protected $table = 'dogma_effects';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -35,6 +40,7 @@ class DogmaEffect extends Model
         'rangeAttributeID',
         'rangeChance',
         'trackingSpeedAttributeID',
+        'hash',
     ];
 
     protected $casts = [

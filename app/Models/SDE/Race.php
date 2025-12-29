@@ -21,14 +21,15 @@ class Race extends Model
         'iconID',
         'shipTypeID',
         'skills',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'          => 'integer',
-        'name'          => 'array',
-        'description'   => 'array',
-        'skills'        => 'array',
-        'iconID'        => 'integer',
-        'shipTypeID'    => 'integer',
+        '_key' => 'integer',
+        'name' => 'array',
+        'description' => 'array',
+        'skills' => 'array',
+        'iconID' => 'integer',
+        'shipTypeID' => 'integer',
     ];
 }

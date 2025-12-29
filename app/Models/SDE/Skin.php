@@ -20,18 +20,20 @@ class Skin extends Model
         'skinMaterialID',
         'types',
         'allowCCPDevs',
+        'skinDescription',
         'visibleSerenity',
         'visibleTranquility',
         'isStructureSkin',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'              => 'integer',
-        'skinMaterialID'    => 'integer',
-        'types'             => 'array',
-        'allowCCPDevs'      => 'boolean',
-        'visibleSerenity'   => 'boolean',
+        '_key' => 'integer',
+        'skinMaterialID' => 'integer',
+        'types' => 'array',
+        'allowCCPDevs' => 'boolean',
+        'visibleSerenity' => 'boolean',
         'visibleTranquility' => 'boolean',
-        'isStructureSkin'   => 'boolean',
+        'isStructureSkin' => 'boolean',
     ];
 }

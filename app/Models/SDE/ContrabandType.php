@@ -10,13 +10,19 @@ class ContrabandType extends Model
     use HasFactory;
 
     protected $table = 'contraband_types';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'factions',
+        'hash',
     ];
 
     protected $casts = [

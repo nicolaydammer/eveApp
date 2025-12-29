@@ -3,7 +3,6 @@
 namespace App\Models\SDE;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class CharacterAttribute extends Model
 {
@@ -13,7 +12,7 @@ class CharacterAttribute extends Model
 
     public $incrementing = false;
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $fillable = [
         '_key',
@@ -22,14 +21,15 @@ class CharacterAttribute extends Model
         'name',
         'notes',
         'shortDescription',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'             => 'integer',
-        'description'      => 'array',
-        'iconID'           => 'integer',
-        'name'             => 'array',
-        'notes'            => 'string',
+        '_key' => 'integer',
+        'description' => 'array',
+        'iconID' => 'integer',
+        'name' => 'array',
+        'notes' => 'string',
         'shortDescription' => 'string',
     ];
 }

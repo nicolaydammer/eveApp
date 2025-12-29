@@ -7,16 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 class MapConstellation extends Model
 {
     protected $table = 'map_constellations';
-    protected $primaryKey = 'id';
+
+    protected $primaryKey = '_key';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    protected $guarded = [];
+
+    protected $fillable = [
+        '_key',
+        'factionID',
+        'name',
+        'position',
+        'regionID',
+        'solarSystemIDs',
+        'wormholeClassID',
+        'hash',
+    ];
 
     protected $casts = [
         'name' => 'array',
         'solarSystemIDs' => 'array',
-        'position_x' => 'double',
-        'position_y' => 'double',
-        'position_z' => 'double',
+        'position' => 'array',
     ];
 }

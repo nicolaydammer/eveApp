@@ -3,7 +3,6 @@
 namespace App\Models\SDE;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class DogmaAttributeCategory extends Model
 {
@@ -13,17 +12,18 @@ class DogmaAttributeCategory extends Model
 
     public $incrementing = false;
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $fillable = [
         '_key',
         'name',
         'description',
+        'hash',
     ];
 
     protected $casts = [
-        '_key'        => 'integer',
-        'name'        => 'string',
+        '_key' => 'integer',
+        'name' => 'string',
         'description' => 'string',
     ];
 }

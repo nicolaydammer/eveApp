@@ -20,6 +20,7 @@ class DynamicItemAttribute extends Model
         '_key',
         'attributeIDs',
         'inputOutputMapping',
+        'hash',
     ];
 
     protected $casts = [

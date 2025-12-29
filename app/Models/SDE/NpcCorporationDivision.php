@@ -10,23 +10,27 @@ class NpcCorporationDivision extends Model
     use HasFactory;
 
     protected $table = 'npc_corporation_divisions';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'internalName',
-
         'displayName',
         'name',
         'leaderTypeName',
         'description',
+        'hash',
     ];
 
     protected $casts = [
         '_key' => 'integer',
-
         'displayName' => 'array',
         'name' => 'array',
         'leaderTypeName' => 'array',

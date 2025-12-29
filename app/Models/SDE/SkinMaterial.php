@@ -10,14 +10,20 @@ class SkinMaterial extends Model
     use HasFactory;
 
     protected $table = 'skin_materials';
+
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
         '_key',
         'displayName',
         'materialSetID',
+        'hash',
     ];
 
     protected $casts = [

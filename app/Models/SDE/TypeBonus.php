@@ -7,10 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class TypeBonus extends Model
 {
     protected $table = 'type_bonuses';
+
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    protected $guarded = [];
+
+    protected $fillable = [
+        '_key',
+        'roleBonuses',
+        'types',
+        'iconID',
+        'miscBonuses',
+        'hash',
+    ];
 
     // Cast array columns
     protected $casts = [
