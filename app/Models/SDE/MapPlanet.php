@@ -23,7 +23,7 @@ class MapPlanet extends Model
         '_key',
         'solarSystemID',
         'uniqueName',
-        'orbit_id',
+        'orbitID',
         'celestialIndex',
         'typeID',
         'radius',

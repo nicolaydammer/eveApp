@@ -15,6 +15,8 @@ class StationOperation extends Model
 
     public $incrementing = false;
 
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [

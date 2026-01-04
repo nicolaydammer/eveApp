@@ -8,7 +8,7 @@ class MapAsteroidBelt extends Model
 {
     protected $table = 'map_asteroid_belts';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = '_key';
 
     public $incrementing = false;
 

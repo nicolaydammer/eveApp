@@ -8,7 +8,7 @@ class PlanetSchematic extends Model
 {
     protected $table = 'planet_schematics';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = '_key';
 
     public $incrementing = false;
 

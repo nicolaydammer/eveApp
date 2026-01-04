@@ -15,6 +15,8 @@ class Faction extends Model
 
     public $incrementing = false;
 
+    public $timestamps = false;
+
     protected $keyType = 'integer';
 
     protected $fillable = [
@@ -29,8 +31,6 @@ class Faction extends Model
         'iconID',
         'memberRaces',
         'sizeFactor',
-        'stationCount',
-        'stationSystemCount',
         'militiaCorporationID',
         'hash',
     ];

@@ -8,7 +8,7 @@ class NpcCorporation extends Model
 {
     protected $table = 'npc_corporations';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = '_key';
 
     public $incrementing = false;
 

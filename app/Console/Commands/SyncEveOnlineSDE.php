@@ -75,10 +75,12 @@ class SyncEveOnlineSDE extends Command
             $this->downloadNewSDEFiles($latestVersion);
         }
 
-        $this->importSDEdata($SDEFileNames);
+        $firstTime = is_null($currentVersion) ? true : false;
+
+        $this->importSDEdata($SDEFileNames, $firstTime);
     }
 
-    private function importSDEdata(array $SDEFileNames)
+    private function importSDEdata(array $SDEFileNames, bool $firstTime)
     {
         // count of files found
         $amountOfSDEFiles = count($SDEFileNames);
@@ -121,7 +123,6 @@ class SyncEveOnlineSDE extends Command
         $bar->start();
 
         $sdeFile = null;
-
         $success = false;
 
         try {
@@ -158,7 +159,7 @@ class SyncEveOnlineSDE extends Command
 
                     // create a batch of json to batchSize (adjust if needed for performance reasons)
                     if (count($batch) >= $batchSize) {
-                        ProcessSDEData::dispatch($SDEFileName, $batch);
+                        ProcessSDEData::dispatch($SDEFileName, $batch, $firstTime);
                         $jobs++;
                         $batch = [];
                     }
@@ -167,7 +168,7 @@ class SyncEveOnlineSDE extends Command
                 fclose($SDEFile);
 
                 if (! empty($batch)) {
-                    ProcessSDEData::dispatch($SDEFileName, $batch);
+                    ProcessSDEData::dispatch($SDEFileName, $batch, $firstTime);
                     $jobs++;
                     $batch = [];
                 }

@@ -8,7 +8,7 @@ class MapStar extends Model
 {
     protected $table = 'map_stars';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = '_key';
 
     public $incrementing = false;
 

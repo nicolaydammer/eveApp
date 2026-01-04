@@ -12,7 +12,7 @@ class FreelanceJobSchema extends Model
     protected $table = 'freelance_job_schemas';
 
     protected $fillable = [
-        'key',
+        '_key',
         '_value',
         'hash',
     ];
@@ -21,7 +21,7 @@ class FreelanceJobSchema extends Model
         '_value' => 'array',
     ];
 
-    protected $primaryKey = 'key';
+    protected $primaryKey = '_key';
 
     public $timestamps = false;
 

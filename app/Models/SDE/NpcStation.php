@@ -8,7 +8,7 @@ class NpcStation extends Model
 {
     protected $table = 'npc_stations';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = '_key';
 
     public $incrementing = false;
 
