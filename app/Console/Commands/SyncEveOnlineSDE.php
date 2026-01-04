@@ -191,6 +191,7 @@ class SyncEveOnlineSDE extends Command
 
             if ($success) {
                 $this->info('jobs started, check in a moment for updated data, check horizon for fails or other problems');
+                SDEVersion::updateOrInsert(['id' => 1], ['id' => 1, 'version' => $sdeArray[0]['buildNumber']]);
             }
         }
     }

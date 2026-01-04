@@ -99,7 +99,7 @@ class ProcessSDEData implements ShouldQueue
             if (! $this->firstTime) {
                 // throw out stuff if its not needed for an update
                 $dbData = DB::table($table)->select('hash')->where('_key', '=', $row['_key'])->get();
-                if ($dbData && $dbData->first()->hash == $row['hash']) {
+                if (count($dbData) == 1 && $dbData->first()->hash == $row['hash']) {
                     $unsetKeys[] = $row['_key'];
                 }
             }
