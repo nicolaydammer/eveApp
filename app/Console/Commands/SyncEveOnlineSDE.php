@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
+use function Laravel\Prompts\confirm;
+
 class SyncEveOnlineSDE extends Command
 {
     /**
@@ -42,7 +44,11 @@ class SyncEveOnlineSDE extends Command
     {
         $this->info('starting sync of eve online SDE');
         $this->warn('Do not interrupt this or you might leave the app in a broken state!');
-        $this->confirm('Did you migrate to the latest database version?');
+        $ranMigrations = confirm('Did you migrate to the latest database version?');
+
+        if (! $ranMigrations) {
+            return Command::SUCCESS;
+        }
 
         $SDEFileNames = $this->eveDisk->files();
 
@@ -52,11 +58,13 @@ class SyncEveOnlineSDE extends Command
         $currentVersion = SDEVersion::query()->find(1)?->version;
         $supportedVersion = SDEVersion::query()->find(2)->version;
 
+        $needsImportRun = false;
+
         // no files found to sync with, download them
         if (count($SDEFileNames) == 0) {
             $this->info('No SDE files detected, trying to download the zipfile and extract them.');
-
             $this->downloadNewSDEFiles($latestVersion);
+            $needsImportRun = true;
         }
 
         // new build and not supported?
@@ -73,11 +81,18 @@ class SyncEveOnlineSDE extends Command
 
             $this->info('Downloading new SDE version');
             $this->downloadNewSDEFiles($latestVersion);
+            $needsImportRun = true;
         }
 
         $firstTime = is_null($currentVersion) ? true : false;
 
-        $this->importSDEdata($SDEFileNames, $firstTime);
+        if (! $needsImportRun && ! $firstTime) {
+            $needsImportRun = confirm('Do you want to run the SDE import again?');
+        }
+
+        if ($needsImportRun || $firstTime) {
+            $this->importSDEdata($SDEFileNames, $firstTime);
+        }
     }
 
     private function importSDEdata(array $SDEFileNames, bool $firstTime)

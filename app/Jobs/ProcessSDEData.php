@@ -77,10 +77,19 @@ class ProcessSDEData implements ShouldQueue
     {
         // get model name
         $modelName = substr($this->modelName, 0, -6);
+
+        if (! isset($this->models[$modelName])) {
+            throw new \LogicException(
+                "Unsupported SDE file '{$this->modelName}'. ".
+                'This application is version-locked and requires a migration to support new SDE versions.'
+            );
+        }
+
         $modelName = $this->models[$modelName];
         $modelClass = "App\\Models\\SDE\\{$modelName}";
-        $table = new $modelClass()->getTable();
-        $fillables = new $modelClass()->getFillable();
+        $modelClassInstance = new $modelClass;
+        $table = $modelClassInstance->getTable();
+        $fillables = $modelClassInstance->getFillable();
         $unsetKeys = [];
 
         // make all keys populated
@@ -89,7 +98,7 @@ class ProcessSDEData implements ShouldQueue
             $allKeys = array_unique(array_merge($allKeys, array_keys($row)));
         }
 
-        foreach ($this->data as $dataKey => &$row) {
+        foreach ($this->data as &$row) {
             foreach ($allKeys as $key) {
                 if (! array_key_exists($key, $row)) {
                     $row[$key] = null;
