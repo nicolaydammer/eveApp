@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ProcessSDEData;
+use App\Models\SDE\SDEVersion;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -25,70 +26,60 @@ class SyncEveOnlineSDE extends Command
      */
     protected $description = 'Command description';
 
+    private $eveDisk;
+
+    public function __construct()
+    {
+        $this->eveDisk = Storage::disk('eveSDE');
+
+        return parent::__construct();
+    }
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
         $this->info('starting sync of eve online SDE');
-
-        $eveDisk = Storage::disk('eveSDE');
-
-        $SDEFileNames = $eveDisk->files();
-
-        $latestVersion = Http::get('https://developers.eveonline.com/static-data/tranquility/latest.jsonl');
-
+        $this->warn('Do not interrupt this or you might leave the app in a broken state!');
         $this->confirm('Did you migrate to the latest database version?');
 
-        // no files found to sync with
-        if (count($SDEFileNames) < 2) {
+        $SDEFileNames = $this->eveDisk->files();
+
+        $latestVersion = $this->getLatestSDEVersion();
+        // 1 = current installed version
+        // 2 = supported
+        $currentVersion = SDEVersion::query()->find(1)?->version;
+        $supportedVersion = SDEVersion::query()->find(2)->version;
+
+        // no files found to sync with, download them
+        if (count($SDEFileNames) == 0) {
             $this->info('No SDE files detected, trying to download the zipfile and extract them.');
 
-            $bar = $this->output->createProgressBar(2);
-            $bar->start();
-
-            $SDEFileName = 'eve-online-static-data-'.$latestVersion['buildNumber'].'-jsonl.zip';
-
-            $eveDisk->makeDirectory('zipFiles');
-
-            Http::timeout(600)
-                ->withOptions([
-                    'sink' => $eveDisk->path('/zipFiles/'.$SDEFileName),
-                ])
-                ->get('https://developers.eveonline.com/static-data/tranquility/'.$SDEFileName);
-
-            $bar->advance();
-
-            $zipService = new ZipArchive;
-
-            if ($zipService->open($eveDisk->path('zipFiles/'.$SDEFileName)) !== true) {
-                $this->error('Could not extract files from zip.');
-
-                return Command::FAILURE;
-            }
-
-            $zipService->extractTo($eveDisk->path(''));
-
-            $bar->advance();
-
-            $bar->finish();
-            $this->newLine();
+            $this->downloadNewSDEFiles($latestVersion);
         }
 
-        // todo: grab current installed version from database or from file?
         // new build and not supported?
-        // if ($latestVersion['buildNumber'] > 3110079) {
-        //     $this->error('There is a new build! ('.$latestVersion['buildNumber'].') But it is not supported by the application, notifiy the developer!');
-
-        //     return Command::FAILURE;
-        // }
+        if (($latestVersion > $currentVersion) && ($latestVersion > $supportedVersion)) {
+            $this->error('There is a new build! ('.$latestVersion.') But it is not supported by the application, notifiy the developer!');
+        }
 
         // new build and supported?
-        // todo: remove or stash away current files and download new ones
-        if ($latestVersion['buildNumber'] > 3110079) {
+        if (($latestVersion <= $supportedVersion) && ($latestVersion !== $currentVersion)) {
+            $this->info('Upgrading SDE files to new version '.$latestVersion);
+            $this->info('stashing the current SDEFiles in case for a rollback');
 
+            $this->stashCurrentSDEFiles();
+
+            $this->info('Downloading new SDE version');
+            $this->downloadNewSDEFiles($latestVersion);
         }
 
+        $this->importSDEdata($SDEFileNames);
+    }
+
+    private function importSDEdata(array $SDEFileNames)
+    {
         // count of files found
         $amountOfSDEFiles = count($SDEFileNames);
         $this->info('Amount of files found: '.$amountOfSDEFiles);
@@ -140,7 +131,7 @@ class SyncEveOnlineSDE extends Command
                     continue;
                 }
 
-                $path = Storage::disk('eveSDE')->path($SDEFileName);
+                $path = $this->eveDisk->path($SDEFileName);
 
                 // stream file
                 $SDEFile = fopen($path, 'r');
@@ -167,7 +158,6 @@ class SyncEveOnlineSDE extends Command
 
                     // create a batch of json to batchSize (adjust if needed for performance reasons)
                     if (count($batch) >= $batchSize) {
-                        // todo: create a job according to the file, assign the batch to it and put it in the jobs array
                         ProcessSDEData::dispatch($SDEFileName, $batch);
                         $jobs++;
                         $batch = [];
@@ -177,7 +167,6 @@ class SyncEveOnlineSDE extends Command
                 fclose($SDEFile);
 
                 if (! empty($batch)) {
-                    // todo: create a job according to the file, assign the batch to it and put it in the jobs array
                     ProcessSDEData::dispatch($SDEFileName, $batch);
                     $jobs++;
                     $batch = [];
@@ -203,5 +192,85 @@ class SyncEveOnlineSDE extends Command
                 $this->info('jobs started, check in a moment for updated data, check horizon for fails or other problems');
             }
         }
+    }
+
+    private function stashCurrentSDEFiles(): void
+    {
+        $path = $this->eveDisk->path('_sde.jsonl');
+
+        $SDEVersionFile = fopen($path, 'r');
+
+        $files = $this->eveDisk->files();
+
+        if (! $SDEVersionFile) {
+            throw new \Exception('Could not open _sde.jsonl');
+        }
+
+        $currentVersion = '';
+        while (! feof($SDEVersionFile)) {
+            $line = trim(fgets($SDEVersionFile));
+
+            if ($line == '') {
+                continue;
+            }
+
+            $currentVersion = json_decode($line, true)['buildNumber'];
+        }
+
+        fclose($SDEVersionFile);
+
+        $stashPath = 'oldSDE/'.$currentVersion;
+
+        if (! $this->eveDisk->directoryExists($stashPath)) {
+            $this->eveDisk->makeDirectory($stashPath);
+        }
+
+        foreach ($files as $file) {
+            if (str_ends_with($file, '.jsonl')) {
+                $this->eveDisk->move($file, $stashPath.'/'.$file);
+            }
+        }
+    }
+
+    private function downloadNewSDEFiles(int $latestVersion): void
+    {
+        $bar = $this->output->createProgressBar(2);
+        $bar->start();
+
+        $SDEFileName = 'eve-online-static-data-'.$latestVersion.'-jsonl.zip';
+
+        if (! $this->eveDisk->directoryExists('zipFiles')) {
+            $this->eveDisk->makeDirectory('zipFiles');
+        }
+
+        if (! $this->eveDisk->fileExists('zipFiles/'.$SDEFileName)) {
+            Http::timeout(600)
+                ->withOptions([
+                    'sink' => $this->eveDisk->path('/zipFiles/'.$SDEFileName),
+                ])
+                ->get('https://developers.eveonline.com/static-data/tranquility/'.$SDEFileName);
+        }
+
+        $bar->advance();
+
+        $zipService = new ZipArchive;
+
+        if ($zipService->open($this->eveDisk->path('zipFiles/'.$SDEFileName)) !== true) {
+            throw new Exception('Could not extract new SDE files from ZIP.');
+        }
+
+        $zipService->extractTo($this->eveDisk->path(''));
+
+        $bar->advance();
+
+        $bar->finish();
+        $this->newLine();
+    }
+
+    private function getLatestSDEVersion(): int
+    {
+        $getVersion = Http::get('https://developers.eveonline.com/static-data/tranquility/latest.jsonl');
+
+        return (int) $getVersion['buildNumber'];
     }
 }
