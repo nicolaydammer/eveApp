@@ -284,7 +284,7 @@ class SyncEveOnlineSDE extends Command
         $this->newLine();
     }
 
-    private function getLatestSDEVersion(): int
+    public static function getLatestSDEVersion(): int
     {
         $getVersion = Http::get('https://developers.eveonline.com/static-data/tranquility/latest.jsonl');
 
