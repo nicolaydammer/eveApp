@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Jobs\ProcessSDEData;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -45,72 +44,70 @@ class DiscoverMissingModelsInSDE extends Command
 
         $latestVersion = SyncEveOnlineSDE::getLatestSDEVersion();
 
-        try {
-            $this->info('downloading latest SDE to look for differences...');
+        $this->info('downloading latest SDE to look for differences...');
 
-            $SDEFileName = 'eve-online-static-data-'.$latestVersion.'-jsonl.zip';
+        $SDEFileName = 'eve-online-static-data-'.$latestVersion.'-jsonl.zip';
 
-            $tmpDir = storage_path('app/tmp/'.uniqid());
-            File::makeDirectory($tmpDir, 0755, true);
+        if (! $this->eveDisk->directoryExists('zipFiles')) {
+            $this->eveDisk->makeDirectory('zipFiles');
+        }
 
-            $zipPath = $tmpDir.'/'.$latestVersion;
-
+        if (! $this->eveDisk->fileExists('zipFiles/'.$SDEFileName)) {
             Http::timeout(600)
                 ->withOptions([
-                    'sink' => $zipPath,
+                    'sink' => $this->eveDisk->path('/zipFiles/'.$SDEFileName),
                 ])
                 ->get('https://developers.eveonline.com/static-data/tranquility/'.$SDEFileName);
+        } else {
+            $this->info('latest SDE already downloaded, using local file');
+        }
 
-            $zipService = new ZipArchive;
+        $zipService = new ZipArchive;
 
-            if ($zipService->open($zipPath) !== true) {
-                throw new Exception('Could not extract new SDE files from ZIP.');
+        if ($zipService->open($this->eveDisk->path('/zipFiles/'.$SDEFileName)) !== true) {
+            throw new Exception('Could not extract new SDE files from ZIP.');
+        }
+
+        $zipFileNames = [];
+
+        for ($i = 0; $i < $zipService->numFiles; $i++) {
+            $name = $zipService->getNameIndex($i);
+
+            if (! str_ends_with($name, '/')) {
+                $zipFileNames[] = basename($name);
+            }
+        }
+
+        $filesWithoutModel = [];
+
+        foreach ($zipFileNames as $newVersionFile) {
+            if (! in_array($newVersionFile, $SDEFileNames)) {
+                $filesWithoutModel[] = $newVersionFile;
+            }
+        }
+
+        $this->alert('Following files found that are not in the current version of the SDE:');
+        foreach ($filesWithoutModel as $filesWithoutModel) {
+            $this->info($filesWithoutModel);
+        }
+
+        $modelsNotImplementedInJob = [];
+
+        $keys = array_flip(ProcessSDEData::$models);
+
+        foreach ($zipFileNames as $newVersionFile) {
+            if ($newVersionFile == '_sde.jsonl') {
+                continue;
             }
 
-            $zipFileNames = [];
-
-            for ($i = 0; $i < $zipService->numFiles; $i++) {
-                $name = $zipService->getNameIndex($i);
-
-                if (! str_ends_with($name, '/')) {
-                    $zipFileNames[] = basename($name);
-                }
+            if (! in_array(substr($newVersionFile, 0, -6), $keys)) {
+                $modelsNotImplementedInJob[] = $newVersionFile;
             }
+        }
 
-            $filesWithoutModel = [];
-
-            foreach ($zipFileNames as $newVersionFile) {
-                if (! in_array($newVersionFile, $SDEFileNames)) {
-                    $filesWithoutModel[] = $newVersionFile;
-                }
-            }
-
-            $this->alert('Following files found that are not in the current version of the SDE:');
-            foreach ($filesWithoutModel as $filesWithoutModel) {
-                $this->info($filesWithoutModel);
-            }
-
-            $modelsNotImplementedInJob = [];
-
-            $keys = array_flip(ProcessSDEData::$models);
-
-            foreach ($zipFileNames as $newVersionFile) {
-                if ($newVersionFile == '_sde.jsonl') {
-                    continue;
-                }
-
-                if (! in_array(substr($newVersionFile, 0, -6), $keys)) {
-                    $modelsNotImplementedInJob[] = $newVersionFile;
-                }
-            }
-
-            $this->alert('Following files found that are not implemented in the job:');
-            foreach ($modelsNotImplementedInJob as $modelNotImplementedInJob) {
-                $this->info($modelNotImplementedInJob);
-            }
-
-        } finally {
-            File::deleteDirectory($tmpDir);
+        $this->alert('Following files found that are not implemented in the job:');
+        foreach ($modelsNotImplementedInJob as $modelNotImplementedInJob) {
+            $this->info($modelNotImplementedInJob);
         }
     }
 }

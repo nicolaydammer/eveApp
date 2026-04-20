@@ -266,6 +266,8 @@ class SyncEveOnlineSDE extends Command
                     'sink' => $this->eveDisk->path('/zipFiles/'.$SDEFileName),
                 ])
                 ->get('https://developers.eveonline.com/static-data/tranquility/'.$SDEFileName);
+        } else {
+            $this->info('latest SDE already downloaded, using local file');
         }
 
         $bar->advance();
