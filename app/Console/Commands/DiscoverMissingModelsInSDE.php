@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessSDEData;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -86,6 +87,26 @@ class DiscoverMissingModelsInSDE extends Command
             foreach ($filesWithoutModel as $filesWithoutModel) {
                 $this->info($filesWithoutModel);
             }
+
+            $modelsNotImplementedInJob = [];
+
+            $keys = array_flip(ProcessSDEData::$models);
+
+            foreach ($zipFileNames as $newVersionFile) {
+                if ($newVersionFile == '_sde.jsonl') {
+                    continue;
+                }
+
+                if (! in_array(substr($newVersionFile, 0, -6), $keys)) {
+                    $modelsNotImplementedInJob[] = $newVersionFile;
+                }
+            }
+
+            $this->alert('Following files found that are not implemented in the job:');
+            foreach ($modelsNotImplementedInJob as $modelNotImplementedInJob) {
+                $this->info($modelNotImplementedInJob);
+            }
+
         } finally {
             File::deleteDirectory($tmpDir);
         }

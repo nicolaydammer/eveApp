@@ -23,6 +23,7 @@ class Type extends Model
         '_key',
         'groupID',
         'metaGroupID',
+        'metaLevel',
         'factionID',
         'name',
         'description',

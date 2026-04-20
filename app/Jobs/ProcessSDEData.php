@@ -10,7 +10,7 @@ class ProcessSDEData implements ShouldQueue
 {
     use Queueable;
 
-    private $models = [
+    public static $models = [
         'agentTypes' => 'AgentType',
         'agentsInSpace' => 'AgentInSpace',
         'ancestries' => 'Ancestry',
@@ -63,6 +63,10 @@ class ProcessSDEData implements ShouldQueue
         'typeDogma' => 'TypeDogma',
         'typeMaterials' => 'TypeMaterial',
         'types' => 'Type',
+        'mercenaryTacticalOperations' => 'MercenaryTacticalOperation',
+        'mapSecondarySuns' => 'MapSecondarySun',
+        'cloneGrades' => 'CloneGrade',
+        'compressibleTypes' => 'CompressibleType',
     ];
 
     /**
@@ -78,14 +82,14 @@ class ProcessSDEData implements ShouldQueue
         // get model name
         $modelName = substr($this->modelName, 0, -6);
 
-        if (! isset($this->models[$modelName])) {
+        if (! isset($this::$models[$modelName])) {
             throw new \LogicException(
                 "Unsupported SDE file '{$this->modelName}'. ".
                 'This application is version-locked and requires a migration to support new SDE versions.'
             );
         }
 
-        $modelName = $this->models[$modelName];
+        $modelName = $this::$models[$modelName];
         $modelClass = "App\\Models\\SDE\\{$modelName}";
         $modelClassInstance = new $modelClass;
         $table = $modelClassInstance->getTable();
