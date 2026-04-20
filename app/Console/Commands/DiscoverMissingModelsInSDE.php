@@ -37,7 +37,9 @@ class DiscoverMissingModelsInSDE extends Command
 
     public function handle()
     {
-        if (count($SDEFileNames = $this->eveDisk->files()) < 1) {
+        $SDEFileNames = $this->eveDisk->files();
+
+        if (! in_array('_sde.jsonl', $SDEFileNames)) {
             $this->fail('No SDE files are present to compare with');
         }
 
