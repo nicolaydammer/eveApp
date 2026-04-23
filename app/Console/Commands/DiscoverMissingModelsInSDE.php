@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ProcessSDEData;
-use Exception;
+use App\Domain\SDE\Services\Actions\SDEDiscoverMissingModels;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
-use ZipArchive;
 
 class DiscoverMissingModelsInSDE extends Command
 {
@@ -25,89 +21,27 @@ class DiscoverMissingModelsInSDE extends Command
      */
     protected $description = 'Discover missing models compared to newest SDE version for developer purposes';
 
-    private $eveDisk;
+    private SDEDiscoverMissingModels $SDEDiscoverMissingModels;
 
-    public function __construct()
+    public function __construct(SDEDiscoverMissingModels $SDEDiscoverMissingModels)
     {
-        $this->eveDisk = Storage::disk('eveSDE');
+        $this->SDEDiscoverMissingModels = $SDEDiscoverMissingModels;
 
         return parent::__construct();
     }
 
     public function handle()
     {
-        $SDEFileNames = $this->eveDisk->files();
-
-        if (! in_array('_sde.jsonl', $SDEFileNames)) {
-            $this->fail('No SDE files are present to compare with');
-        }
-
-        $latestVersion = SyncEveOnlineSDE::getLatestSDEVersion();
-
-        $this->info('downloading latest SDE to look for differences...');
-
-        $SDEFileName = 'eve-online-static-data-'.$latestVersion.'-jsonl.zip';
-
-        if (! $this->eveDisk->directoryExists('zipFiles')) {
-            $this->eveDisk->makeDirectory('zipFiles');
-        }
-
-        if (! $this->eveDisk->fileExists('zipFiles/'.$SDEFileName)) {
-            Http::timeout(600)
-                ->withOptions([
-                    'sink' => $this->eveDisk->path('/zipFiles/'.$SDEFileName),
-                ])
-                ->get('https://developers.eveonline.com/static-data/tranquility/'.$SDEFileName);
-        } else {
-            $this->info('latest SDE already downloaded, using local file');
-        }
-
-        $zipService = new ZipArchive;
-
-        if ($zipService->open($this->eveDisk->path('/zipFiles/'.$SDEFileName)) !== true) {
-            throw new Exception('Could not extract new SDE files from ZIP.');
-        }
-
-        $zipFileNames = [];
-
-        for ($i = 0; $i < $zipService->numFiles; $i++) {
-            $name = $zipService->getNameIndex($i);
-
-            if (! str_ends_with($name, '/')) {
-                $zipFileNames[] = basename($name);
-            }
-        }
-
-        $filesWithoutModel = [];
-
-        foreach ($zipFileNames as $newVersionFile) {
-            if (! in_array($newVersionFile, $SDEFileNames)) {
-                $filesWithoutModel[] = $newVersionFile;
-            }
-        }
+        $missing = $this->SDEDiscoverMissingModels->discover();
 
         $this->alert('Following files found that are not in the current version of the SDE:');
-        foreach ($filesWithoutModel as $filesWithoutModel) {
-            $this->info($filesWithoutModel);
-        }
-
-        $modelsNotImplementedInJob = [];
-
-        $keys = array_flip(ProcessSDEData::$models);
-
-        foreach ($zipFileNames as $newVersionFile) {
-            if ($newVersionFile == '_sde.jsonl') {
-                continue;
-            }
-
-            if (! in_array(substr($newVersionFile, 0, -6), $keys)) {
-                $modelsNotImplementedInJob[] = $newVersionFile;
-            }
+        foreach ($missing['filesWithoutModel'] as $file) {
+            $this->line($file);
         }
 
         $this->alert('Following files found that are not implemented in the job:');
-        foreach ($modelsNotImplementedInJob as $modelNotImplementedInJob) {
-            $this->info($modelNotImplementedInJob);
+        foreach ($missing['modelsNotImplementedInMapping'] as $file) {
+            $this->line($file);
         }
     }
 }

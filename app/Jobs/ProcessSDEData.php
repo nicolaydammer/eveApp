@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Domain\SDE\Mapping\SDEModelResolver;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -10,86 +11,20 @@ class ProcessSDEData implements ShouldQueue
 {
     use Queueable;
 
-    public static $models = [
-        'agentTypes' => 'AgentType',
-        'agentsInSpace' => 'AgentInSpace',
-        'ancestries' => 'Ancestry',
-        'bloodlines' => 'Bloodline',
-        'blueprints' => 'Blueprint',
-        'categories' => 'Category',
-        'certificates' => 'Certificate',
-        'characterAttributes' => 'CharacterAttribute',
-        'contrabandTypes' => 'ContrabandType',
-        'controlTowerResources' => 'ControlTowerResource',
-        'corporationActivities' => 'CorporationActivity',
-        'dbuffCollections' => 'DbuffCollection',
-        'dogmaAttributeCategories' => 'DogmaAttributeCategory',
-        'dogmaAttributes' => 'DogmaAttribute',
-        'dogmaEffects' => 'DogmaEffect',
-        'dogmaUnits' => 'DogmaUnit',
-        'dynamicItemAttributes' => 'DynamicItemAttribute',
-        'factions' => 'Faction',
-        'freelanceJobSchemas' => 'FreelanceJobSchema',
-        'graphics' => 'Graphic',
-        'groups' => 'Group',
-        'icons' => 'Icon',
-        'landmarks' => 'Landmark',
-        'mapAsteroidBelts' => 'MapAsteroidBelt',
-        'mapConstellations' => 'MapConstellation',
-        'mapMoons' => 'MapMoon',
-        'mapPlanets' => 'MapPlanet',
-        'mapRegions' => 'MapRegion',
-        'mapSolarSystems' => 'MapSolarSystem',
-        'mapStargates' => 'MapStargate',
-        'mapStars' => 'MapStar',
-        'marketGroups' => 'MarketGroup',
-        'masteries' => 'Mastery',
-        'metaGroups' => 'MetaGroup',
-        'npcCharacters' => 'NpcCharacter',
-        'npcCorporationDivisions' => 'NpcCorporationDivision',
-        'npcCorporations' => 'NpcCorporation',
-        'npcStations' => 'NpcStation',
-        'planetResources' => 'PlanetResource',
-        'planetSchematics' => 'PlanetSchematic',
-        'races' => 'Race',
-        'skinLicenses' => 'SkinLicense',
-        'skinMaterials' => 'SkinMaterial',
-        'skins' => 'Skin',
-        'sovereigntyUpgrades' => 'SovereigntyUpgrade',
-        'stationOperations' => 'StationOperation',
-        'stationServices' => 'StationService',
-        'translationLanguages' => 'TranslationLanguage',
-        'typeBonus' => 'TypeBonus',
-        'typeDogma' => 'TypeDogma',
-        'typeMaterials' => 'TypeMaterial',
-        'types' => 'Type',
-        'mercenaryTacticalOperations' => 'MercenaryTacticalOperation',
-        'mapSecondarySuns' => 'MapSecondarySun',
-        'cloneGrades' => 'CloneGrade',
-        'compressibleTypes' => 'CompressibleType',
-    ];
-
     /**
      * Create a new job instance.
      */
-    public function __construct(private string $modelName, private array $data, private bool $firstTime = false) {}
+    public function __construct(private string $modelName, private array $data, private bool $firstTime) {}
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(SDEModelResolver $modelResolver): void
     {
         // get model name
         $modelName = substr($this->modelName, 0, -6);
+        $modelName = $modelResolver->resolveModelName($modelName);
 
-        if (! isset($this::$models[$modelName])) {
-            throw new \LogicException(
-                "Unsupported SDE file '{$this->modelName}'. ".
-                'This application is version-locked and requires a migration to support new SDE versions.'
-            );
-        }
-
-        $modelName = $this::$models[$modelName];
         $modelClass = "App\\Models\\SDE\\{$modelName}";
         $modelClassInstance = new $modelClass;
         $table = $modelClassInstance->getTable();
