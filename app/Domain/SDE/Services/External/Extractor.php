@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
-class SDEExtractor
+class Extractor
 {
     private $eveDisk;
 

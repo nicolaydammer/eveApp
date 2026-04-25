@@ -4,7 +4,7 @@ namespace App\Domain\SDE\Services\State;
 
 use Illuminate\Support\Facades\Storage;
 
-class SDEState
+class StateRepository
 {
     protected $eveDisk;
 

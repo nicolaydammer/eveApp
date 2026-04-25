@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Domain\SDE\Services\Actions\RunSDEImport;
-use App\Domain\SDE\Services\Actions\SDEUpdater;
+use App\Domain\SDE\Services\Actions\UpdateSDE;
 use Illuminate\Console\Command;
 
 use function Laravel\Prompts\confirm;
@@ -24,13 +24,13 @@ class SyncEveOnlineSDE extends Command
      */
     protected $description = 'Command description';
 
-    private SDEUpdater $SDEUpdater;
+    private UpdateSDE $updateSDE;
 
     private RunSDEImport $runSDEImport;
 
-    public function __construct(SDEUpdater $SDEUpdater, RunSDEImport $runSDEImport)
+    public function __construct(UpdateSDE $updateSDE, RunSDEImport $runSDEImport)
     {
-        $this->SDEUpdater = $SDEUpdater;
+        $this->updateSDE = $updateSDE;
         $this->runSDEImport = $runSDEImport;
 
         return parent::__construct();
@@ -49,7 +49,7 @@ class SyncEveOnlineSDE extends Command
             return Command::SUCCESS;
         }
 
-        $plan = $this->SDEUpdater->planSDEUpdate();
+        $plan = $this->updateSDE->planSDEUpdate();
 
         if ($plan->isFreshInstall) {
             $this->info('No SDE files detected');
@@ -63,7 +63,7 @@ class SyncEveOnlineSDE extends Command
             $this->info('stashing the current SDEFiles in case for a rollback');
             $bar = $this->output->createProgressBar(1);
             $bar->start();
-            $this->SDEUpdater->stashCurrentSDEFiles();
+            $this->updateSDE->stashCurrentSDEFiles();
             $bar->advance();
             $bar->finish();
             $this->newLine();
@@ -73,7 +73,7 @@ class SyncEveOnlineSDE extends Command
             $this->info('downloading new SDE files');
             $bar = $this->output->createProgressBar(1);
             $bar->start();
-            $this->SDEUpdater->downloadNewSDEFiles($plan->latestVersion);
+            $this->updateSDE->downloadNewSDEFiles($plan->latestVersion);
             $bar->advance();
             $bar->finish();
             $this->newLine();
@@ -83,7 +83,7 @@ class SyncEveOnlineSDE extends Command
             $this->info('extracting new SDE files');
             $bar = $this->output->createProgressBar(1);
             $bar->start();
-            $this->SDEUpdater->extractSDEFiles($plan->latestVersion);
+            $this->updateSDE->extractSDEFiles($plan->latestVersion);
             $bar->advance();
             $bar->finish();
             $this->newLine();
@@ -93,7 +93,7 @@ class SyncEveOnlineSDE extends Command
             $this->info('importing new SDE data into the database');
             $this->info('This might take some time depending on other running jobs and hardware.');
             $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
-            $this->SDEUpdater->updateCurrentVersion($plan->latestVersion);
+            $this->updateSDE->updateCurrentVersion($plan->latestVersion);
 
         }
 

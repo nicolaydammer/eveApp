@@ -5,7 +5,7 @@ namespace App\Domain\SDE\Services\External;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-class SDEDownloader
+class Downloader
 {
     private $eveDisk;
 

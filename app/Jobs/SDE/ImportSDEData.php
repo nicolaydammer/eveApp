@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\SDE;
 
 use App\Domain\SDE\Mapping\SDEModelResolver;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 
-class ProcessSDEData implements ShouldQueue
+class ImportSDEData implements ShouldQueue
 {
     use Queueable;
 

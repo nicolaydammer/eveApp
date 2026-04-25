@@ -3,28 +3,28 @@
 namespace App\Domain\SDE\Services\Actions;
 
 use App\Domain\SDE\Mapping\SDEModelResolver;
-use App\Domain\SDE\Services\External\SDEDownloader;
-use App\Domain\SDE\Services\External\SDEVersionService;
+use App\Domain\SDE\Services\External\Downloader;
+use App\Domain\SDE\Services\External\VersionFetcher;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
-class SDEDiscoverMissingModels
+class DiscoverMissingSDEModels
 {
     private $eveDisk;
 
     private SDEModelResolver $modelResolver;
 
-    private SDEVersionService $SDEVersionService;
+    private VersionFetcher $versionFetcher;
 
-    private SDEDownloader $SDEDownloader;
+    private Downloader $downloader;
 
-    public function __construct(SDEModelResolver $modelResolver, SDEVersionService $SDEVersionService, SDEDownloader $SDEDownloader)
+    public function __construct(SDEModelResolver $modelResolver, VersionFetcher $versionFetcher, Downloader $downloader)
     {
         $this->eveDisk = Storage::disk('eveSDE');
         $this->modelResolver = $modelResolver;
-        $this->SDEVersionService = $SDEVersionService;
-        $this->SDEDownloader = $SDEDownloader;
+        $this->versionFetcher = $versionFetcher;
+        $this->downloader = $downloader;
     }
 
     public function discover()
@@ -35,10 +35,10 @@ class SDEDiscoverMissingModels
             throw new \LogicException('No SDE files are present to compare with');
         }
 
-        $latestVersion = $this->SDEVersionService->getVersion();
+        $latestVersion = $this->versionFetcher->getVersion();
         $SDEZipFileName = 'eve-online-static-data-'.$latestVersion.'-jsonl.zip';
 
-        $this->SDEDownloader->download($latestVersion);
+        $this->downloader->download($latestVersion);
 
         $zipService = new ZipArchive;
 

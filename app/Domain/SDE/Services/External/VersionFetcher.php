@@ -5,7 +5,7 @@ namespace App\Domain\SDE\Services\External;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
-class SDEVersionService
+class VersionFetcher
 {
     public function __construct() {}
 

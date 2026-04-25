@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\SDE\Services\Actions\SDEDiscoverMissingModels;
+use App\Domain\SDE\Services\Actions\DiscoverMissingSDEModels;
 use Illuminate\Console\Command;
 
 class DiscoverMissingModelsInSDE extends Command
@@ -21,18 +21,18 @@ class DiscoverMissingModelsInSDE extends Command
      */
     protected $description = 'Discover missing models compared to newest SDE version for developer purposes';
 
-    private SDEDiscoverMissingModels $SDEDiscoverMissingModels;
+    private DiscoverMissingSDEModels $discoverMissingSDEModels;
 
-    public function __construct(SDEDiscoverMissingModels $SDEDiscoverMissingModels)
+    public function __construct(DiscoverMissingSDEModels $discoverMissingSDEModels)
     {
-        $this->SDEDiscoverMissingModels = $SDEDiscoverMissingModels;
+        $this->discoverMissingSDEModels = $discoverMissingSDEModels;
 
         return parent::__construct();
     }
 
     public function handle()
     {
-        $missing = $this->SDEDiscoverMissingModels->discover();
+        $missing = $this->discoverMissingSDEModels->discover();
 
         $this->alert('Following files found that are not in the current version of the SDE:');
         foreach ($missing['filesWithoutModel'] as $file) {

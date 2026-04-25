@@ -4,7 +4,7 @@ namespace App\Domain\SDE\Services\External;
 
 use Illuminate\Support\Facades\Storage;
 
-class SDEStashCurrentFiles
+class FileStasher
 {
     private $eveDisk;
 

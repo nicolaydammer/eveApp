@@ -2,7 +2,7 @@
 
 namespace App\Domain\SDE\Services\Actions;
 
-use App\Jobs\ProcessSDEData;
+use App\Jobs\SDE\ImportSDEData;
 use Illuminate\Support\Facades\Storage;
 
 class RunSDEImport
@@ -55,7 +55,7 @@ class RunSDEImport
 
                     // create a batch of json to batchSize (adjust if needed for performance reasons)
                     if (count($batch) >= $batchSize) {
-                        ProcessSDEData::dispatch($SDEFileName, $batch, $firstTime);
+                        ImportSDEData::dispatch($SDEFileName, $batch, $firstTime);
                         $jobs++;
                         $batch = [];
                     }
@@ -64,7 +64,7 @@ class RunSDEImport
                 fclose($SDEFile);
 
                 if (! empty($batch)) {
-                    ProcessSDEData::dispatch($SDEFileName, $batch, $firstTime);
+                    ImportSDEData::dispatch($SDEFileName, $batch, $firstTime);
                     $jobs++;
                     $batch = [];
                 }

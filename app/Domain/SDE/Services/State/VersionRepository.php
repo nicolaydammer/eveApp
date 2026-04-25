@@ -7,7 +7,7 @@ use App\Models\SDE\SDEVersion;
 // todo: get supported and current SDE version from DB and cache it for 2 hours.
 // todo: be able to set current version of SDE.
 
-class SDEVersionManager
+class VersionRepository
 {
     public function __construct() {}
 

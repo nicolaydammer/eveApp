@@ -3,49 +3,49 @@
 namespace App\Domain\SDE\Services\Actions;
 
 use App\Domain\SDE\DTO\SDEUpdatePlan;
-use App\Domain\SDE\Services\External\SDEDownloader;
-use App\Domain\SDE\Services\External\SDEExtractor;
-use App\Domain\SDE\Services\External\SDEStashCurrentFiles;
-use App\Domain\SDE\Services\External\SDEVersionService;
-use App\Domain\SDE\Services\State\SDEState;
-use App\Domain\SDE\Services\State\SDEVersionManager;
+use App\Domain\SDE\Services\External\Downloader;
+use App\Domain\SDE\Services\External\Extractor;
+use App\Domain\SDE\Services\External\FileStasher;
+use App\Domain\SDE\Services\External\VersionFetcher;
+use App\Domain\SDE\Services\State\StateRepository;
+use App\Domain\SDE\Services\State\VersionRepository;
 
 // todo: orchestrate the SDE sync process.
-class SDEUpdater
+class UpdateSDE
 {
-    private SDEState $SDEState;
+    private StateRepository $stateRepository;
 
-    private SDEVersionManager $SDEVersionManager;
+    private VersionFetcher $versionFetcher;
 
-    private SDEVersionService $SDEVersionService;
+    private VersionRepository $versionRepository;
 
-    private SDEDownloader $SDEDownloader;
+    private Downloader $downloader;
 
-    private SDEExtractor $SDEExtractor;
+    private Extractor $extractor;
 
-    private SDEStashCurrentFiles $SDEStashCurrentFiles;
+    private FileStasher $fileStasher;
 
     public function __construct(
-        SDEState $SDEState,
-        SDEVersionManager $SDEVersionManager,
-        SDEVersionService $SDEVersionService,
-        SDEDownloader $SDEDownloader,
-        SDEExtractor $SDEExtractor,
-        SDEStashCurrentFiles $SDEStashCurrentFiles,
+        StateRepository $stateRepository,
+        VersionFetcher $versionFetcher,
+        VersionRepository $versionRepository,
+        Downloader $downloader,
+        Extractor $extractor,
+        FileStasher $fileStasher,
     ) {
-        $this->SDEState = $SDEState;
-        $this->SDEVersionManager = $SDEVersionManager;
-        $this->SDEVersionService = $SDEVersionService;
-        $this->SDEDownloader = $SDEDownloader;
-        $this->SDEExtractor = $SDEExtractor;
-        $this->SDEStashCurrentFiles = $SDEStashCurrentFiles;
+        $this->stateRepository = $stateRepository;
+        $this->versionFetcher = $versionFetcher;
+        $this->versionRepository = $versionRepository;
+        $this->downloader = $downloader;
+        $this->extractor = $extractor;
+        $this->fileStasher = $fileStasher;
     }
 
     public function planSDEUpdate(): SDEUpdatePlan
     {
-        $latestVersion = $this->SDEVersionService->getVersion();
-        $currentVersion = $this->SDEVersionManager->getCurrentVersion();
-        $supportedVersion = $this->SDEVersionManager->getSupportedVersion();
+        $latestVersion = $this->versionFetcher->getVersion();
+        $currentVersion = $this->versionRepository->getCurrentVersion();
+        $supportedVersion = $this->versionRepository->getSupportedVersion();
 
         $needsImportRun = false;
         $firstTime = false;
@@ -56,7 +56,7 @@ class SDEUpdater
         $canReinstall = false;
 
         // no files found to sync with, download and import needs to be true
-        if (! $this->SDEState->hasSDEFiles()) {
+        if (! $this->stateRepository->hasSDEFiles()) {
             $firstTime = true;
             $needsDownload = true;
             $needsExtract = true;
@@ -96,21 +96,21 @@ class SDEUpdater
 
     public function stashCurrentSDEFiles(): void
     {
-        $this->SDEStashCurrentFiles->stash();
+        $this->fileStasher->stash();
     }
 
     public function downloadNewSDEFiles(string $version): void
     {
-        $this->SDEDownloader->download($version);
+        $this->downloader->download($version);
     }
 
     public function extractSDEFiles(string $version): void
     {
-        $this->SDEExtractor->extract($version);
+        $this->extractor->extract($version);
     }
 
     public function updateCurrentVersion(string $version): void
     {
-        $this->SDEVersionManager->setCurrentVersion($version);
+        $this->versionRepository->setCurrentVersion($version);
     }
 }
