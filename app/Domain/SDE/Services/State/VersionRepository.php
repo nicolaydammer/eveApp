@@ -11,12 +11,12 @@ class VersionRepository
 {
     public function __construct() {}
 
-    public function getCurrentVersion(): ?string
+    public function getCurrentVersion(): ?int
     {
         return SDEVersion::query()->find('current_version')?->version ?? null;
     }
 
-    public function setCurrentVersion(string $version): void
+    public function setCurrentVersion(int $version): void
     {
         SDEVersion::query()->updateOrCreate(
             ['id' => 'current_version'],
@@ -24,8 +24,16 @@ class VersionRepository
         );
     }
 
-    public function getSupportedVersion(): string
+    public function getSupportedVersion(): int
     {
         return SDEVersion::query()->find('supported_version')->version;
+    }
+
+    public function setSupportedVersion(int $version): void
+    {
+        SDEVersion::query()->updateOrCreate(
+            ['id' => 'supported_version'],
+            ['version' => $version]
+        );
     }
 }
