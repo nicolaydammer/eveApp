@@ -89,12 +89,12 @@ class SyncEveOnlineSDE extends Command
             $this->newLine();
         }
 
-        if ($plan->needsImport) {
+        if ($plan->needsImport && $plan->isSupported) {
             $this->info('importing new SDE data into the database');
             $this->info('This might take some time depending on other running jobs and hardware.');
-            $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
+            $countJobs = $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
+            $this->info('Started '.$countJobs.' jobs to import the SDE data');
             $this->updateSDE->updateCurrentVersion($plan->latestVersion);
-
         }
 
         $needsImportRun = false;
@@ -106,7 +106,8 @@ class SyncEveOnlineSDE extends Command
         if ($needsImportRun) {
             $this->info('importing new SDE data into the database');
             $this->info('This might take some time depending on other running jobs and hardware.');
-            $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
+            $countJobs = $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
+            $this->info('Started '.$countJobs.' jobs to import the SDE data');
         }
     }
 }

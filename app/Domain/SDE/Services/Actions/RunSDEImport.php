@@ -14,7 +14,7 @@ class RunSDEImport
         $this->eveDisk = Storage::disk('eveSDE');
     }
 
-    public function import(bool $firstTime, int $batchSize): void
+    public function import(bool $firstTime, int $batchSize): int
     {
         $batch = [];
         $jobs = 0;
@@ -74,5 +74,7 @@ class RunSDEImport
                 fclose($SDEFile);
             }
         }
+
+        return $jobs;
     }
 }
