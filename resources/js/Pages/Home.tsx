@@ -137,7 +137,7 @@ const AdvancedIndustryCalculator = () => {
                             <span className="text-xs font-bold uppercase tracking-tight">Technical Demo</span>
                         </div>
                         <p className="text-[11px] text-blue-200/70 leading-relaxed italic">
-                            This showcase highlights the <strong>Recursive Cut-off Logic</strong>. The actual application uses a Laravel backend to allow for persistent blueprint ME/TE configurations.
+                            This showcase highlights the <strong>Recursive Cut-off Logic</strong>. The actual application is more advanced and has a more sophisticated user interface.
                         </p>
                     </div>
                 </div>

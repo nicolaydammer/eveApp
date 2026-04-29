@@ -11,3 +11,4 @@ Route::get('/auth/redirectToEveSSO', [AuthController::class, 'redirectToEveSSO']
 Route::get('/auth/callback', [AuthController::class, 'handleEveCallback'])->name('auth.handleEveCallback');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
