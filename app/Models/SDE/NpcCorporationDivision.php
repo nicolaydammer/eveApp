@@ -9,7 +9,7 @@ class NpcCorporationDivision extends Model
 {
     use HasFactory;
 
-    protected $table = 'npc_corporation_divisions';
+    protected $table = 'sde.npc_corporation_divisions';
 
     protected $primaryKey = '_key';
 

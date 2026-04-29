@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AgentInSpace extends Model
 {
-    protected $table = 'agents_in_space';
+    protected $table = 'sde.agents_in_space';
 
     protected $primaryKey = '_key';
 

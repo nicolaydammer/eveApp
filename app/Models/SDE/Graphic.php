@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Graphic extends Model
 {
-    protected $table = 'graphics';
+    protected $table = 'sde.graphics';
 
     protected $primaryKey = '_key';
 

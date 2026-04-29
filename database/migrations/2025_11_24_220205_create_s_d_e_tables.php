@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('agents_in_space', function (Blueprint $table) {
+        Schema::create('sde.agents_in_space', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('dungeonID');
             $table->unsignedBigInteger('solarSystemID');
@@ -20,20 +21,20 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('agent_types', function (Blueprint $table) {
+        Schema::create('sde.agent_types', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->string('name');
             $table->string('hash');
         });
 
-        Schema::create('dynamic_item_attributes', function (Blueprint $table) {
+        Schema::create('sde.dynamic_item_attributes', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->json('attributeIDs');
             $table->json('inputOutputMapping');
             $table->string('hash');
         });
 
-        Schema::create('graphics', function (Blueprint $table) {
+        Schema::create('sde.graphics', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->string('graphicFile', 255)->nullable();
             $table->string('iconFolder', 255)->nullable();
@@ -45,7 +46,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_moons', function (Blueprint $table) {
+        Schema::create('sde.map_moons', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedInteger('solarSystemID')->index();
             $table->unsignedBigInteger('orbitID')->index();
@@ -61,7 +62,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_solar_systems', function (Blueprint $table) {
+        Schema::create('sde.map_solar_systems', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->boolean('border')->nullable();
             $table->unsignedInteger('constellationID')->index();
@@ -89,7 +90,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('npc_characters', function (Blueprint $table) {
+        Schema::create('sde.npc_characters', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('bloodlineID');
             $table->boolean('ceo');
@@ -110,7 +111,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('planet_resources', function (Blueprint $table) {
+        Schema::create('sde.planet_resources', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->integer('power')->nullable();
             $table->integer('workforce')->nullable();
@@ -118,7 +119,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('races', function (Blueprint $table) {
+        Schema::create('sde.races', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('name');
             $table->jsonb('description')->nullable();
@@ -128,7 +129,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('skins', function (Blueprint $table) {
+        Schema::create('sde.skins', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->string('internalName');
             $table->unsignedBigInteger('skinMaterialID')->index();
@@ -141,7 +142,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('bloodlines', function (Blueprint $table) {
+        Schema::create('sde.bloodlines', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('name');
             $table->jsonb('description');
@@ -156,7 +157,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('blueprints', function (Blueprint $table) {
+        Schema::create('sde.blueprints', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('activities');
             $table->unsignedBigInteger('blueprintTypeID')->index();
@@ -164,7 +165,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('sde.categories', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('name');
             $table->unsignedBigInteger('iconID')->nullable();
@@ -172,7 +173,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('certificates', function (Blueprint $table) {
+        Schema::create('sde.certificates', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->jsonb('description');
             $table->unsignedBigInteger('groupID')->index();
@@ -182,7 +183,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('character_attributes', function (Blueprint $table) {
+        Schema::create('sde.character_attributes', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->text('description');
             $table->unsignedBigInteger('iconID')->nullable();
@@ -192,14 +193,14 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('dogma_attribute_categories', function (Blueprint $table) {
+        Schema::create('sde.dogma_attribute_categories', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->string('name', 50);
             $table->text('description')->nullable();
             $table->string('hash');
         });
 
-        Schema::create('dogma_units', function (Blueprint $table) {
+        Schema::create('sde.dogma_units', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('description')->nullable();
             $table->jsonb('displayName')->nullable();
@@ -207,19 +208,19 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('freelance_job_schemas', function (Blueprint $table) {
+        Schema::create('sde.freelance_job_schemas', function (Blueprint $table) {
             $table->string('_key')->primary();
             $table->jsonb('_value')->nullable();
             $table->string('hash');
         });
 
-        Schema::create('icons', function (Blueprint $table) {
+        Schema::create('sde.icons', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->string('iconFile');
             $table->string('hash');
         });
 
-        Schema::create('map_planets', function (Blueprint $table) {
+        Schema::create('sde.map_planets', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('uniqueName')->nullable();
             $table->integer('solarSystemID')->index();
@@ -236,7 +237,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_regions', function (Blueprint $table) {
+        Schema::create('sde.map_regions', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->json('constellationIDs');
             $table->json('description')->nullable();
@@ -248,7 +249,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('market_groups', function (Blueprint $table) {
+        Schema::create('sde.market_groups', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->json('description')->nullable();
             $table->json('name');
@@ -258,13 +259,13 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('masteries', function (Blueprint $table) {
+        Schema::create('sde.masteries', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->json('_value');
             $table->string('hash');
         });
 
-        Schema::create('types', function (Blueprint $table) {
+        Schema::create('sde.types', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('groupID')->nullable();
             $table->unsignedBigInteger('metaGroupID')->nullable();
@@ -287,7 +288,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('meta_groups', function (Blueprint $table) {
+        Schema::create('sde.meta_groups', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->json('name');
             $table->json('description')->nullable();
@@ -297,7 +298,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('npc_corporation_divisions', function (Blueprint $table) {
+        Schema::create('sde.npc_corporation_divisions', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->string('internalName');
             $table->string('displayName')->nullable();
@@ -307,14 +308,14 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('skin_materials', function (Blueprint $table) {
+        Schema::create('sde.skin_materials', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('displayName')->nullable();
             $table->unsignedInteger('materialSetID');
             $table->string('hash');
         });
 
-        Schema::create('station_operations', function (Blueprint $table) {
+        Schema::create('sde.station_operations', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('activityID');
             $table->json('operationName');
@@ -331,14 +332,14 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('type_materials', function (Blueprint $table) {
+        Schema::create('sde.type_materials', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->jsonb('randomizedMaterials')->nullable();
             $table->json('materials')->nullable();
             $table->string('hash');
         });
 
-        Schema::create('ancestries', function (Blueprint $table) {
+        Schema::create('sde.ancestries', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('bloodlineID');
             $table->unsignedTinyInteger('charisma');
@@ -353,25 +354,25 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('contraband_types', function (Blueprint $table) {
+        Schema::create('sde.contraband_types', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('factions');
             $table->string('hash');
         });
 
-        Schema::create('control_tower_resources', function (Blueprint $table) {
+        Schema::create('sde.control_tower_resources', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('resources');
             $table->string('hash');
         });
 
-        Schema::create('corporation_activities', function (Blueprint $table) {
+        Schema::create('sde.corporation_activities', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->json('name');
             $table->string('hash');
         });
 
-        Schema::create('dbuff_collections', function (Blueprint $table) {
+        Schema::create('sde.dbuff_collections', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->string('aggregateMode', 50);
             $table->string('developerDescription', 255)->nullable();
@@ -385,7 +386,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('dogma_attributes', function (Blueprint $table) {
+        Schema::create('sde.dogma_attributes', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->unsignedBigInteger('attributeCategoryID')->nullable();
             $table->unsignedTinyInteger('dataType');
@@ -407,7 +408,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('dogma_effects', function (Blueprint $table) {
+        Schema::create('sde.dogma_effects', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('description')->nullable();
             $table->unsignedBigInteger('iconID')->nullable();
@@ -437,7 +438,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('factions', function (Blueprint $table) {
+        Schema::create('sde.factions', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->unsignedInteger('corporationID')->nullable();
             $table->json('description')->nullable();
@@ -454,7 +455,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('sde.groups', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->boolean('anchorable');
             $table->boolean('anchored');
@@ -467,7 +468,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('landmarks', function (Blueprint $table) {
+        Schema::create('sde.landmarks', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->unsignedBigInteger('iconID')->nullable();
             $table->json('description');
@@ -477,7 +478,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_asteroid_belts', function (Blueprint $table) {
+        Schema::create('sde.map_asteroid_belts', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('celestialIndex');
             $table->unsignedBigInteger('orbitID');
@@ -491,7 +492,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_constellations', function (Blueprint $table) {
+        Schema::create('sde.map_constellations', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedInteger('factionID')->nullable();
             $table->json('name');
@@ -502,7 +503,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_stargates', function (Blueprint $table) {
+        Schema::create('sde.map_stargates', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedInteger('destinationSolarSystemID')->nullable();
             $table->unsignedBigInteger('destinationStargateID')->nullable();
@@ -513,7 +514,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('map_stars', function (Blueprint $table) {
+        Schema::create('sde.map_stars', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->double('radius');
             $table->unsignedInteger('solarSystemID');
@@ -522,7 +523,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('npc_corporations', function (Blueprint $table) {
+        Schema::create('sde.npc_corporations', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->unsignedInteger('ceoID')->nullable();
             $table->unsignedBigInteger('enemyID')->nullable();
@@ -560,7 +561,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('npc_stations', function (Blueprint $table) {
+        Schema::create('sde.npc_stations', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('celestialIndex')->nullable();
             $table->unsignedBigInteger('operationID');
@@ -577,7 +578,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('planet_schematics', function (Blueprint $table) {
+        Schema::create('sde.planet_schematics', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->unsignedBigInteger('cycleTime');
             $table->json('name');
@@ -586,7 +587,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('skin_licenses', function (Blueprint $table) {
+        Schema::create('sde.skin_licenses', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->integer('duration');
             $table->unsignedInteger('licenseTypeID');
@@ -595,7 +596,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('sovereignty_upgrades', function (Blueprint $table) {
+        Schema::create('sde.sovereignty_upgrades', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('fuel')->nullable();
             $table->string('mutually_exclusive_group');
@@ -606,20 +607,20 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('station_services', function (Blueprint $table) {
+        Schema::create('sde.station_services', function (Blueprint $table) {
             $table->unsignedTinyInteger('_key')->primary();
             $table->json('serviceName');
             $table->json('description')->nullable();
             $table->string('hash');
         });
 
-        Schema::create('translation_languages', function (Blueprint $table) {
+        Schema::create('sde.translation_languages', function (Blueprint $table) {
             $table->string('_key', 5)->primary();
             $table->string('name');
             $table->string('hash');
         });
 
-        Schema::create('type_bonuses', function (Blueprint $table) {
+        Schema::create('sde.type_bonuses', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('roleBonuses')->nullable();
             $table->json('types')->nullable();
@@ -628,12 +629,76 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        Schema::create('type_dogmas', function (Blueprint $table) {
+        Schema::create('sde.type_dogmas', function (Blueprint $table) {
             $table->unsignedInteger('_key')->primary();
             $table->json('dogmaAttributes');
             $table->json('dogmaEffects')->nullable();
             $table->string('hash');
         });
+
+        Schema::create('sde.clone_grades', function (Blueprint $table) {
+            $table->unsignedInteger('_key')->primary();
+
+            $table->string('name');
+
+            // Hash column (e.g. sha256)
+            $table->string('hash')->index();
+
+            $table->jsonb('skills');
+        });
+
+        Schema::create('sde.mercenary_tactical_operations', function (Blueprint $table) {
+            $table->unsignedInteger('_key')->primary();
+
+            $table->integer('anarchy_impact');
+            $table->integer('development_impact');
+            $table->integer('infomorph_bonus');
+
+            // Multilingual fields → JSONB
+            $table->jsonb('description');
+            $table->jsonb('name');
+
+            // Hash for change detection
+            $table->string('hash')->index();
+        });
+
+        Schema::create('sde.map_secondary_suns', function (Blueprint $table) {
+            $table->unsignedBigInteger('_key')->primary();
+
+            $table->unsignedInteger('effectBeaconTypeID');
+            $table->unsignedInteger('solarSystemID');
+            $table->unsignedInteger('typeID');
+
+            // Nested object → JSONB
+            $table->jsonb('position');
+
+            // Hash for change detection
+            $table->string('hash')->index();
+        });
+
+        Schema::create('sde.compressible_types', function (Blueprint $table) {
+            $table->unsignedInteger('_key')->primary();
+
+            $table->unsignedInteger('compressedTypeID');
+
+            // Hash for change detection
+            $table->string('hash')->index();
+        });
+
+        Schema::table('sde.types', function (Blueprint $table) {
+            $table->integer('metaLevel')->nullable();
+        });
+
+        Schema::create('sde.sde_version', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->integer('version')->nullable();
+            $table->timestamps();
+        });
+
+        DB::table(('sde.sde_version'))->insert([
+            ['id' => 'current_version', 'version' => null],
+            ['id' => 'supported_version', 'version' => 3316380],
+        ]);
     }
 
     /**
@@ -641,56 +706,61 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('agents_in_space');
-        Schema::dropIfExists('agent_types');
-        Schema::dropIfExists('dynamic_item_attributes');
-        Schema::dropIfExists('graphics');
-        Schema::dropIfExists('map_moons');
-        Schema::dropIfExists('map_solar_systems');
-        Schema::dropIfExists('npc_characters');
-        Schema::dropIfExists('planet_resources');
-        Schema::dropIfExists('races');
-        Schema::dropIfExists('skins');
-        Schema::dropIfExists('bloodlines');
-        Schema::dropIfExists('blueprints');
-        Schema::dropIfExists('categories');
-        Schema::dropIfExists('certificates');
-        Schema::dropIfExists('dogma_attribute_categories');
-        Schema::dropIfExists('dogma_units');
-        Schema::dropIfExists('freelance_job_schemas');
-        Schema::dropIfExists('icons');
-        Schema::dropIfExists('map_planets');
-        Schema::dropIfExists('map_regions');
-        Schema::dropIfExists('market_groups');
-        Schema::dropIfExists('masteries');
-        Schema::dropIfExists('types');
-        Schema::dropIfExists('type_materials');
-        Schema::dropIfExists('station_operations');
-        Schema::dropIfExists('skin_materials');
-        Schema::dropIfExists('npc_corporation_divisions');
-        Schema::dropIfExists('meta_groups');
-        Schema::dropIfExists('landmarks');
-        Schema::dropIfExists('groups');
-        Schema::dropIfExists('factions');
-        Schema::dropIfExists('dogma_effects');
-        Schema::dropIfExists('dogma_attributes');
-        Schema::dropIfExists('dbuff_collections');
-        Schema::dropIfExists('corporation_activities');
-        Schema::dropIfExists('control_tower_resources');
-        Schema::dropIfExists('contraband_types');
-        Schema::dropIfExists('ancestries');
-        Schema::dropIfExists('station_services');
-        Schema::dropIfExists('sovereignty_upgrades');
-        Schema::dropIfExists('skin_licenses');
-        Schema::dropIfExists('planet_schematics');
-        Schema::dropIfExists('npc_stations');
-        Schema::dropIfExists('npc_corporations');
-        Schema::dropIfExists('map_stars');
-        Schema::dropIfExists('map_stargates');
-        Schema::dropIfExists('map_constellations');
-        Schema::dropIfExists('map_asteroid_belts');
-        Schema::dropIfExists('type_dogmas');
-        Schema::dropIfExists('type_bonuses');
-        Schema::dropIfExists('translation_languages');
+        Schema::dropIfExists('sde.agents_in_space');
+        Schema::dropIfExists('sde.agent_types');
+        Schema::dropIfExists('sde.dynamic_item_attributes');
+        Schema::dropIfExists('sde.graphics');
+        Schema::dropIfExists('sde.map_moons');
+        Schema::dropIfExists('sde.map_solar_systems');
+        Schema::dropIfExists('sde.npc_characters');
+        Schema::dropIfExists('sde.planet_resources');
+        Schema::dropIfExists('sde.races');
+        Schema::dropIfExists('sde.skins');
+        Schema::dropIfExists('sde.bloodlines');
+        Schema::dropIfExists('sde.blueprints');
+        Schema::dropIfExists('sde.categories');
+        Schema::dropIfExists('sde.certificates');
+        Schema::dropIfExists('sde.dogma_attribute_categories');
+        Schema::dropIfExists('sde.dogma_units');
+        Schema::dropIfExists('sde.freelance_job_schemas');
+        Schema::dropIfExists('sde.icons');
+        Schema::dropIfExists('sde.map_planets');
+        Schema::dropIfExists('sde.map_regions');
+        Schema::dropIfExists('sde.market_groups');
+        Schema::dropIfExists('sde.masteries');
+        Schema::dropIfExists('sde.types');
+        Schema::dropIfExists('sde.type_materials');
+        Schema::dropIfExists('sde.station_operations');
+        Schema::dropIfExists('sde.skin_materials');
+        Schema::dropIfExists('sde.npc_corporation_divisions');
+        Schema::dropIfExists('sde.meta_groups');
+        Schema::dropIfExists('sde.landmarks');
+        Schema::dropIfExists('sde.groups');
+        Schema::dropIfExists('sde.factions');
+        Schema::dropIfExists('sde.dogma_effects');
+        Schema::dropIfExists('sde.dogma_attributes');
+        Schema::dropIfExists('sde.dbuff_collections');
+        Schema::dropIfExists('sde.corporation_activities');
+        Schema::dropIfExists('sde.control_tower_resources');
+        Schema::dropIfExists('sde.contraband_types');
+        Schema::dropIfExists('sde.ancestries');
+        Schema::dropIfExists('sde.station_services');
+        Schema::dropIfExists('sde.sovereignty_upgrades');
+        Schema::dropIfExists('sde.skin_licenses');
+        Schema::dropIfExists('sde.planet_schematics');
+        Schema::dropIfExists('sde.npc_stations');
+        Schema::dropIfExists('sde.npc_corporations');
+        Schema::dropIfExists('sde.map_stars');
+        Schema::dropIfExists('sde.map_stargates');
+        Schema::dropIfExists('sde.map_constellations');
+        Schema::dropIfExists('sde.map_asteroid_belts');
+        Schema::dropIfExists('sde.type_dogmas');
+        Schema::dropIfExists('sde.type_bonuses');
+        Schema::dropIfExists('sde.translation_languages');
+        Schema::dropIfExists('sde.clone_grades');
+        Schema::dropIfExists('sde.mercenary_tactical_operations');
+        Schema::dropIfExists('sde.map_secondary_suns');
+        Schema::dropIfExists('sde.compressible_types');
+        Schema::dropIfExists('sde.sde_version');
     }
 };

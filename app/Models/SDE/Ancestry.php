@@ -9,7 +9,7 @@ class Ancestry extends Model
 {
     use HasFactory;
 
-    protected $table = 'ancestries';
+    protected $table = 'sde.ancestries';
 
     protected $primaryKey = '_key';
 

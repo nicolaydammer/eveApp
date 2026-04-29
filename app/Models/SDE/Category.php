@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Category extends Model
 {
-    protected $table = 'categories';
+    protected $table = 'sde.categories';
 
     // The primary key is '_key'
     protected $primaryKey = '_key';

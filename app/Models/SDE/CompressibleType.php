@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompressibleType extends Model
 {
-    protected $table = 'compressible_types';
+    protected $table = 'sde.compressible_types';
 
     protected $primaryKey = '_key';
 

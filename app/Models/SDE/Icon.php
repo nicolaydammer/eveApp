@@ -9,7 +9,7 @@ class Icon extends Model
 {
     use HasFactory;
 
-    protected $table = 'icons';
+    protected $table = 'sde.icons';
 
     protected $fillable = [
         '_key',

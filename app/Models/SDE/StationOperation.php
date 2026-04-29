@@ -9,7 +9,7 @@ class StationOperation extends Model
 {
     use HasFactory;
 
-    protected $table = 'station_operations';
+    protected $table = 'sde.station_operations';
 
     protected $primaryKey = '_key';
 

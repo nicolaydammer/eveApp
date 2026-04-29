@@ -9,7 +9,7 @@ class SkinMaterial extends Model
 {
     use HasFactory;
 
-    protected $table = 'skin_materials';
+    protected $table = 'sde.skin_materials';
 
     protected $primaryKey = '_key';
 

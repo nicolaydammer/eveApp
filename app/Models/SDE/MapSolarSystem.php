@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MapSolarSystem extends Model
 {
-    protected $table = 'map_solar_systems';
+    protected $table = 'sde.map_solar_systems';
 
     protected $primaryKey = '_key';
 

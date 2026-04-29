@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TranslationLanguage extends Model
 {
-    protected $table = 'translation_languages';
+    protected $table = 'sde.translation_languages';
 
     protected $primaryKey = 'id';
 

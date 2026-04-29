@@ -9,7 +9,7 @@ class ControlTowerResource extends Model
 {
     use HasFactory;
 
-    protected $table = 'control_tower_resources';
+    protected $table = 'sde.control_tower_resources';
 
     protected $primaryKey = '_key';
 

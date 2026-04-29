@@ -9,7 +9,7 @@ class Landmark extends Model
 {
     use HasFactory;
 
-    protected $table = 'landmarks';
+    protected $table = 'sde.landmarks';
 
     protected $primaryKey = '_key';
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CharacterAttribute extends Model
 {
-    protected $table = 'character_attributes';
+    protected $table = 'sde.character_attributes';
 
     protected $primaryKey = '_key';
 

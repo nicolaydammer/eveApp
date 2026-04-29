@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Race extends Model
 {
-    protected $table = 'races';
+    protected $table = 'sde.races';
 
     protected $primaryKey = '_key';
 

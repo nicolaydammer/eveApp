@@ -9,7 +9,7 @@ class Faction extends Model
 {
     use HasFactory;
 
-    protected $table = 'factions';
+    protected $table = 'sde.factions';
 
     protected $primaryKey = '_key';
 

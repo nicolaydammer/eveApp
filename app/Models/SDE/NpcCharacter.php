@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class NpcCharacter extends Model
 {
-    protected $table = 'npc_characters';
+    protected $table = 'sde.npc_characters';
 
     protected $primaryKey = '_key';
 

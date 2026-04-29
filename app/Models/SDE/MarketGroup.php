@@ -9,7 +9,7 @@ class MarketGroup extends Model
 {
     use HasFactory;
 
-    protected $table = 'market_groups';
+    protected $table = 'sde.market_groups';
 
     protected $primaryKey = '_key';
 

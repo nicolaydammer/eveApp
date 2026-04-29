@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DogmaAttributeCategory extends Model
 {
-    protected $table = 'dogma_attribute_categories';
+    protected $table = 'sde.dogma_attribute_categories';
 
     protected $primaryKey = '_key';
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class NpcCorporation extends Model
 {
-    protected $table = 'npc_corporations';
+    protected $table = 'sde.npc_corporations';
 
     protected $primaryKey = '_key';
 

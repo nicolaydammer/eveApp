@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PlanetResource extends Model
 {
-    protected $table = 'planet_resources';
+    protected $table = 'sde.planet_resources';
 
     protected $primaryKey = '_key';
 

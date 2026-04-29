@@ -9,7 +9,7 @@ class DogmaEffect extends Model
 {
     use HasFactory;
 
-    protected $table = 'dogma_effects';
+    protected $table = 'sde.dogma_effects';
 
     protected $primaryKey = '_key';
 

@@ -9,7 +9,7 @@ class CorporationActivity extends Model
 {
     use HasFactory;
 
-    protected $table = 'corporation_activities';
+    protected $table = 'sde.corporation_activities';
 
     protected $primaryKey = '_key';
 

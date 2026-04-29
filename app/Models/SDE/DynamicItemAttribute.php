@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DynamicItemAttribute extends Model
 {
-    protected $table = 'dynamic_item_attributes';
+    protected $table = 'sde.dynamic_item_attributes';
 
     protected $primaryKey = '_key';
 

@@ -9,7 +9,7 @@ class MetaGroup extends Model
 {
     use HasFactory;
 
-    protected $table = 'meta_groups';
+    protected $table = 'sde.meta_groups';
 
     protected $primaryKey = '_key';
 

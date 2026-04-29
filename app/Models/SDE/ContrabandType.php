@@ -9,7 +9,7 @@ class ContrabandType extends Model
 {
     use HasFactory;
 
-    protected $table = 'contraband_types';
+    protected $table = 'sde.contraband_types';
 
     protected $primaryKey = '_key';
 

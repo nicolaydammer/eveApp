@@ -9,7 +9,7 @@ class DogmaAttribute extends Model
 {
     use HasFactory;
 
-    protected $table = 'dogma_attributes';
+    protected $table = 'sde.dogma_attributes';
 
     protected $primaryKey = '_key';
 

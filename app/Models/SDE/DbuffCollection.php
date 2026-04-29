@@ -9,7 +9,7 @@ class DbuffCollection extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbuff_collections';
+    protected $table = 'sde.dbuff_collections';
 
     protected $primaryKey = '_key';
 

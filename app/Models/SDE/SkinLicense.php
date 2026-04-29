@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SkinLicense extends Model
 {
-    protected $table = 'skin_licenses';
+    protected $table = 'sde.skin_licenses';
 
     protected $primaryKey = 'id';
 

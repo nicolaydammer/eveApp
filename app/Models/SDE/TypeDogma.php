@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TypeDogma extends Model
 {
-    protected $table = 'type_dogmas';
+    protected $table = 'sde.type_dogmas';
 
     protected $primaryKey = 'id';
 

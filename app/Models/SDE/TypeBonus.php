@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TypeBonus extends Model
 {
-    protected $table = 'type_bonuses';
+    protected $table = 'sde.type_bonuses';
 
     protected $primaryKey = 'id';
 

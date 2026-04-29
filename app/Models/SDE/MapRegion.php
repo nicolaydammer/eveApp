@@ -9,7 +9,7 @@ class MapRegion extends Model
 {
     use HasFactory;
 
-    protected $table = 'map_regions';
+    protected $table = 'sde.map_regions';
 
     protected $primaryKey = '_key';
 

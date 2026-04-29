@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AgentType extends Model
 {
-    protected $table = 'agent_types';
+    protected $table = 'sde.agent_types';
 
     protected $primaryKey = '_key';
 

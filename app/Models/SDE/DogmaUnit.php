@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DogmaUnit extends Model
 {
-    protected $table = 'dogma_units';
+    protected $table = 'sde.dogma_units';
 
     protected $primaryKey = '_key';
 

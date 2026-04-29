@@ -9,7 +9,7 @@ class Type extends Model
 {
     use HasFactory;
 
-    protected $table = 'types';
+    protected $table = 'sde.types';
 
     protected $primaryKey = '_key';
 

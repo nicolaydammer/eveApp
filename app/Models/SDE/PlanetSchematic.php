@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PlanetSchematic extends Model
 {
-    protected $table = 'planet_schematics';
+    protected $table = 'sde.planet_schematics';
 
     protected $primaryKey = '_key';
 

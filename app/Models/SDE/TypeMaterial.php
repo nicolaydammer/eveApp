@@ -9,7 +9,7 @@ class TypeMaterial extends Model
 {
     use HasFactory;
 
-    protected $table = 'type_materials';
+    protected $table = 'sde.type_materials';
 
     protected $primaryKey = '_key';
 

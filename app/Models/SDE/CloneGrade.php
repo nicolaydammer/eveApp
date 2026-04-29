@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CloneGrade extends Model
 {
-    protected $table = 'clone_grades';
+    protected $table = 'sde.clone_grades';
 
     protected $primaryKey = '_key';
 

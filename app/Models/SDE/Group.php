@@ -9,7 +9,7 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $table = 'groups';
+    protected $table = 'sde.groups';
 
     protected $primaryKey = '_key';
 

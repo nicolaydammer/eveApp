@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MapStar extends Model
 {
-    protected $table = 'map_stars';
+    protected $table = 'sde.map_stars';
 
     protected $primaryKey = '_key';
 

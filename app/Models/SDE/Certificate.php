@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Certificate extends Model
 {
-    protected $table = 'certificates';
+    protected $table = 'sde.certificates';
 
     protected $primaryKey = '_key';
 

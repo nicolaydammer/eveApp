@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SovereigntyUpgrade extends Model
 {
-    protected $table = 'sovereignty_upgrades';
+    protected $table = 'sde.sovereignty_upgrades';
 
     protected $primaryKey = 'id';
 

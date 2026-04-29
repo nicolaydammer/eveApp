@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class MercenaryTacticalOperation extends Model
 {
-    protected $table = 'mercenary_tactical_operations';
+    protected $table = 'sde.mercenary_tactical_operations';
 
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     public $timestamps = false;

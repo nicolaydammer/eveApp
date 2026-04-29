@@ -9,7 +9,7 @@ class Mastery extends Model
 {
     use HasFactory;
 
-    protected $table = 'masteries';
+    protected $table = 'sde.masteries';
 
     protected $primaryKey = '_key';
 

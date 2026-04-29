@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class MapSecondarySun extends Model
 {
-    protected $table = 'map_secondary_suns';
+    protected $table = 'sde.map_secondary_suns';
 
     protected $primaryKey = '_key';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     public $timestamps = false;

@@ -9,7 +9,7 @@ class FreelanceJobSchema extends Model
 {
     use HasFactory;
 
-    protected $table = 'freelance_job_schemas';
+    protected $table = 'sde.freelance_job_schemas';
 
     protected $fillable = [
         '_key',

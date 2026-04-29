@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -12,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sde_version', function (Blueprint $table) {
-            $table->id();
-            $table->integer('version');
-            $table->timestamps();
-        });
-
-        DB::insert('INSERT INTO sde_version VALUES (2, 3110079)');
+        DB::statement('CREATE SCHEMA IF NOT EXISTS "sde"');
+        DB::statement('CREATE SCHEMA IF NOT EXISTS "market"');
+        DB::statement('CREATE SCHEMA IF NOT EXISTS "cache"');
     }
 
     /**
@@ -26,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sde_version');
+        Schema::dropIfExists('schemas');
     }
 };

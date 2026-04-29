@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class StationService extends Model
 {
-    protected $table = 'station_services';
+    protected $table = 'sde.station_services';
 
     protected $primaryKey = 'id';
 

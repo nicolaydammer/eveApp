@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MapAsteroidBelt extends Model
 {
-    protected $table = 'map_asteroid_belts';
+    protected $table = 'sde.map_asteroid_belts';
 
     protected $primaryKey = '_key';
 

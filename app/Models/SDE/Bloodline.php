@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bloodline extends Model
 {
-    protected $table = 'bloodlines';
+    protected $table = 'sde.bloodlines';
 
     protected $primaryKey = '_key';
 

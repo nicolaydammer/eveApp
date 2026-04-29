@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Blueprint extends Model
 {
-    protected $table = 'blueprints';
+    protected $table = 'sde.blueprints';
 
     protected $primaryKey = '_key';
 

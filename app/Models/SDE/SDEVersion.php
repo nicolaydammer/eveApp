@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SDEVersion extends Model
 {
-    protected $table = 'sde_version';
+    protected $table = 'sde.sde_version';
 
     public $incrementing = false;
 

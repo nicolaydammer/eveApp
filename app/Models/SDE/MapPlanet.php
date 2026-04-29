@@ -17,7 +17,7 @@ class MapPlanet extends Model
 
     protected $keyType = 'integer';
 
-    public $table = 'map_planets';
+    public $table = 'sde.map_planets';
 
     protected $fillable = [
         '_key',
