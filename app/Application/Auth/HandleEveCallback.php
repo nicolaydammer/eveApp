@@ -2,6 +2,7 @@
 
 namespace App\Application\Auth;
 
+use App\Domain\EVE\DTO\TokenData;
 use App\Domain\EVE\External\SSOClient;
 
 class HandleEveCallback
@@ -17,8 +18,12 @@ class HandleEveCallback
     {
         $tokenData = $this->SSOClient->exchangeCode($code);
 
-        $characterData = $this->SSOClient->getCharacter($tokenData->accessToken);
+        $this->SSOClient->login(new TokenData(
+            accessToken: $tokenData->accessToken,
+            refreshToken: $tokenData->refreshToken,
+            expiresIn: $tokenData->expiresIn
+        ));
 
-        return $characterData;
+        return redirect()->route('home');
     }
 }

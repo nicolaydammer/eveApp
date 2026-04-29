@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -11,6 +10,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        DB::statement('DROP SCHEMA IF EXISTS "sde" CASCADE');
+        DB::statement('DROP SCHEMA IF EXISTS "market" CASCADE');
+        DB::statement('DROP SCHEMA IF EXISTS "cache" CASCADE');
         DB::statement('CREATE SCHEMA IF NOT EXISTS "sde"');
         DB::statement('CREATE SCHEMA IF NOT EXISTS "market"');
         DB::statement('CREATE SCHEMA IF NOT EXISTS "cache"');
@@ -21,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schemas');
+        DB::statement('DROP SCHEMA IF EXISTS "sde" CASCADE');
+        DB::statement('DROP SCHEMA IF EXISTS "market" CASCADE');
+        DB::statement('DROP SCHEMA IF EXISTS "cache" CASCADE');
     }
 };
