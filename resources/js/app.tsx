@@ -2,6 +2,7 @@ import { createInertiaApp } from "@inertiajs/react";
 import { createRoot } from "react-dom/client";
 import { configureEcho } from "@laravel/echo-react";
 import { ComponentType, lazy } from "react";
+import { ThemeProvider } from "next-themes";
 
 configureEcho({
     broadcaster: "reverb",
@@ -15,20 +16,19 @@ configureEcho({
 
 createInertiaApp({
     progress: false,
+
     resolve: (name: string): ComponentType => {
         const pages = import.meta.glob("./Pages/**/*.tsx");
         return lazy(() => pages[`./Pages/${name}.tsx`]() as ComponentType);
     },
-    setup({
-        el,
-        App,
-        props,
-    }: {
-        el: HTMLElement;
-        App: ComponentType;
-        props: any;
-    }): void {
+
+    setup({ el, App, props }: { el: HTMLElement; App: ComponentType; props: any }): void {
         const root = createRoot(el);
-        root.render(<App {...props} />);
+
+        root.render(
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <App {...props} />
+            </ThemeProvider>
+        );
     },
 });

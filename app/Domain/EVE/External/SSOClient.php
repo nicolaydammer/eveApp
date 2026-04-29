@@ -3,8 +3,8 @@
 namespace App\Domain\EVE\External;
 
 use App\Domain\EVE\DTO\TokenData;
+use App\Domain\EVE\DTO\VerifyOauthData;
 use App\Models\Character;
-use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 class SSOClient
@@ -40,7 +40,7 @@ class SSOClient
         );
     }
 
-    public function login(TokenData $tokenData): void
+    public function verifyLogin(TokenData $tokenData): VerifyOauthData
     {
         $response = Http::withToken($tokenData->accessToken)
             ->acceptJson()
@@ -50,25 +50,16 @@ class SSOClient
             throw new \Exception('Failed to verify token: '.$response->body());
         }
 
-        $character = Character::query()->find($response->json('CharacterID'));
-
-        if (is_null($character)) {
-
-            $user = User::create([
-                'main_character_id' => $response->json('CharacterID'),
-            ]);
-
-            $user->characters()->create([
-                'CharacterID' => $response->json('CharacterID'),
-                'CharacterName' => $response->json('CharacterName'),
-                'accessToken' => $tokenData->accessToken,
-                'refreshToken' => $tokenData->refreshToken,
-                'expires_at' => now()->addSeconds($tokenData->expiresIn),
-            ]);
-        }
+        return new VerifyOauthData(
+            CharacterId: $response->json('CharacterID'),
+            CharacterName: $response->json('CharacterName'),
+            accessToken: $tokenData->accessToken,
+            refreshToken: $tokenData->refreshToken,
+            expiresAt: now()->addSeconds($tokenData->expiresIn)
+        );
     }
 
-    public function needsNewToken(Character $character): void
+    public function checkToken(Character $character): void
     {
         if ($character->expires_at->subSeconds(60)->isPast()) {
             $response = Http::asForm()
