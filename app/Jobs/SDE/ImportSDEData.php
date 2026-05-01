@@ -25,7 +25,7 @@ class ImportSDEData implements ShouldQueue
         $modelName = substr($this->modelName, 0, -6);
         $modelName = $modelResolver->resolveModelName($modelName);
 
-        $modelClass = "App\\Models\\SDE\\{$modelName}";
+        $modelClass = "App\\Domain\\Infrastructure\\SDE\\Models\\{$modelName}";
         $modelClassInstance = new $modelClass;
         $table = $modelClassInstance->getTable();
         $fillables = $modelClassInstance->getFillable();

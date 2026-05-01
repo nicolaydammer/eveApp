@@ -2,50 +2,24 @@
 
 namespace App\Application\Auth;
 
-use App\Domain\EVE\External\SSOClient;
-use App\Domain\EVE\State\CharacterRepository;
-use App\Domain\Shared\User\UserRepository;
-use Illuminate\Support\Facades\Auth;
+use App\Domain\Auth\Service\AuthService;
 
 class HandleEveCallback
 {
-    private SSOClient $SSOClient;
+    private AuthService $authService;
 
-    private CharacterRepository $characterRepository;
-
-    private UserRepository $userRepository;
-
-    public function __construct(SSOClient $SSOClient, CharacterRepository $characterRepository, UserRepository $userRepository)
+    public function __construct(AuthService $authService)
     {
-        $this->SSOClient = $SSOClient;
-        $this->characterRepository = $characterRepository;
-        $this->userRepository = $userRepository;
+        $this->authService = $authService;
     }
 
     public function handle(string $code)
     {
-        $tokenData = $this->SSOClient->exchangeCode($code);
+        $tokenData = $this->authService->exchangeCode($code);
 
-        $characterData = $this->SSOClient->verifyLogin($tokenData);
+        $characterData = $this->authService->verifyLogin($tokenData);
 
-        $character = $this->characterRepository->find($characterData->CharacterId);
-
-        $user = null;
-
-        if (is_null($character)) {
-
-            $user = $this->userRepository->create($characterData->CharacterId);
-
-            $this->characterRepository->create($characterData, $user);
-        }
-
-        if ($character) {
-            $user = $character->first()->user()->get()->first();
-
-            $this->characterRepository->update($characterData);
-        }
-
-        Auth::login($user);
+        $this->authService->authenticateCharacter($characterData);
 
         return redirect()->route('dashboard');
     }

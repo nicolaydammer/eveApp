@@ -9,6 +9,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/auth/redirectToEveSSO', [AuthController::class, 'redirectToEveSSO'])->name('auth.redirectToEveSSO');
 Route::get('/auth/callback', [AuthController::class, 'handleEveCallback'])->name('auth.handleEveCallback');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::post('/set-main-character/{CharacterID}', [DashboardController::class, 'setMainCharacter'])->middleware('auth')->name('dashboard.setMainCharacter');

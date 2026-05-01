@@ -77,13 +77,13 @@ const AdvancedIndustryCalculator = () => {
         return { totalISK, totalVol };
     }, [manufactureSet, calcMode]);
 
-    const toggleManufacture = (id) => {
+    const toggleManufacture = (id: string) => {
         const next = new Set(manufactureSet);
         next.has(id) ? next.delete(id) : next.add(id);
         setManufactureSet(next);
     };
 
-    const toggleExpand = (id) => {
+    const toggleExpand = (id: string) => {
         const next = new Set(expanded);
         next.has(id) ? next.delete(id) : next.add(id);
         setExpanded(next);
@@ -107,7 +107,7 @@ const AdvancedIndustryCalculator = () => {
 
                     <div className="space-y-8 mb-12">
                         <div className="flex gap-4">
-                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400 shrink-0"><Layers size={20} /></div>
+                            <div className="p-5 bg-blue-500/10 rounded-lg text-blue-400 shrink-0"><Layers size={20} /></div>
                             <div>
                                 <h4 className="text-sm font-bold text-slate-200">Supply Chain Batching</h4>
                                 <p className="text-xs text-slate-500 leading-relaxed text-balance">Define production runs based on your facility limits. Calculate the exact materials needed for partial builds or mass production.</p>
@@ -115,7 +115,7 @@ const AdvancedIndustryCalculator = () => {
                         </div>
 
                         <div className="flex gap-4">
-                            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400 shrink-0"><Scale size={20} /></div>
+                            <div className="p-5 bg-purple-500/10 rounded-lg text-purple-400 shrink-0"><Scale size={20} /></div>
                             <div>
                                 <h4 className="text-sm font-bold text-slate-200">Compression Ratios</h4>
                                 <p className="text-xs text-slate-500 leading-relaxed text-balance">View the volumetric delta between ores, compressed blocks, and finished components to optimize jump freighter fuel efficiency.</p>
@@ -123,7 +123,7 @@ const AdvancedIndustryCalculator = () => {
                         </div>
 
                         <div className="flex gap-4">
-                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 shrink-0"><Truck size={20} /></div>
+                            <div className="p-5 bg-emerald-500/10 rounded-lg text-emerald-400 shrink-0"><Truck size={20} /></div>
                             <div>
                                 <h4 className="text-sm font-bold text-slate-200">Logistics Planning</h4>
                                 <p className="text-xs text-slate-500 leading-relaxed text-balance">Toggle manufacturing stages to instantly see if your buy-list fits in an Obelisk or if you need a dedicated logistics wing.</p>
@@ -133,11 +133,11 @@ const AdvancedIndustryCalculator = () => {
 
                     <div className="bg-blue-500/10 border border-blue-500/30 p-5 rounded-xl">
                         <div className="flex items-center gap-2 text-blue-500 mb-2">
-                            <AlertTriangle size={18} />
+                            <AlertTriangle color="red" size={18} />
                             <span className="text-xs font-bold uppercase tracking-tight">Technical Demo</span>
                         </div>
                         <p className="text-[11px] text-blue-200/70 leading-relaxed italic">
-                            This showcase highlights the <strong>Recursive Cut-off Logic</strong>. The actual application is more advanced and has a more sophisticated user interface.
+                            This showcase highlights the <strong>Recursive Cut-off Logic</strong> and uses dummy data. The actual application is more advanced and has a more sophisticated user interface.
                         </p>
                     </div>
                 </div>
@@ -268,9 +268,8 @@ const AdvancedIndustryCalculator = () => {
                             <Zap className="text-slate-700 group-hover:text-emerald-500 transition-colors" size={32} />
                         </div>
                     </div>
-
                 </div>
-            </section >
+            </section>
         </div >
     );
 };

@@ -2,19 +2,19 @@
 
 namespace App\Application\Auth;
 
-use App\Domain\EVE\External\SSOClient;
+use App\Domain\Auth\Service\AuthService;
 
 class RedirectToEveSSO
 {
-    private $ssoClient;
+    private authService $authService;
 
-    public function __construct(SSOClient $ssoClient)
+    public function __construct(AuthService $authService)
     {
-        $this->ssoClient = $ssoClient;
+        $this->authService = $authService;
     }
 
     public function redirect(): string
     {
-        return $this->ssoClient->getAuthorizationUrl();
+        return $this->authService->getAuthorizationUrl();
     }
 }

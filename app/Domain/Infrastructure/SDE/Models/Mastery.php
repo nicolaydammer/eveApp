@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Domain\Infrastructure\SDE\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Mastery extends Model
+{
+    use HasFactory;
+
+    protected $table = 'sde.masteries';
+
+    protected $primaryKey = '_key';
+
+    public $timestamps = false;
+
+    public $incrementing = false;
+
+    protected $keyType = 'integer';
+
+    protected $fillable = [
+        '_key',
+        '_value',
+        'hash',
+    ];
+
+    protected $casts = [
+        '_key' => 'integer',
+        '_value' => 'array',
+    ];
+}

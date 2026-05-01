@@ -13,7 +13,7 @@ class GetDashboardData
         $characterData = Auth::user()->characters->map(fn ($c) => [
             'id' => $c->CharacterID,
             'name' => $c->CharacterName,
-            'portrait' => '',
+            'portrait' => 'https://images.evetech.net/characters/'.$c->CharacterID.'/portrait',
             'corpName' => '',
             'corpLogo' => '',
             'allianceName' => '',

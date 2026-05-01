@@ -3,22 +3,11 @@ import EveCharacterHeader from "@/Components/EveCharacterHeader";
 import ThemeToggle from "@/Components/ThemeToggle";
 import { Button } from "@/Components/ui/button";
 import AppLayout from "@/Layouts/AppLayout.js";
+import { route } from 'ziggy-js';
 
 export default function Dashboard({ characters: initialCharacters }) {
 
     const [characters, setCharacters] = useState(initialCharacters);
-
-    const setMain = (id) => {
-        setCharacters((prev) =>
-            prev.map((c) => ({
-                ...c,
-                isMain: c.id === id,
-            }))
-        );
-
-        // In real Inertia app, replace with:
-        // router.post(`/characters/${id}/set-main`)
-    };
 
     return (
         <AppLayout>
@@ -28,22 +17,14 @@ export default function Dashboard({ characters: initialCharacters }) {
                     <ThemeToggle />
                 </div>
 
-                <div className="grid gap-4">
+                <div>
+                    <Button variant="" onClick={() => { window.location.href = route('auth.redirectToEveSSO') }}>Add alt</Button>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {characters.map((char) => (
                         <div key={char.id} className="space-y-2">
-                            <EveCharacterHeader character={char} />
-
-                            <div className="flex gap-2">
-                                {!char.isMain ? (
-                                    <Button onClick={() => setMain(char.id)}>
-                                        Set as Main
-                                    </Button>
-                                ) : (
-                                    <Button disabled variant="secondary">
-                                        Main Character
-                                    </Button>
-                                )}
-                            </div>
+                            <EveCharacterHeader character={char} setCharacters={setCharacters} />
                         </div>
                     ))}
                 </div>
