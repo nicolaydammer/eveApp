@@ -2,6 +2,8 @@
 
 namespace App\Domain\Dashboard\Queries;
 
+use App\Domain\Auth\Entities\Character;
+use App\Domain\Infrastructure\Esi\Gateway\EsiGateway;
 use Illuminate\Support\Facades\Auth;
 
 class GetDashboardData
@@ -10,19 +12,17 @@ class GetDashboardData
 
     public function query(): array
     {
-        $characterData = Auth::user()->characters->map(fn ($c) => [
-            'id' => $c->CharacterID,
-            'name' => $c->CharacterName,
-            'portrait' => 'https://images.evetech.net/characters/'.$c->CharacterID.'/portrait',
-            'corpName' => '',
-            'corpLogo' => '',
-            'allianceName' => '',
-            'allianceLogo' => '',
-            'isMain' => $c->CharacterID === Auth::user()->main_character_id,
-        ]);
+        /** @var EsiGateway $gateway */
+        $gateway = app('esi.character');
+
+        $esiCharacters = [];
+
+        Auth::user()->characters->each(function (Character $character) use ($gateway, &$esiCharacters) {
+            $esiCharacters[] = $gateway->get($character->CharacterID);
+        });
 
         return [
-            'characters' => $characterData,
+            'characters' => $esiCharacters,
         ];
     }
 }

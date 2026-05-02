@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('name');
             $table->double('security_status')->nullable();
             $table->text('title')->nullable();
+            $table->dateTime('expires_at');
             $table->timestamps();
         });
 
@@ -45,6 +46,7 @@ return new class extends Migration
             $table->string('ticker');
             $table->string('url')->nullable();
             $table->boolean('war_eligible')->nullable();
+            $table->dateTime('expires_at');
             $table->timestamps();
         });
 
@@ -58,6 +60,7 @@ return new class extends Migration
             $table->bigInteger('faction_id')->nullable();
             $table->string('name');
             $table->string('ticker');
+            $table->dateTime('expires_at');
             $table->timestamps();
         });
     }

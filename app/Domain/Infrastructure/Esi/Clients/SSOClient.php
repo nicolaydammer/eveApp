@@ -59,7 +59,7 @@ class SSOClient
         );
     }
 
-    public function checkToken(Character $character): void
+    public function getValidAccessToken(Character $character): string
     {
         if ($character->expires_at->subSeconds(60)->isPast()) {
             $response = Http::asForm()
@@ -79,5 +79,7 @@ class SSOClient
                 'expires_at' => now()->addSeconds($response->json('expires_in')),
             ]);
         }
+
+        return $character->accessToken;
     }
 }
