@@ -8,9 +8,6 @@ use App\Domain\Infrastructure\Esi\DataProviders\EsiDataProviderInterface;
 use App\Domain\Infrastructure\Esi\DTO\EsiDtoInterface;
 use App\Domain\Infrastructure\Esi\jobs\AbstractEsiSyncJob;
 
-/**
- * @template T
- */
 class EsiGateway
 {
     public function __construct(

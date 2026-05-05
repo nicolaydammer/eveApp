@@ -45,23 +45,17 @@ export default function EveCharacterHeader({ character, setCharacters }) {
                     {/* Corp + Alliance */}
                     <div className="flex items-center gap-3 text-sm opacity-80">
 
+                        {character.allianceLogo && (
+                            <img
+                                src={character.allianceLogo}
+                                className="w-12 h-12 rounded"
+                            />
+                        )}
                         <img
                             src={character.corpLogo}
-                            className="w-6 h-6 rounded"
+                            className="w-12 h-12 rounded"
                         />
                         <span>{character.corpName}</span>
-
-                        {character.allianceName && (
-                            <>
-                                <span>•</span>
-                                <img
-                                    src={character.allianceLogo}
-                                    className="w-6 h-6 rounded"
-                                />
-                                <span>{character.allianceName}</span>
-                            </>
-                        )}
-
                     </div>
 
                     <div className="mt-auto self-end">
