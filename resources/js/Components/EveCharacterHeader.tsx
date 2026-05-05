@@ -44,9 +44,9 @@ export default function EveCharacterHeader({ character, isSelected }) {
                                 alt="Corp"
                             />
                         </div>
-                        <span className="truncate text-xs font-medium text-zinc-500">
+                        <div className="truncate text-sm font-medium text-zinc-500 ml-2">
                             {character.corporation.name}
-                        </span>
+                        </div>
                     </div>
                 </div>
             </CardContent>

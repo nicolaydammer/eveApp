@@ -14,8 +14,8 @@ class EsiGateway
         private CachedRepositoryInterface $cachedRepository,
         private EsiDataProviderInterface $esiDataProvider,
         private CacheSyncLock $cacheSyncLock,
-        private string $resourceType, // e.g., 'character', 'corporation'
-        private string $syncJobClass  // The class string for the Dispatcher)
+        private string $resourceType,
+        private string $syncJobClass
     ) {
         if (!is_subclass_of($this->syncJobClass, AbstractEsiSyncJob::class)) {
             throw new \InvalidArgumentException("{$this->syncJobClass} must extend AbstractEsiSyncJob");

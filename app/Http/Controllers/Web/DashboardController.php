@@ -16,7 +16,9 @@ class DashboardController
 
     public function index(Request $request): \Inertia\Response
     {
-        $query = Auth::user()->characters()->orderBy('CharacterName', 'asc');
+        $query = Auth::user()->characters()
+            ->orderByRaw('"characters"."CharacterID" = ? DESC', [Auth::user()->main_character_id])
+            ->orderBy('CharacterName', 'asc');
 
         if ($request->filled('search')) {
             $query->where('CharacterName', 'like', '%' . $request->search . '%');
