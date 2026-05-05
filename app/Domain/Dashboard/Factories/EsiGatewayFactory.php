@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Dashboard\Queries\Factories;
+namespace App\Domain\Dashboard\Factories;
 
 use App\Domain\EVE\Repositories\CachedAllianceRepository;
 use App\Domain\EVE\Repositories\CachedCharacterRepository;
