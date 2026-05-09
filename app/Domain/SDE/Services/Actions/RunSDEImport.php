@@ -34,7 +34,7 @@ class RunSDEImport
                 $SDEFile = fopen($path, 'r');
 
                 if (! $SDEFile) {
-                    throw new \Exception('Could not open '.$SDEFileName);
+                    throw new \Exception('Could not open ' . $SDEFileName);
                 }
 
                 while (! feof($SDEFile)) {
@@ -50,7 +50,7 @@ class RunSDEImport
                     $batch[] = $jsonLine;
 
                     if (json_last_error() !== JSON_ERROR_NONE) {
-                        throw new \Exception('JSON decode error: '.json_last_error_msg());
+                        throw new \Exception('JSON decode error: ' . json_last_error_msg());
                     }
 
                     // create a batch of json to batchSize (adjust if needed for performance reasons)

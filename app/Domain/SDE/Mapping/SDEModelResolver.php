@@ -61,6 +61,9 @@ class SDEModelResolver
         'mapSecondarySuns' => 'MapSecondarySun',
         'cloneGrades' => 'CloneGrade',
         'compressibleTypes' => 'CompressibleType',
+        'dungeons' => 'Dungeon',
+        'typeLists' => 'TypeList',
+        'archetypes' => 'ArcheType'
     ];
 
     public function __construct() {}

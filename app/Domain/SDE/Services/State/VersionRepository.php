@@ -2,10 +2,7 @@
 
 namespace App\Domain\SDE\Services\State;
 
-use App\Models\SDE\SDEVersion;
-
-// todo: get supported and current SDE version from DB and cache it for 2 hours.
-// todo: be able to set current version of SDE.
+use App\Domain\Infrastructure\SDE\Models\SDEVersion;
 
 class VersionRepository
 {

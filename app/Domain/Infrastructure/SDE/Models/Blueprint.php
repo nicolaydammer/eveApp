@@ -3,6 +3,7 @@
 namespace App\Domain\Infrastructure\SDE\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Blueprint extends Model
 {
@@ -25,4 +26,13 @@ class Blueprint extends Model
     protected $casts = [
         'activities' => 'array',
     ];
+
+    protected $hidden = [
+        'hash'
+    ];
+
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(Type::class, 'blueprintTypeID', '_key');
+    }
 }

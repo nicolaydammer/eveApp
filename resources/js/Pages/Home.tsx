@@ -13,7 +13,7 @@ import {
     Layers
 } from 'lucide-react';
 
-const AdvancedIndustryCalculator = () => {
+const Home = () => {
     const [calcMode, setCalcMode] = useState('raw');
     const [manufactureSet, setManufactureSet] = useState(new Set(['c1', 'sub1']));
     const [expanded, setExpanded] = useState(new Set(['c1', 'sub1']));
@@ -274,4 +274,4 @@ const AdvancedIndustryCalculator = () => {
     );
 };
 
-export default AdvancedIndustryCalculator;
+export default Home;

@@ -19,6 +19,8 @@ class Type extends Model
 
     protected $keyType = 'integer';
 
+    protected $hidden = ['hash'];
+
     protected $fillable = [
         '_key',
         'groupID',
