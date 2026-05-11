@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Jobs\SDE;
+namespace App\Domain\SDE\Jobs;
 
+
+use App\Domain\SDE\Jobs\AbstractSDEJob;
+use App\Domain\SDE\Jobs\SDEJobInterface;
 use App\Domain\SDE\Mapping\SDEModelResolver;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 
-class ImportSDEData implements ShouldQueue
+class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
 {
-    use Queueable;
 
     /**
      * Create a new job instance.
@@ -19,11 +19,11 @@ class ImportSDEData implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SDEModelResolver $modelResolver): void
+    public function handle(SDEModelResolver $SDEModelResolver): void
     {
         // get model name
         $modelName = substr($this->modelName, 0, -6);
-        $modelName = $modelResolver->resolveModelName($modelName);
+        $modelName = $SDEModelResolver->resolveModelName($modelName);
 
         $modelClass = "App\\Domain\\Infrastructure\\SDE\\Models\\{$modelName}";
         $modelClassInstance = new $modelClass;
@@ -58,7 +58,7 @@ class ImportSDEData implements ShouldQueue
 
             $this->data = array_filter(
                 $this->data,
-                fn ($row) => ! isset($unsetKeys[$row['_key']])
+                fn($row) => ! isset($unsetKeys[$row['_key']])
             );
         }
 
@@ -69,7 +69,9 @@ class ImportSDEData implements ShouldQueue
                 }
             });
         }
+
         unset($row);
+
 
         if (! empty($this->data)) {
             $modelClass::query()->upsert($this->data, ['_key'], $fillables);

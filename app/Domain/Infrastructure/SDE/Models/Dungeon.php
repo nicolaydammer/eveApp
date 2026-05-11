@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Dungeon extends Model
 {
-    protected $table = 'sde.dungeon';
+    protected $table = 'sde.dungeons';
     protected $primaryKey = '_key';
     public $incrementing = false;
     public $timestamps = false;

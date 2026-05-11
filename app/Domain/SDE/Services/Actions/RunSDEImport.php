@@ -2,43 +2,49 @@
 
 namespace App\Domain\SDE\Services\Actions;
 
-use App\Jobs\SDE\ImportSDEData;
+use App\Domain\SDE\Mapping\SDEJobResolver;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 
 class RunSDEImport
 {
-    private $eveDisk;
+    private Filesystem $eveDisk;
+    private SDEJobResolver $SDEJobResolver;
 
-    public function __construct()
+    public function __construct(SDEJobResolver $SDEJobResolver)
     {
         $this->eveDisk = Storage::disk('eveSDE');
+        $this->SDEJobResolver = $SDEJobResolver;
     }
 
     public function import(bool $firstTime, int $batchSize): int
     {
         $batch = [];
         $jobs = 0;
+        $job = '';
 
-        $SDEFileNames = $this->eveDisk->files();
+        $SDEFiles = $this->eveDisk->files();
 
         try {
-            foreach ($SDEFileNames as $SDEFileName) {
+            foreach ($SDEFiles as $SDEFile) {
                 // skip this file, doesn't contain data
-                if ($SDEFileName == '_sde.jsonl') {
+                if ($SDEFile == '_sde.jsonl') {
                     continue;
                 }
 
-                $path = $this->eveDisk->path($SDEFileName);
+                $job = $this->SDEJobResolver->resolveJob($SDEFile);
+
+                $path = $this->eveDisk->path($SDEFile);
 
                 // stream file
-                $SDEFile = fopen($path, 'r');
+                $file = fopen($path, 'r');
 
-                if (! $SDEFile) {
-                    throw new \Exception('Could not open ' . $SDEFileName);
+                if (! $file) {
+                    throw new \Exception('Could not open ' . $SDEFile);
                 }
 
-                while (! feof($SDEFile)) {
-                    $line = trim(fgets($SDEFile));
+                while (! feof($file)) {
+                    $line = trim(fgets($file));
 
                     if ($line === '') {
                         continue;
@@ -55,23 +61,24 @@ class RunSDEImport
 
                     // create a batch of json to batchSize (adjust if needed for performance reasons)
                     if (count($batch) >= $batchSize) {
-                        ImportSDEData::dispatch($SDEFileName, $batch, $firstTime);
+
+                        $job::dispatch($SDEFile, $batch, $firstTime);
                         $jobs++;
                         $batch = [];
                     }
                 }
 
-                fclose($SDEFile);
+                fclose($file);
 
                 if (! empty($batch)) {
-                    ImportSDEData::dispatch($SDEFileName, $batch, $firstTime);
+                    $job::dispatch($SDEFile, $batch, $firstTime);
                     $jobs++;
                     $batch = [];
                 }
             }
         } finally {
-            if (is_resource($SDEFile)) {
-                fclose($SDEFile);
+            if (is_resource($file)) {
+                fclose($file);
             }
         }
 

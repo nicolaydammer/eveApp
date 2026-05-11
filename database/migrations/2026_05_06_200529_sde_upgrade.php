@@ -33,7 +33,7 @@ return new class extends Migration
         Schema::create('sde.type_lists', function (Blueprint $table) {
             $table->unsignedBigInteger('_key')->primary();
             $table->string('hash');
-            $table->string('name')->nullable();
+            $table->text('name')->nullable();
             $table->jsonb('displayName')->nullable();
             $table->jsonb('displayDescription')->nullable();
             $table->jsonb('includedTypeIDs')->nullable();
@@ -42,6 +42,13 @@ return new class extends Migration
             $table->jsonb('excludedTypeIDs')->nullable();
             $table->jsonb('excludedGroupIDs')->nullable();
             $table->jsonb('excludedCategoryIDs')->nullable();
+        });
+
+        Schema::table('sde.mercenary_tactical_operations', function (Blueprint $table) {
+            $table->renameColumn('anarchy_impact', 'anarchyImpact');
+            $table->renameColumn('development_impact', 'developmentImpact');
+            $table->renameColumn('infomorph_bonus', 'infomorphBonus');
+            $table->bigInteger('dungeonID');
         });
 
         (new VersionRepository())->setSupportedVersion(3333874);

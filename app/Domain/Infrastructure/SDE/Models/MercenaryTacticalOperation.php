@@ -18,10 +18,11 @@ class MercenaryTacticalOperation extends Model
 
     protected $fillable = [
         '_key',
-        'anarchy_impact',
-        'development_impact',
-        'infomorph_bonus',
+        'anarchyImpact',
+        'developmentImpact',
+        'infomorphBonus',
         'description',
+        'dungeonID',
         'name',
         'hash',
     ];
