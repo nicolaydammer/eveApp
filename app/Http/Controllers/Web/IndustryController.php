@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Domain\Infrastructure\SDE\Models\Blueprint;
+
+use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

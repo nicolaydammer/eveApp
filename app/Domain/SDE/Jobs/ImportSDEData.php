@@ -14,7 +14,10 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
     /**
      * Create a new job instance.
      */
-    public function __construct(private string $modelName, private array $data, private bool $firstTime) {}
+    public function __construct(private string $modelName, private array $data, private bool $firstTime)
+    {
+        return parent::__construct($modelName, $data, $firstTime);
+    }
 
     /**
      * Execute the job.
@@ -22,7 +25,7 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
     public function handle(SDEModelResolver $SDEModelResolver): void
     {
         // get model name
-        $modelName = substr($this->modelName, 0, -6);
+        $modelName = $this->trimFileExtension($this->modelName, '.jsonl');
         $modelName = $SDEModelResolver->resolveModelName($modelName);
 
         $modelClass = "App\\Domain\\Infrastructure\\SDE\\Models\\{$modelName}";
