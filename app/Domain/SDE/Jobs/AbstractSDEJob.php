@@ -12,7 +12,7 @@ abstract class AbstractSDEJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(private string $modelName, private array $data, private bool $firstTime) {}
+    public function __construct(protected string $modelName, protected array $data, protected bool $firstTime) {}
 
     public function trimFileExtension(string $filename, string $extension): string
     {

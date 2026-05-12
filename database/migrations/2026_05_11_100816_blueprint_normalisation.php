@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\SDE\Services\State\VersionRepository;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -63,7 +64,7 @@ return new class extends Migration
             $table->unsignedBigInteger('blueprints_invention_id');
             $table->unsignedBigInteger('typeID');
             $table->unsignedBigInteger('quantity');
-            $table->double('probability');
+            $table->double('probability')->nullable();
         });
 
         Schema::create('sde.blueprints_invention_materials', function (Blueprint $table) {
@@ -72,6 +73,8 @@ return new class extends Migration
             $table->unsignedBigInteger('typeID');
             $table->unsignedBigInteger('quantity');
         });
+
+        (new VersionRepository())->setSupportedVersion(3343457);
     }
 
     /**

@@ -2,12 +2,14 @@
 
 namespace App\Domain\SDE\Mapping;
 
+use App\Domain\SDE\Jobs\ImportSDEBlueprint;
 use App\Domain\SDE\Jobs\ImportSDEData;
-use App\Domain\SDE\Jobs\SDEJobInterface;
 
 class SDEJobResolver
 {
-    protected $jobMapping = [];
+    protected $jobMapping = [
+        'blueprints.jsonl' => ImportSDEBlueprint::class,
+    ];
 
     public function resolveJob(string $sdeFileName): string
     {
