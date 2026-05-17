@@ -7,15 +7,20 @@ use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingProduct;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class IndustryController
 {
     public function index()
     {
+        // return $this->getTree(11568);
         return $this->getTree(23912);
 
+
         // return $this->instaBuy(23912);
+        // return $this->instaBuy(11568);
+
     }
 
     public function instaBuy(int $blueprintID)
@@ -40,47 +45,56 @@ class IndustryController
             return response()->json(['error' => 'Blueprint not found'], 404);
         }
 
-        // 1. Reusable helper with calculated metrics & group lookups
-        $formatComponent = function ($component, $isSkill = false) {
-            // Skills don't have a quantity (they use level), so default multiplier is 1
-            $quantity = $isSkill ? 1 : ($component->quantity ?? 1);
+        $requiredSkills = [];
 
-            $unitVolume = $component->type->volume ?? 0;
-            $unitMass   = $component->type->mass ?? 0;
-
+        // 1. Reusable component formatter (Base Metrics only)
+        $formatComponent = function ($component) {
             return [
-                'typeID'       => $component->typeID,
-                'name'         => $component->type->name['en'] ?? 'Unknown Item',
-                'iconID'       => $component->type->iconID ?? null,
-                'groupID'      => $component->type->groupID ?? null,
-                'group_name'   => $component->type->group->name['en'] ?? 'Unknown Group',
-                'unit_volume'  => $unitVolume,
-                'total_volume' => $unitVolume * $quantity,
-                'unit_mass'    => $unitMass,
-                'total_mass'   => $unitMass * $quantity,
+                'typeID'      => $component->typeID,
+                'name'        => $component->type->name['en'] ?? 'Unknown Item',
+                'iconID'      => $component->type->iconID ?? null,
+                'groupID'     => $component->type->groupID ?? null,
+                'group_name'  => $component->type->group->name['en'] ?? 'Unknown Group',
+                'unit_volume' => $component->type->volume ?? 0,
+                'unit_mass'   => $component->type->mass ?? 0,
+                'quantity'    => $component->quantity ?? 1,
 
-                ...($isSkill
-                    ? ['level' => $component->level]
-                    : ['quantity' => $quantity]
-                ),
                 ...(!empty($component->probability) ? ['probability' => $component->probability] : []),
             ];
         };
 
-        // 2. Reusable helper to format the activities
-        $formatActivity = function ($activity) use ($formatComponent) {
+        // 2. Extractor helper to find highest skill prerequisites 
+        $processSkills = function ($skills) use (&$requiredSkills) {
+            foreach ($skills as $s) {
+                $typeID = $s->typeID;
+                if (!isset($requiredSkills[$typeID]) || $s->level > $requiredSkills[$typeID]['level']) {
+                    $requiredSkills[$typeID] = [
+                        'typeID'     => $typeID,
+                        'name'       => $s->type->name['en'] ?? 'Unknown Skill',
+                        'groupID'    => $s->type->groupID ?? null,
+                        'group_name' => $s->type->group->name['en'] ?? 'Unknown Group',
+                        'level'      => $s->level
+                    ];
+                }
+            }
+        };
+
+        // 3. Activity profile mapper (Omits nested skills)
+        $formatActivity = function ($activity) use ($formatComponent, $processSkills) {
             if (!$activity) return null;
+
+            if (!empty($activity->skills)) {
+                $processSkills($activity->skills);
+            }
 
             return [
                 'time'      => $activity->time,
                 'products'  => collect($activity->products)->map(fn($p) => $formatComponent($p))->toArray(),
                 'materials' => collect($activity->materials)->map(fn($m) => $formatComponent($m))->toArray(),
-                'skills'    => collect($activity->skills)->map(fn($s) => $formatComponent($s, true))->toArray(),
             ];
         };
 
-        // 3. Build the streamlined final array
-        return [
+        return response()->json([
             'blueprintTypeID'    => $blueprint->_key,
             'name'               => $blueprint->type->name['en'] ?? 'Unknown Blueprint',
             'iconID'             => $blueprint->type->iconID ?? null,
@@ -93,12 +107,13 @@ class IndustryController
             'manufacturing'      => $formatActivity($blueprint->manufacturing),
             'invention'          => $formatActivity($blueprint->invention),
             'reaction'           => $formatActivity($blueprint->reaction),
-        ];
+            'skills'             => array_values($requiredSkills), // 🚀 Flat unique skill list
+        ]);
     }
 
     public function getTree(int $blueprintTypeID)
     {
-        // 1. Fetch Root Blueprint (Includes Manufacturing or Reaction definitions)
+        // 1. Fetch Root Formula Record
         $rootBlueprint = Blueprint::query()
             ->with([
                 'type.group',
@@ -116,11 +131,10 @@ class IndustryController
             return response()->json(['error' => 'Blueprint formula entry not found'], 404);
         }
 
-        // Active root reference can be manufacturing OR reaction
         $rootActivity = $rootBlueprint->manufacturing ?? $rootBlueprint->reaction;
         $initialMaterials = $rootActivity?->materials ?? [];
 
-        // 2. Unified BFS Phase: Collect ALL blueprint and reaction definitions in batches
+        // 2. BFS Batch Loading with Component & Reaction Caching Strategy
         $blueprintPool = [];
         $queue = collect($initialMaterials)->pluck('typeID')->toArray();
         $processed = [];
@@ -130,114 +144,190 @@ class IndustryController
             if (empty($toFetch)) {
                 break;
             }
-
             $processed = array_merge($processed, $toFetch);
+
+            $missedTypeIDs = [];
+            foreach ($toFetch as $typeID) {
+                // Check cache first to avoid repeating lookups across any blueprint construction run
+                $cacheKey = "sde_industry_formula_v1_{$typeID}";
+                $cached = Cache::get($cacheKey);
+                if ($cached) {
+                    $blueprintPool[$typeID] = $cached;
+                } else {
+                    $missedTypeIDs[] = $typeID;
+                }
+            }
+
+            if (!empty($missedTypeIDs)) {
+                // Bulk query manufacturing targets
+                $mfgProducts = BlueprintManufacturingProduct::query()
+                    ->whereIn('typeID', $missedTypeIDs)
+                    ->with([
+                        'manufacturing.blueprint.type.group',
+                        'manufacturing.materials.type.group',
+                        'manufacturing.products.type.group',
+                        'manufacturing.skills.type.group'
+                    ])->get();
+
+                foreach ($mfgProducts as $product) {
+                    $bp = $product->manufacturing?->blueprint;
+                    if ($bp) {
+                        $mfg = $bp->manufacturing;
+                        $poolEntry = [
+                            'activity_type'   => 'manufacturing',
+                            'blueprintTypeID' => $bp->_key,
+                            'name'            => $bp->type->name['en'] ?? 'Unknown Blueprint',
+                            'iconID'          => $bp->type->iconID ?? null,
+                            'groupID'         => $bp->type->groupID ?? null,
+                            'group_name'      => $bp->type->group->name['en'] ?? 'Unknown Group',
+                            'time'            => $mfg->time ?? 0,
+                            'products'        => collect($mfg->products)->map(fn($p) => ['typeID' => $p->typeID, 'quantity' => $p->quantity])->toArray(),
+                            'materials'       => collect($mfg->materials)->map(fn($m) => [
+                                'typeID' => $m->typeID,
+                                'name' => $m->type->name['en'] ?? 'Unknown Item',
+                                'iconID' => $m->type->iconID ?? null,
+                                'groupID' => $m->type->groupID ?? null,
+                                'group_name' => $m->type->group->name['en'] ?? 'Unknown Group',
+                                'unit_volume' => $m->type->volume ?? 0,
+                                'unit_mass' => $m->type->mass ?? 0,
+                                'quantity' => $m->quantity,
+                            ])->toArray(),
+                            'skills'          => collect($mfg->skills)->map(fn($s) => [
+                                'typeID' => $s->typeID,
+                                'name' => $s->type->name['en'] ?? 'Unknown Skill',
+                                'groupID' => $s->type->groupID ?? null,
+                                'group_name' => $s->type->group->name['en'] ?? 'Unknown Group',
+                                'level' => $s->level,
+                            ])->toArray(),
+                        ];
+
+                        $blueprintPool[$product->typeID] = $poolEntry;
+                        Cache::put("sde_industry_formula_v1_{$product->typeID}", $poolEntry, now()->addDays(7));
+                    }
+                }
+
+                // Bulk query chemical/polymer reaction targets
+                $reactionProducts = BlueprintReactionProduct::query()
+                    ->whereIn('typeID', $missedTypeIDs)
+                    ->with([
+                        'reaction.blueprint.type.group',
+                        'reaction.materials.type.group',
+                        'reaction.products.type.group',
+                        'reaction.skills.type.group'
+                    ])->get();
+
+                foreach ($reactionProducts as $product) {
+                    $bp = $product->reaction?->blueprint;
+                    if ($bp) {
+                        $react = $bp->reaction;
+                        $poolEntry = [
+                            'activity_type'   => 'reaction',
+                            'blueprintTypeID' => $bp->_key,
+                            'name'            => $bp->type->name['en'] ?? 'Unknown Blueprint',
+                            'iconID'          => $bp->type->iconID ?? null,
+                            'groupID'         => $bp->type->groupID ?? null,
+                            'group_name'      => $bp->type->group->name['en'] ?? 'Unknown Group',
+                            'time'            => $react->time ?? 0,
+                            'products'        => collect($react->products)->map(fn($p) => ['typeID' => $p->typeID, 'quantity' => $p->quantity])->toArray(),
+                            'materials'       => collect($react->materials)->map(fn($m) => [
+                                'typeID' => $m->typeID,
+                                'name' => $m->type->name['en'] ?? 'Unknown Item',
+                                'iconID' => $m->type->iconID ?? null,
+                                'groupID' => $m->type->groupID ?? null,
+                                'group_name' => $m->type->group->name['en'] ?? 'Unknown Group',
+                                'unit_volume' => $m->type->volume ?? 0,
+                                'unit_mass' => $m->type->mass ?? 0,
+                                'quantity' => $m->quantity,
+                            ])->toArray(),
+                            'skills'          => collect($react->skills)->map(fn($s) => [
+                                'typeID' => $s->typeID,
+                                'name' => $s->type->name['en'] ?? 'Unknown Skill',
+                                'groupID' => $s->type->groupID ?? null,
+                                'group_name' => $s->type->group->name['en'] ?? 'Unknown Group',
+                                'level' => $s->level,
+                            ])->toArray(),
+                        ];
+
+                        $blueprintPool[$product->typeID] = $poolEntry;
+                        Cache::put("sde_industry_formula_v1_{$product->typeID}", $poolEntry, now()->addDays(7));
+                    }
+                }
+            }
+
+            // Gather dependencies from both cache hits and fresh queries for next layer tracking
             $nextLayerQueue = [];
-
-            // A. Search standard manufacturing outputs
-            $mfgProducts = BlueprintManufacturingProduct::query()
-                ->whereIn('typeID', $toFetch)
-                ->with([
-                    'manufacturing.blueprint.type.group',
-                    'manufacturing.materials.type.group',
-                    'manufacturing.products.type.group',
-                    'manufacturing.skills.type.group'
-                ])->get();
-
-            foreach ($mfgProducts as $product) {
-                $bp = $product->manufacturing?->blueprint;
-                if ($bp) {
-                    $blueprintPool[$product->typeID] = ['activity_type' => 'manufacturing', 'model' => $bp];
-                    foreach ($bp->manufacturing?->materials ?? [] as $mat) {
-                        $nextLayerQueue[] = $mat->typeID;
+            foreach ($toFetch as $typeID) {
+                if (isset($blueprintPool[$typeID])) {
+                    foreach ($blueprintPool[$typeID]['materials'] as $mat) {
+                        $nextLayerQueue[] = $mat['typeID'];
                     }
                 }
             }
-
-            // B. Search reaction outputs (chemical compositions, polymers, etc.)
-            $reactionProducts = BlueprintReactionProduct::query()
-                ->whereIn('typeID', $toFetch)
-                ->with([
-                    'reaction.blueprint.type.group',
-                    'reaction.materials.type.group',
-                    'reaction.products.type.group',
-                    'reaction.skills.type.group'
-                ])->get();
-
-            foreach ($reactionProducts as $product) {
-                $bp = $product->reaction?->blueprint;
-                if ($bp) {
-                    $blueprintPool[$product->typeID] = ['activity_type' => 'reaction', 'model' => $bp];
-                    foreach ($bp->reaction?->materials ?? [] as $mat) {
-                        $nextLayerQueue[] = $mat->typeID;
-                    }
-                }
-            }
-
             $queue = array_unique($nextLayerQueue);
         }
 
-        // 3. Recursive In-Memory Formatter
-        $formatTreeNode = function ($material, $multiplier = 1) use (&$formatTreeNode, $blueprintPool) {
-            $typeID = $material->typeID;
-            $qtyNeeded = $material->quantity * $multiplier;
+        // 3. Normalize Processing Graph (Extract Formulas & Skills)
+        $formulas = [];
+        $requiredSkills = [];
 
-            $unitVolume = $material->type->volume ?? 0;
-            $unitMass = $material->type->mass ?? 0;
-
-            $node = [
-                'typeID'       => $typeID,
-                'name'         => $material->type->name['en'] ?? 'Unknown Item',
-                'iconID'       => $material->type->iconID ?? null,
-                'groupID'      => $material->type->groupID ?? null,
-                'group_name'   => $material->type->group->name['en'] ?? 'Unknown Group',
-                'unit_volume'  => $unitVolume,
-                'total_volume' => $unitVolume * $qtyNeeded,
-                'unit_mass'    => $unitMass,
-                'total_mass'   => $unitMass * $qtyNeeded,
-                'quantity'     => $qtyNeeded,
-                'formula'      => null
-            ];
-
-            // Resolve how sub-component items get built (Manufacturing or Reaction)
-            if (isset($blueprintPool[$typeID])) {
-                $poolEntry = $blueprintPool[$typeID];
-                $subBp = $poolEntry['model'];
-                $actType = $poolEntry['activity_type']; // 'manufacturing' or 'reaction'
-
-                $activityData = $subBp->{$actType};
-                $productRow = collect($activityData->products)->firstWhere('typeID', $typeID);
-
-                $portionSize = $productRow ? $productRow->quantity : 1;
-                $runsNeeded = ceil($qtyNeeded / $portionSize);
-
-                $node['formula'] = [
-                    'type'            => $actType, // Identifies "manufacturing" vs "reaction" on frontend
-                    'blueprintTypeID' => $subBp->_key,
-                    'name'            => $subBp->type->name['en'] ?? 'Unknown Blueprint',
-                    'iconID'          => $subBp->type->iconID ?? null,
-                    'groupID'         => $subBp->type->groupID ?? null,
-                    'group_name'      => $subBp->type->group->name['en'] ?? 'Unknown Group',
-                    'runs_required'   => $runsNeeded,
-                    'total_time'      => ($activityData->time ?? 0) * $runsNeeded,
-                    'materials'       => collect($activityData->materials ?? [])
-                        ->map(fn($m) => $formatTreeNode($m, $runsNeeded))
-                        ->toArray(),
-                    'skills'          => collect($activityData->skills ?? [])
-                        ->map(fn($s) => [
-                            'typeID'     => $s->typeID,
-                            'name'       => $s->type->name['en'] ?? 'Unknown Skill',
-                            'groupID'    => $s->type->groupID ?? null,
-                            'group_name' => $s->type->group->name['en'] ?? 'Unknown Group',
-                            'level'      => $s->level
-                        ])->toArray()
+        $recordSkill = function ($skill) use (&$requiredSkills) {
+            $typeID = $skill['typeID'];
+            if (!isset($requiredSkills[$typeID]) || $skill['level'] > $requiredSkills[$typeID]['level']) {
+                $requiredSkills[$typeID] = [
+                    'typeID'     => $typeID,
+                    'name'       => $skill['name'],
+                    'groupID'    => $skill['groupID'],
+                    'group_name' => $skill['group_name'],
+                    'level'      => $skill['level']
                 ];
             }
-
-            return $node;
         };
 
-        // 4. Compile Root Object Output
+        // Extract root blueprints skills
+        foreach ($rootActivity?->skills ?? [] as $s) {
+            $recordSkill([
+                'typeID' => $s->typeID,
+                'name' => $s->type->name['en'] ?? 'Unknown Skill',
+                'groupID' => $s->type->groupID ?? null,
+                'group_name' => $s->type->group->name['en'] ?? 'Unknown Group',
+                'level' => $s->level
+            ]);
+        }
+
+        // Extract sub-blueprint formulas and skills into specialized lookup indices
+        foreach ($blueprintPool as $typeID => $entry) {
+            $bpID = $entry['blueprintTypeID'];
+
+            foreach ($entry['skills'] as $s) {
+                $recordSkill($s);
+            }
+
+            if (!isset($formulas[$bpID])) {
+                $formulas[$bpID] = [
+                    'blueprintTypeID' => $bpID,
+                    'name'            => $entry['name'],
+                    'iconID'          => $entry['iconID'],
+                    'groupID'         => $entry['groupID'],
+                    'group_name'      => $entry['group_name'],
+                    'activity_type'   => $entry['activity_type'],
+                    'time'            => $entry['time'],
+                    'products'        => $entry['products'],
+                    'materials'       => collect($entry['materials'])->map(fn($m) => [
+                        'typeID'      => $m['typeID'],
+                        'name'        => $m['name'],
+                        'iconID'      => $m['iconID'],
+                        'groupID'     => $m['groupID'],
+                        'group_name'  => $m['group_name'],
+                        'unit_volume' => $m['unit_volume'], // Base metric only
+                        'unit_mass'   => $m['unit_mass'],   // Base metric only
+                        'quantity'    => $m['quantity'],
+                        'formula_id'  => isset($blueprintPool[$m['typeID']]) ? $blueprintPool[$m['typeID']]['blueprintTypeID'] : null // Reference ID connection point
+                    ])->toArray()
+                ];
+            }
+        }
+
+        // 4. Construct Structured Top-Level Tree Response
         $rootType = $rootBlueprint->manufacturing ? 'manufacturing' : ($rootBlueprint->reaction ? 'reaction' : 'unknown');
 
         $finalTree = [
@@ -260,15 +350,20 @@ class IndustryController
                     'group_name' => $p->type->group->name['en'] ?? 'Unknown Group',
                     'quantity'   => $p->quantity
                 ])->toArray(),
-                'materials' => collect($initialMaterials)->map(fn($m) => $formatTreeNode($m, 1))->toArray(),
-                'skills'    => collect($rootActivity?->skills ?? [])->map(fn($s) => [
-                    'typeID'     => $s->typeID,
-                    'name'       => $s->type->name['en'] ?? 'Unknown Skill',
-                    'groupID'    => $s->type->groupID ?? null,
-                    'group_name' => $s->type->group->name['en'] ?? 'Unknown Group',
-                    'level'      => $s->level
+                'materials' => collect($initialMaterials)->map(fn($m) => [
+                    'typeID'      => $m->typeID,
+                    'name'        => $m->type->name['en'] ?? 'Unknown Item',
+                    'iconID'      => $m->type->iconID ?? null,
+                    'groupID'     => $m->type->groupID ?? null,
+                    'group_name'  => $m->type->group->name['en'] ?? 'Unknown Group',
+                    'unit_volume' => $m->type->volume ?? 0,
+                    'unit_mass'   => $m->type->mass ?? 0,
+                    'quantity'    => $m->quantity,
+                    'formula_id'  => isset($blueprintPool[$m->typeID]) ? $blueprintPool[$m->typeID]['blueprintTypeID'] : null
                 ])->toArray(),
-            ]
+            ],
+            'formulas' => (object)$formulas,            // 🚀 Flat relational lookup table map
+            'skills'   => array_values($requiredSkills) // 🚀 Top-level distinct high-level prerequisites array
         ];
 
         return response()->json($finalTree);
