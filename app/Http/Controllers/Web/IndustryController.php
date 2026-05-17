@@ -14,28 +14,33 @@ class IndustryController
     public function index()
     {
         return $this->getTree(23912);
+
+        // return $this->instaBuy(23912);
     }
 
-    public function instaBuy()
+    public function instaBuy(int $blueprintID)
     {
         $blueprint = Blueprint::query()
             ->with([
-                'type',
-                'manufacturing.products.type',
-                'manufacturing.materials.type',
-                'manufacturing.skills.type',
-                'invention.products.type',
-                'invention.materials.type',
-                'invention.skills.type',
+                'type.group',
+                'manufacturing.products.type.group',
+                'manufacturing.materials.type.group',
+                'manufacturing.skills.type.group',
+                'invention.products.type.group',
+                'invention.materials.type.group',
+                'invention.skills.type.group',
+                'reaction.products.type.group',
+                'reaction.materials.type.group',
+                'reaction.skills.type.group',
             ])
-            ->where('_key',)
+            ->where('_key', $blueprintID)
             ->first();
 
         if (!$blueprint) {
             return response()->json(['error' => 'Blueprint not found'], 404);
         }
 
-        // 1. Reusable helper with calculated volume & mass multiplication
+        // 1. Reusable helper with calculated metrics & group lookups
         $formatComponent = function ($component, $isSkill = false) {
             // Skills don't have a quantity (they use level), so default multiplier is 1
             $quantity = $isSkill ? 1 : ($component->quantity ?? 1);
@@ -47,10 +52,12 @@ class IndustryController
                 'typeID'       => $component->typeID,
                 'name'         => $component->type->name['en'] ?? 'Unknown Item',
                 'iconID'       => $component->type->iconID ?? null,
+                'groupID'      => $component->type->groupID ?? null,
+                'group_name'   => $component->type->group->name['en'] ?? 'Unknown Group',
                 'unit_volume'  => $unitVolume,
-                'total_volume' => $unitVolume * $quantity, // 🚀 Multiplied total volume
+                'total_volume' => $unitVolume * $quantity,
                 'unit_mass'    => $unitMass,
-                'total_mass'   => $unitMass * $quantity,   // 🚀 Multiplied total mass
+                'total_mass'   => $unitMass * $quantity,
 
                 ...($isSkill
                     ? ['level' => $component->level]
@@ -77,12 +84,15 @@ class IndustryController
             'blueprintTypeID'    => $blueprint->_key,
             'name'               => $blueprint->type->name['en'] ?? 'Unknown Blueprint',
             'iconID'             => $blueprint->type->iconID ?? null,
+            'groupID'            => $blueprint->type->groupID ?? null,
+            'group_name'         => $blueprint->type->group->name['en'] ?? 'Unknown Group',
             'maxProductionLimit' => $blueprint->maxProductionLimit,
             'copy_time'          => $blueprint->copy_time,
             'research_time'      => $blueprint->research_time,
             'material_time'      => $blueprint->material_time,
             'manufacturing'      => $formatActivity($blueprint->manufacturing),
             'invention'          => $formatActivity($blueprint->invention),
+            'reaction'           => $formatActivity($blueprint->reaction),
         ];
     }
 
