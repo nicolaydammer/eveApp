@@ -11,152 +11,241 @@ use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturing;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingMaterial;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingProduct;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingSkill;
+use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReaction;
+use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionMaterial;
+use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionProduct;
+use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionSkill;
+use App\Domain\SDE\Jobs\AbstractSDEJob;
+use App\Domain\SDE\Jobs\SDEJobInterface;
 use App\Domain\SDE\Mapping\SDEModelResolver;
+use Illuminate\Support\Facades\DB;
 
 class ImportSDEBlueprint extends AbstractSDEJob implements SDEJobInterface
 {
-    public function __construct(string $modelName, array $data, bool $firstTime)
-    {
-        return parent::__construct($modelName, $data, $firstTime);
-    }
-
     public function handle(SDEModelResolver $SDEModelResolver): void
     {
-        if (true) {
-            // plain insert stuff        
+        $blueprints = [];
+        $mfgRows = [];
+        $invRows = [];
+        $reacRows = [];
 
-            foreach ($this->data as $sdeData) {
-                $blueprint = new Blueprint();
-                $blueprint->_key = $sdeData['_key'];
-                $blueprint->blueprintTypeID = $sdeData['blueprintTypeID'];
-                $blueprint->maxProductionLimit = $sdeData['maxProductionLimit'];
-                $blueprint->hash = $sdeData['hash'];
-                $blueprint->copy_time = $sdeData['activities']['copying']['time'] ?? 0;
-                $blueprint->material_time = $sdeData['activities']['research_material']['time'] ?? 0;
-                $blueprint->research_time = $sdeData['activities']['research_time']['time'] ?? 0;
-                $blueprint->save();
+        $blueprintKeys = [];
 
-                if (isset($sdeData['activities']['manufacturing'])) {
-                    $blueprintManufacturing = new BlueprintManufacturing();
-                    $blueprintManufacturing->blueprintID = $blueprint->_key;
-                    $blueprintManufacturing->time = $sdeData['activities']['manufacturing']['time'];
-                    $blueprintManufacturing->save();
+        // Phase 1: Parse and collect base records (deduplicated by blueprint key)
+        foreach ($this->data as $sdeData) {
+            $key = $sdeData['_key'];
+            $blueprintKeys[] = $key;
 
-                    foreach ($sdeData['activities']['manufacturing'] as $type => $manufacturingData) {
-                        //loop over skills
-                        if ($type == 'skills') {
-                            foreach ($manufacturingData as $manufacturingSkillData) {
-                                $skill = new BlueprintManufacturingSkill();
-                                $skill->level = $manufacturingSkillData['level'];
-                                $skill->typeID = $manufacturingSkillData['typeID'];
-                                $skill->blueprints_manufacturing_id = $blueprintManufacturing->id;
-                                $skill->save();
-                            }
-                        }
-                        //loop over products
-                        if ($type == 'products') {
-                            foreach ($manufacturingData as $manufacturingProductData) {
-                                $product = new BlueprintManufacturingProduct();
-                                $product->blueprints_manufacturing_id = $blueprintManufacturing->id;
-                                $product->typeID = $manufacturingProductData['typeID'];
-                                $product->quantity = $manufacturingProductData['quantity'];
-                                $product->save();
-                            }
-                        }
-                        if ($type == 'materials') {
-                            //loop over materials
-                            foreach ($manufacturingData as $manufacturingMaterialData) {
-                                $material = new BlueprintManufacturingMaterial();
-                                $material->blueprints_manufacturing_id = $blueprintManufacturing->id;
-                                $material->typeID = $manufacturingMaterialData['typeID'];
-                                $material->quantity = $manufacturingMaterialData['quantity'];
-                                $material->save();
-                            }
-                        }
-                    }
+            $blueprints[$key] = [
+                '_key' => $key,
+                'blueprintTypeID' => $sdeData['blueprintTypeID'],
+                'maxProductionLimit' => $sdeData['maxProductionLimit'],
+                'hash' => $sdeData['hash'],
+                'copy_time' => $sdeData['activities']['copying']['time'] ?? 0,
+                'material_time' => $sdeData['activities']['research_material']['time'] ?? 0,
+                'research_time' => $sdeData['activities']['research_time']['time'] ?? 0,
+            ];
+
+            if (isset($sdeData['activities']['manufacturing'])) {
+                $mfgRows[$key] = [
+                    'blueprintID' => $key,
+                    'time' => $sdeData['activities']['manufacturing']['time'] ?? 0,
+                ];
+            }
+
+            if (isset($sdeData['activities']['invention'])) {
+                $invRows[$key] = [
+                    'blueprintID' => $key,
+                    'time' => $sdeData['activities']['invention']['time'] ?? 0,
+                ];
+            }
+
+            if (isset($sdeData['activities']['reaction'])) {
+                $reacRows[$key] = [
+                    'blueprintID' => $key,
+                    'time' => $sdeData['activities']['reaction']['time'] ?? 0,
+                ];
+            }
+        }
+
+        // Parent Inserts
+        DB::transaction(function () use ($blueprints, $mfgRows, $invRows, $reacRows) {
+            if (!empty($blueprints)) {
+                Blueprint::query()->upsert(array_values($blueprints), ['_key'], ['blueprintTypeID', 'maxProductionLimit', 'hash', 'copy_time', 'material_time', 'research_time']);
+            }
+            if (!empty($mfgRows)) {
+                BlueprintManufacturing::query()->upsert(array_values($mfgRows), ['blueprintID'], ['time']);
+            }
+            if (!empty($invRows)) {
+                BlueprintInvention::query()->upsert(array_values($invRows), ['blueprintID'], ['time']);
+            }
+            if (!empty($reacRows)) {
+                BlueprintReaction::query()->upsert(array_values($reacRows), ['blueprintID'], ['time']);
+            }
+        });
+
+        // Phase 2: Pull the auto-increment IDs for mapping
+        $mfgIdMap = BlueprintManufacturing::query()
+            ->whereIn('blueprintID', $blueprintKeys)
+            ->pluck('id', 'blueprintID')
+            ->toArray();
+
+        $invIdMap = BlueprintInvention::query()
+            ->whereIn('blueprintID', $blueprintKeys)
+            ->pluck('id', 'blueprintID')
+            ->toArray();
+
+        $reacIdMap = BlueprintReaction::query()
+            ->whereIn('blueprintID', $blueprintKeys)
+            ->pluck('id', 'blueprintID')
+            ->toArray();
+
+        $mfgSkills = [];
+        $mfgProducts = [];
+        $mfgMaterials = [];
+
+        $invSkills = [];
+        $invProducts = [];
+        $invMaterials = [];
+
+        $reacSkills = [];
+        $reacProducts = [];
+        $reacMaterials = [];
+
+        // Phase 3: Loop data and deduplicate sub-tables using composite array keys
+        foreach ($this->data as $sdeData) {
+            $key = $sdeData['_key'];
+
+            // Process Manufacturing children
+            if (isset($sdeData['activities']['manufacturing']) && isset($mfgIdMap[$key])) {
+                $mfgId = $mfgIdMap[$key];
+                $mfg = $sdeData['activities']['manufacturing'];
+
+                foreach ($mfg['skills'] ?? [] as $row) {
+                    $mfgSkills["{$mfgId}_{$row['typeID']}"] = [
+                        'blueprints_manufacturing_id' => $mfgId,
+                        'typeID' => $row['typeID'],
+                        'level' => $row['level']
+                    ];
                 }
-
-                if (isset($sdeData['activities']['invention'])) {
-                    $blueprintInvention = new BlueprintInvention();
-                    $blueprintInvention->blueprintID = $blueprint->_key;
-                    $blueprintInvention->time = $sdeData['activities']['invention']['time'];
-                    $blueprintInvention->save();
-
-                    foreach ($sdeData['activities']['invention'] as $type => $inventionData) {
-                        //loop over skills
-                        if ($type == 'skills') {
-                            foreach ($inventionData as $inventionSkillData) {
-                                $skill = new BlueprintInventionSkill();
-                                $skill->level = $inventionSkillData['level'];
-                                $skill->typeID = $inventionSkillData['typeID'];
-                                $skill->blueprints_invention_id = $blueprintInvention->id;
-                                $skill->save();
-                            }
-                        }
-                        //loop over products
-                        if ($type == 'products') {
-                            foreach ($inventionData as $inventionProductData) {
-                                $product = new BlueprintInventionProduct();
-                                $product->blueprints_invention_id = $blueprintInvention->id;
-                                $product->typeID = $inventionProductData['typeID'];
-                                $product->quantity = $inventionProductData['quantity'];
-                                $product->probability = $inventionProductData['probability'] ?? null;
-                                $product->save();
-                            }
-                        }
-                        //loop over materials
-                        if ($type == 'materials') {
-                            foreach ($inventionData as $inventionMaterialData) {
-                                $material = new BlueprintInventionMaterial();
-                                $material->blueprints_invention_id = $blueprintInvention->id;
-                                $material->typeID = $inventionMaterialData['typeID'];
-                                $material->quantity = $inventionMaterialData['quantity'];
-                                $material->save();
-                            }
-                        }
-                    }
+                foreach ($mfg['products'] ?? [] as $row) {
+                    $mfgProducts["{$mfgId}_{$row['typeID']}"] = [
+                        'blueprints_manufacturing_id' => $mfgId,
+                        'typeID' => $row['typeID'],
+                        'quantity' => $row['quantity']
+                    ];
+                }
+                foreach ($mfg['materials'] ?? [] as $row) {
+                    $mfgMaterials["{$mfgId}_{$row['typeID']}"] = [
+                        'blueprints_manufacturing_id' => $mfgId,
+                        'typeID' => $row['typeID'],
+                        'quantity' => $row['quantity']
+                    ];
                 }
             }
-        } else {
-            $data = collect($this->data);
-            $hashes = $data->pluck('hash')->toArray();
-            $keys = $data->pluck('_key')->toArray();
 
-            $blueprints = Blueprint::query()
-                ->whereIn('_key', $keys)
-                ->with(['manufacturing.material', 'manufacturing.products', 'manufacturing.skills', 'invention.material', 'invention.products', 'invention.skills'])
-                ->get()->keyBy('_key');
+            // Process Invention children
+            if (isset($sdeData['activities']['invention']) && isset($invIdMap[$key])) {
+                $invId = $invIdMap[$key];
+                $inv = $sdeData['activities']['invention'];
 
-            foreach ($this->data as $value) {
+                foreach ($inv['skills'] ?? [] as $row) {
+                    $invSkills["{$invId}_{$row['typeID']}"] = [
+                        'blueprints_invention_id' => $invId,
+                        'typeID' => $row['typeID'],
+                        'level' => $row['level']
+                    ];
+                }
+                foreach ($inv['products'] ?? [] as $row) {
+                    $invProducts["{$invId}_{$row['typeID']}"] = [
+                        'blueprints_invention_id' => $invId,
+                        'typeID' => $row['typeID'],
+                        'quantity' => $row['quantity'],
+                        'probability' => $row['probability'] ?? null
+                    ];
+                }
+                foreach ($inv['materials'] ?? [] as $row) {
+                    $invMaterials["{$invId}_{$row['typeID']}"] = [
+                        'blueprints_invention_id' => $invId,
+                        'typeID' => $row['typeID'],
+                        'quantity' => $row['quantity']
+                    ];
+                }
+            }
 
-                if ($blueprint = $blueprints[$value['_key']]) {
+            // Process Reaction children
+            if (isset($sdeData['activities']['reaction']) && isset($reacIdMap[$key])) {
+                $reacId = $reacIdMap[$key];
+                $reac = $sdeData['activities']['reaction'];
 
-                    if (in_array($blueprint->hash, $hashes)) {
-                        continue;
-                    }
-
-                    $blueprint->blueprintTypeID = $value['blueprintTypeID'];
-                    $blueprint->maxProductionLimit = $value['maxProductionLimit'];
-                    // $blueprint->hash = $value['hash'];
-                    $blueprint->copy_time = $value['activities']['copying']['time'] ?? 0;
-                    $blueprint->material_time = $value['activities']['research_material']['time'] ?? 0;
-                    $blueprint->research_time = $value['activities']['research_time']['time'] ?? 0;
-
-                    $blueprint->save();
-
-                    if ($value['activities']['manufacturing']) {
-                        $manufacturing = $blueprint->manufacturing;
-
-                        if ($manufacturing) {
-                            $manufacturing->time = $value['activities']['manufacturing']['time'];
-                            $manufacturing->save();
-                        }
-                    }
-
-                    if ($value['activities']['invention']) {
-                    }
+                foreach ($reac['skills'] ?? [] as $row) {
+                    $reacSkills["{$reacId}_{$row['typeID']}"] = [
+                        'blueprints_reaction_id' => $reacId,
+                        'typeID' => $row['typeID'],
+                        'level' => $row['level']
+                    ];
+                }
+                foreach ($reac['products'] ?? [] as $row) {
+                    $reacProducts["{$reacId}_{$row['typeID']}"] = [
+                        'blueprints_reaction_id' => $reacId,
+                        'typeID' => $row['typeID'],
+                        'quantity' => $row['quantity'],
+                    ];
+                }
+                foreach ($reac['materials'] ?? [] as $row) {
+                    $reacMaterials["{$reacId}_{$row['typeID']}"] = [
+                        'blueprints_reaction_id' => $reacId,
+                        'typeID' => $row['typeID'],
+                        'quantity' => $row['quantity']
+                    ];
                 }
             }
         }
+
+        // Phase 4: Batch save clean, unique chunks
+        DB::transaction(function () use (
+            $mfgSkills,
+            $mfgProducts,
+            $mfgMaterials,
+            $invSkills,
+            $invProducts,
+            $invMaterials,
+            $reacSkills,
+            $reacProducts,
+            $reacMaterials
+        ) {
+            // Manufacturing Child Batches
+            if (!empty($mfgSkills)) {
+                BlueprintManufacturingSkill::query()->upsert(array_values($mfgSkills), ['blueprints_manufacturing_id', 'typeID'], ['level']);
+            }
+            if (!empty($mfgProducts)) {
+                BlueprintManufacturingProduct::query()->upsert(array_values($mfgProducts), ['blueprints_manufacturing_id', 'typeID'], ['quantity']);
+            }
+            if (!empty($mfgMaterials)) {
+                BlueprintManufacturingMaterial::query()->upsert(array_values($mfgMaterials), ['blueprints_manufacturing_id', 'typeID'], ['quantity']);
+            }
+
+            // Invention Child Batches
+            if (!empty($invSkills)) {
+                BlueprintInventionSkill::query()->upsert(array_values($invSkills), ['blueprints_invention_id', 'typeID'], ['level']);
+            }
+            if (!empty($invProducts)) {
+                BlueprintInventionProduct::query()->upsert(array_values($invProducts), ['blueprints_invention_id', 'typeID'], ['quantity', 'probability']);
+            }
+            if (!empty($invMaterials)) {
+                BlueprintInventionMaterial::query()->upsert(array_values($invMaterials), ['blueprints_invention_id', 'typeID'], ['quantity']);
+            }
+
+            // Reaction Child Batches
+            if (!empty($reacSkills)) {
+                BlueprintReactionSkill::query()->upsert(array_values($reacSkills), ['blueprints_reaction_id', 'typeID'], ['level']);
+            }
+            if (!empty($reacProducts)) {
+                BlueprintReactionProduct::query()->upsert(array_values($reacProducts), ['blueprints_reaction_id', 'typeID'], ['quantity']);
+            }
+            if (!empty($reacMaterials)) {
+                BlueprintReactionMaterial::query()->upsert(array_values($reacMaterials), ['blueprints_reaction_id', 'typeID'], ['quantity']);
+            }
+        });
     }
 }

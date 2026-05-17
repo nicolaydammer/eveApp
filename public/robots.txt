@@ -1,2 +1,50 @@
+Plaintext
+# -------------------------------------------------------------
+# GLOBAL DIRECTIVES & TRADITIONAL SEARCH
+# -------------------------------------------------------------
 User-agent: *
-Disallow:
+Disallow: /wp-admin/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /*?s=          # Blocks internal search result spam
+Disallow: /*?sort=       # Blocks infinite crawl loops from e-commerce filters
+
+# -------------------------------------------------------------
+# BLOCK BULK AI MODEL TRAINERS (Bandwidth & IP Protection)
+# -------------------------------------------------------------
+# OpenAI's training bot
+User-agent: GPTBot
+Disallow: /
+
+# Anthropic's training bot
+User-agent: ClaudeBot
+Disallow: /
+
+# Meta's AI crawler
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+# Common Crawl (Massive repository used to train dozens of LLMs)
+User-agent: CCBot
+Disallow: /
+
+# ByteDance (TikTok's aggressive scraper)
+User-agent: Bytespider
+Disallow: /
+
+# Google's AI training toggle (Blocks Gemini/Vertex training)
+User-agent: Google-Extended
+Disallow: /
+
+# -------------------------------------------------------------
+# ALLOW REAL-TIME AI SEARCH & REFERRAL AGENTS
+# -------------------------------------------------------------
+# OpenAI's real-time search engine (Powers web search citations in ChatGPT)
+User-agent: OAI-SearchBot
+Allow: /
+
+# Perplexity's citation bot
+User-agent: PerplexityBot
+Allow: /

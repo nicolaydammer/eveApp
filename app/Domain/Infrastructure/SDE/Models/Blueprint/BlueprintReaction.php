@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class BlueprintInvention extends Model
+class BlueprintReaction extends Model
 {
-    public $table = 'sde.blueprints_invention';
+    public $table = 'sde.blueprints_reaction';
 
     public $timestamps = false;
 
@@ -19,21 +19,21 @@ class BlueprintInvention extends Model
 
     public function blueprint(): BelongsTo
     {
-        return $this->belongsTo(BlueprintInvention::class, 'blueprintID', '_key');
+        return $this->belongsTo(Blueprint::class, 'blueprintID', '_key');
     }
 
     public function materials(): HasMany
     {
-        return $this->hasMany(BlueprintInventionMaterial::class, 'blueprints_invention_id', 'id');
+        return $this->hasMany(BlueprintReactionMaterial::class, 'blueprints_reaction_id', 'id');
     }
 
     public function products(): HasMany
     {
-        return $this->hasMany(BlueprintInventionProduct::class, 'blueprints_invention_id', 'id');
+        return $this->hasMany(BlueprintReactionProduct::class, 'blueprints_reaction_id', 'id');
     }
 
     public function skills(): HasMany
     {
-        return $this->hasMany(BlueprintInventionSkill::class, 'blueprints_invention_id', 'id');
+        return $this->hasMany(BlueprintReactionSkill::class, 'blueprints_reaction_id', 'id');
     }
 }

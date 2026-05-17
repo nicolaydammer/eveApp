@@ -69,7 +69,7 @@ class UpdateSDE
         }
 
         // new build and supported
-        if (($latestVersion <= $supportedVersion) && ($latestVersion !== $currentVersion) && ($currentVersion !== $supportedVersion)) {
+        if (($latestVersion <= $supportedVersion) && ($latestVersion !== $currentVersion) && ($currentVersion !== $supportedVersion) && $this->stateRepository->hasSDEFiles()) {
 
             $stashCurrentSDEFiles = true;
             $needsDownload = true;

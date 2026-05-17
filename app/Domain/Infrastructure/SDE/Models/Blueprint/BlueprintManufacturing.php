@@ -19,10 +19,10 @@ class BlueprintManufacturing extends Model
 
     public function blueprint(): BelongsTo
     {
-        return $this->belongsTo(BlueprintManufacturing::class, 'blueprintID', '_key');
+        return $this->belongsTo(Blueprint::class, 'blueprintID', '_key');
     }
 
-    public function material(): HasMany
+    public function materials(): HasMany
     {
         return $this->hasMany(BlueprintManufacturingMaterial::class, 'blueprints_manufacturing_id', 'id');
     }

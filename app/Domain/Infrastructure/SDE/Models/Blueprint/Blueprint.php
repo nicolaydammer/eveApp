@@ -5,7 +5,7 @@ namespace App\Domain\Infrastructure\SDE\Models\Blueprint;
 use App\Domain\Infrastructure\SDE\Models\Type;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Blueprint extends Model
 {
@@ -36,13 +36,18 @@ class Blueprint extends Model
         return $this->belongsTo(Type::class, 'blueprintTypeID', '_key');
     }
 
-    public function invention(): HasMany
+    public function invention(): HasOne
     {
-        return $this->hasMany(BlueprintInvention::class, 'blueprintID', '_key');
+        return $this->hasOne(BlueprintInvention::class, 'blueprintID', '_key');
     }
 
-    public function manufacturing(): HasMany
+    public function manufacturing(): HasOne
     {
-        return $this->hasMany(BlueprintManufacturing::class, 'blueprintID', '_key');
+        return $this->hasOne(BlueprintManufacturing::class, 'blueprintID', '_key');
+    }
+
+    public function reaction(): HasOne
+    {
+        return $this->hasOne(BlueprintReaction::class, 'blueprintID', '_key');
     }
 }

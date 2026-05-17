@@ -6,21 +6,21 @@ use App\Domain\Infrastructure\SDE\Models\Type;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class BlueprintManufacturingProduct extends Model
+class BlueprintReactionMaterial extends Model
 {
-    public $table = 'sde.blueprints_manufacturing_products';
+    public $table = 'sde.blueprints_reaction_materials';
 
     public $timestamps = false;
 
     protected $fillable = [
         'typeID',
         'quantity',
-        'blueprints_manufacturing_id',
+        'blueprints_reaction_id'
     ];
 
-    public function manufacturing(): BelongsTo
+    public function reaction(): BelongsTo
     {
-        return $this->belongsTo(BlueprintManufacturing::class, 'blueprints_manufacturing_id', 'id');
+        return $this->belongsTo(BlueprintReaction::class, 'blueprints_reaction_id', 'id');
     }
 
     public function type(): BelongsTo
