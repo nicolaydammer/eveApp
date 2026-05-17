@@ -1,0 +1,80 @@
+{
+  "_index-BIt4J21Q.js": {
+    "file": "assets/index-BIt4J21Q.js",
+    "name": "index",
+    "imports": [
+      "_vendor-D746-a3O.js"
+    ]
+  },
+  "_react-l0sNRNKZ.js": {
+    "file": "assets/react-l0sNRNKZ.js",
+    "name": "react"
+  },
+  "_vendor-D746-a3O.js": {
+    "file": "assets/vendor-D746-a3O.js",
+    "name": "vendor"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2": {
+    "file": "assets/geist-cyrillic-wght-normal-CHSlOQsW.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2": {
+    "file": "assets/geist-latin-ext-wght-normal-DMtmJ5ZE.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2": {
+    "file": "assets/geist-latin-wght-normal-Dm3htQBi.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-yKFDGrVJ.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/Pages/Dashboard.tsx": {
+    "file": "assets/Dashboard-C5oBRlA7.js",
+    "name": "Dashboard",
+    "src": "resources/js/Pages/Dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx",
+      "_vendor-D746-a3O.js",
+      "_index-BIt4J21Q.js"
+    ]
+  },
+  "resources/js/Pages/Home.tsx": {
+    "file": "assets/Home-CpY9Kvrw.js",
+    "name": "Home",
+    "src": "resources/js/Pages/Home.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx",
+      "_index-BIt4J21Q.js",
+      "_vendor-D746-a3O.js"
+    ]
+  },
+  "resources/js/Pages/Industry.tsx": {
+    "file": "assets/Industry-BXk3xhuJ.js",
+    "name": "Industry",
+    "src": "resources/js/Pages/Industry.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx",
+      "_vendor-D746-a3O.js"
+    ]
+  },
+  "resources/js/app.tsx": {
+    "file": "assets/app-CANjIDQk.js",
+    "name": "app",
+    "src": "resources/js/app.tsx",
+    "isEntry": true,
+    "imports": [
+      "_vendor-D746-a3O.js"
+    ],
+    "dynamicImports": [
+      "resources/js/Pages/Dashboard.tsx",
+      "resources/js/Pages/Home.tsx",
+      "resources/js/Pages/Industry.tsx"
+    ]
+  }
+}

@@ -4,6 +4,7 @@ namespace App\Domain\Infrastructure\SDE\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Group extends Model
 {
@@ -42,4 +43,9 @@ class Group extends Model
         'anchored' => 'boolean',
         'fittableNonSingleton' => 'boolean',
     ];
+
+    public function type(): HasOne
+    {
+        return $this->hasOne(Type::class, 'groupID', '_key');
+    }
 }

@@ -2,8 +2,11 @@
 
 namespace App\Domain\Infrastructure\SDE\Models;
 
+use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Type extends Model
 {
@@ -63,4 +66,14 @@ class Type extends Model
         'capacity' => 'float',
         'marketGroupID' => 'integer',
     ];
+
+    public function blueprint(): HasOne
+    {
+        return $this->hasOne(Blueprint::class, 'blueprintTypeID', '_key');
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class, 'groupID', '_key');
+    }
 }

@@ -7,6 +7,7 @@ use App\Domain\SDE\Jobs\AbstractSDEJob;
 use App\Domain\SDE\Jobs\SDEJobInterface;
 use App\Domain\SDE\Mapping\SDEModelResolver;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
 {
@@ -14,7 +15,10 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
     /**
      * Create a new job instance.
      */
-    public function __construct(private string $modelName, private array $data, private bool $firstTime) {}
+    public function __construct(string $modelName, array $data, bool $firstTime)
+    {
+        return parent::__construct($modelName, $data, $firstTime);
+    }
 
     /**
      * Execute the job.
@@ -22,7 +26,7 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
     public function handle(SDEModelResolver $SDEModelResolver): void
     {
         // get model name
-        $modelName = substr($this->modelName, 0, -6);
+        $modelName = $this->trimFileExtension($this->modelName, '.jsonl');
         $modelName = $SDEModelResolver->resolveModelName($modelName);
 
         $modelClass = "App\\Domain\\Infrastructure\\SDE\\Models\\{$modelName}";
@@ -30,6 +34,9 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
         $table = $modelClassInstance->getTable();
         $fillables = $modelClassInstance->getFillable();
         $unsetKeys = [];
+
+        $ids = collect($this->data)->pluck('_key')->toArray();
+        $hashesInDB = DB::table($table)->whereIn('_key', $ids)->get()->pluck('hash')->toArray();
 
         // make all keys populated
         $allKeys = [];
@@ -46,8 +53,7 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
 
             if (! $this->firstTime) {
                 // throw out stuff if its not needed for an update
-                $dbData = DB::table($table)->select('hash')->where('_key', '=', $row['_key'])->get();
-                if (count($dbData) == 1 && $dbData->first()->hash == $row['hash']) {
+                if (in_array($row['hash'], $hashesInDB)) {
                     $unsetKeys[] = $row['_key'];
                 }
             }
