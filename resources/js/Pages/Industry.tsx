@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import AppLayout from "@/Layouts/AppLayout.js";
+import MaterialRequirementsTable from "@/Components/MaterialRequirementsTable";
 
 export default function Industry({ results = [] }) {
-    // Form data tracking for the blueprint selection
     const { data, setData } = useForm({
         blueprint_key: '',
     });
@@ -12,7 +12,7 @@ export default function Industry({ results = [] }) {
     const [loading, setLoading] = useState(false);
     const [selectedBlueprint, setSelectedBlueprint] = useState(null);
 
-    // Debounced Native Inertia Route Request
+    // Inertia handle for search bar ONLY
     useEffect(() => {
         if (!search.trim()) {
             router.get(window.location.pathname, { search: '' }, {
@@ -29,9 +29,9 @@ export default function Industry({ results = [] }) {
                 window.location.pathname,
                 { search: search },
                 {
-                    preserveState: true,  // Keeps component fields from clearing out
-                    preserveScroll: true, // Prevents sudden window jumps
-                    only: ['results'],    // Tells Laravel to ONLY fire the lazy results method
+                    preserveState: true,
+                    preserveScroll: true,
+                    only: ['results'],
                     onFinish: () => setLoading(false)
                 }
             );
@@ -41,8 +41,8 @@ export default function Industry({ results = [] }) {
     }, [search]);
 
     const handleSelect = (blueprint) => {
-        setData('blueprint_key', blueprint._key);
         setSelectedBlueprint(blueprint);
+        setData('blueprint_key', blueprint._key);
         setSearch('');
     };
 
@@ -60,39 +60,37 @@ export default function Industry({ results = [] }) {
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">EVE Dashboard</h1>
 
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-                    <div className="flex gap-3">
-
-                    </div>
-
-                </div>
-
-
-                <div className="w-full max-w-md mx-auto p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm">
-                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Target Blueprint
-                    </label>
-
-                    {/* STATE 1: Blueprint Selected */}
-                    {selectedBlueprint ? (
-                        <div className="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-200 rounded-lg shadow-sm">
-                            <div>
-                                <p className="text-sm font-semibold text-indigo-900">
-                                    {selectedBlueprint.name}
-                                </p>
+                    {/* Snap target blueprint to top right upon selection */}
+                    {selectedBlueprint && (
+                        <div className="w-80 bg-gray-900 text-white p-3 rounded-lg border border-gray-700 shadow-md flex items-center justify-between">
+                            <div className="truncate pr-2">
+                                <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Target Blueprint</p>
+                                <p className="text-sm font-semibold truncate text-indigo-400">{selectedBlueprint.name}</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={handleClear}
-                                className="px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded-md transition-colors"
+                                className="px-2.5 py-1 text-xs font-medium text-white bg-gray-800 hover:bg-gray-700 rounded-md border border-gray-600 transition-colors"
                             >
                                 Change
                             </button>
                         </div>
-                    ) : (
-                        /* STATE 2: Active Search Input */
+                    )}
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                    <div className="flex gap-3">
+                        {/* Space left intentionally for header row controls */}
+                    </div>
+                </div>
+
+                {/* Search Bar Input State */}
+                {!selectedBlueprint && (
+                    <div className="w-full max-w-md mx-auto p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm">
+                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                            Target Blueprint
+                        </label>
+
                         <div className="relative">
                             <div className="relative flex items-center">
                                 <input
@@ -113,7 +111,6 @@ export default function Industry({ results = [] }) {
                                 )}
                             </div>
 
-                            {/* Dropdown Options overlay */}
                             {search.trim().length > 0 && (
                                 <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-64 overflow-y-auto divide-y divide-gray-100">
                                     {cleanResults.length === 0 && !loading ? (
@@ -137,8 +134,13 @@ export default function Industry({ results = [] }) {
                                 </div>
                             )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+
+                {/* Simply pass the raw string _key property down to encapsulate everything */}
+                {selectedBlueprint && (
+                    <MaterialRequirementsTable blueprintKey={selectedBlueprint._key} />
+                )}
             </div>
         </AppLayout>
     );

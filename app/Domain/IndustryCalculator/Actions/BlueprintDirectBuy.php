@@ -6,7 +6,7 @@ use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
 
 class BlueprintDirectBuy
 {
-    public function instaBuy(int $blueprintID)
+    public function directBuy(int $blueprintID): array
     {
         $blueprint = Blueprint::query()
             ->with([
@@ -25,7 +25,7 @@ class BlueprintDirectBuy
             ->first();
 
         if (!$blueprint) {
-            return response()->json(['error' => 'Blueprint not found'], 404);
+            throw new \Exception("Blueprint with ID {$blueprintID} not found.");
         }
 
         $requiredSkills = [];

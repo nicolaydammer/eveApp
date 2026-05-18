@@ -18,4 +18,4 @@ Route::post('/set-main-character/{CharacterID}', [DashboardController::class, 's
 Route::get('/industry', [IndustryController::class, 'index'])->middleware('auth')->name('industry');
 
 Route::get('/industry/full-tree/{_key}', [\App\Http\Controllers\Web\IndustryController::class, 'getFullTree'])->middleware('auth')->name('industry.fullTree');
-Route::get('/industry/direct-buy/{_key}', [\App\Http\Controllers\Web\IndustryController::class, 'instaBuy'])->middleware('auth')->name('industry.instaBuy');
+Route::get('/industry/direct-buy/{_key}', [\App\Http\Controllers\Web\IndustryController::class, 'directBuy'])->middleware('auth')->name('industry.directBuy');

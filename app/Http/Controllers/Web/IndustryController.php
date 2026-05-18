@@ -23,12 +23,12 @@ class IndustryController
     public function getFullTree(int $_key)
     {
         $action = new \App\Domain\IndustryCalculator\Actions\BlueprintTree();
-        return response()->json($action->getTree($_key));
+        return $action->getTree($_key);
     }
 
-    public function instaBuy(int $_key)
+    public function directBuy(int $_key)
     {
         $action = new \App\Domain\IndustryCalculator\Actions\BlueprintDirectBuy();
-        return response()->json($action->instaBuy($_key));
+        return $action->directBuy($_key);
     }
 }

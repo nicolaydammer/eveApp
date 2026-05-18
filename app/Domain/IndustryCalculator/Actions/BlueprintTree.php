@@ -5,11 +5,12 @@ namespace App\Domain\IndustryCalculator\Actions;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingProduct;
 use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionProduct;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 
 class BlueprintTree
 {
-    public function getTree(int $blueprintTypeID)
+    public function getTree(int $blueprintTypeID): array
     {
         // 1. Fetch Root Formula Record
         $rootBlueprint = Blueprint::query()
@@ -26,7 +27,7 @@ class BlueprintTree
             ->first();
 
         if (!$rootBlueprint) {
-            return response()->json(['error' => 'Blueprint formula entry not found'], 404);
+            throw new Exception('Blueprint not found');
         }
 
         $rootActivity = $rootBlueprint->manufacturing ?? $rootBlueprint->reaction;
