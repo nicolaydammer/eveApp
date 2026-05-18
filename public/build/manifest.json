@@ -1,75 +1,101 @@
 {
-  "_index-BIt4J21Q.js": {
-    "file": "assets/index-BIt4J21Q.js",
-    "name": "index",
+  "_AppLayout-D_xT9nXN.js": {
+    "file": "assets/AppLayout-D_xT9nXN.js",
+    "name": "AppLayout",
     "imports": [
-      "_vendor-D746-a3O.js"
+      "resources/js/app.tsx",
+      "_vendor-D-91PCVR.js",
+      "_createLucideIcon-DZQAKJsY.js"
     ]
+  },
+  "_createLucideIcon-DZQAKJsY.js": {
+    "file": "assets/createLucideIcon-DZQAKJsY.js",
+    "name": "createLucideIcon",
+    "imports": [
+      "_vendor-D-91PCVR.js"
+    ]
+  },
+  "_index-FSFl0VXl.js": {
+    "file": "assets/index-FSFl0VXl.js",
+    "name": "index"
   },
   "_react-l0sNRNKZ.js": {
     "file": "assets/react-l0sNRNKZ.js",
     "name": "react"
   },
-  "_vendor-D746-a3O.js": {
-    "file": "assets/vendor-D746-a3O.js",
+  "_vendor-D-91PCVR.js": {
+    "file": "assets/vendor-D-91PCVR.js",
     "name": "vendor"
   },
+  "node_modules/@fontsource-variable/geist/files/geist-cyrillic-ext-wght-normal.woff2": {
+    "file": "assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-cyrillic-ext-wght-normal.woff2"
+  },
   "node_modules/@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2": {
-    "file": "assets/geist-cyrillic-wght-normal-CHSlOQsW.woff2",
+    "file": "assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2",
     "src": "node_modules/@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2"
   },
   "node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2": {
-    "file": "assets/geist-latin-ext-wght-normal-DMtmJ5ZE.woff2",
+    "file": "assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2",
     "src": "node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2"
   },
   "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2": {
-    "file": "assets/geist-latin-wght-normal-Dm3htQBi.woff2",
+    "file": "assets/geist-latin-wght-normal-BgDaEnEv.woff2",
     "src": "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2"
   },
+  "node_modules/@fontsource-variable/geist/files/geist-vietnamese-wght-normal.woff2": {
+    "file": "assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-vietnamese-wght-normal.woff2"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-yKFDGrVJ.css",
+    "file": "assets/app-GA-9M6fm.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/Pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-C5oBRlA7.js",
+    "file": "assets/Dashboard-rZB5yGVw.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
-      "_vendor-D746-a3O.js",
-      "_index-BIt4J21Q.js"
+      "_vendor-D-91PCVR.js",
+      "_AppLayout-D_xT9nXN.js",
+      "_index-FSFl0VXl.js",
+      "_createLucideIcon-DZQAKJsY.js"
     ]
   },
   "resources/js/Pages/Home.tsx": {
-    "file": "assets/Home-CpY9Kvrw.js",
+    "file": "assets/Home-Cw1winct.js",
     "name": "Home",
     "src": "resources/js/Pages/Home.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
-      "_index-BIt4J21Q.js",
-      "_vendor-D746-a3O.js"
+      "_index-FSFl0VXl.js",
+      "_vendor-D-91PCVR.js",
+      "_createLucideIcon-DZQAKJsY.js"
     ]
   },
   "resources/js/Pages/Industry.tsx": {
-    "file": "assets/Industry-BXk3xhuJ.js",
+    "file": "assets/Industry-C_eTeH8_.js",
     "name": "Industry",
     "src": "resources/js/Pages/Industry.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
-      "_vendor-D746-a3O.js"
+      "_vendor-D-91PCVR.js",
+      "_AppLayout-D_xT9nXN.js",
+      "_createLucideIcon-DZQAKJsY.js"
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-CANjIDQk.js",
+    "file": "assets/app-BnV1Saz9.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
     "imports": [
-      "_vendor-D746-a3O.js"
+      "_vendor-D-91PCVR.js"
     ],
     "dynamicImports": [
       "resources/js/Pages/Dashboard.tsx",
