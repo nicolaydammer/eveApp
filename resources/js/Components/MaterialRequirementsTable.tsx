@@ -228,7 +228,6 @@ export default function MaterialRequirementsTable({ blueprintKey }) {
 
                 <div className="bg-slate-900/60 px-5 py-3.5 border-b border-slate-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-glow animate-pulse" />
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Required Materials</h3>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -368,8 +367,8 @@ export default function MaterialRequirementsTable({ blueprintKey }) {
                                         <div className="flex gap-1">
                                             {[1, 2, 3, 4, 5].map((lvl) => (
                                                 <span key={lvl} className={`w-3.5 h-3.5 rounded-xs border text-[9px] font-black flex items-center justify-center select-none ${lvl <= skill.level
-                                                        ? 'bg-indigo-600 border-indigo-400 text-white'
-                                                        : 'border-slate-800 bg-slate-950 text-slate-700'
+                                                    ? 'bg-indigo-600 border-indigo-400 text-white'
+                                                    : 'border-slate-800 bg-slate-950 text-slate-700'
                                                     }`}>
                                                     {lvl}
                                                 </span>
@@ -404,8 +403,8 @@ export default function MaterialRequirementsTable({ blueprintKey }) {
                         onClick={handleCopyToClipboard}
                         disabled={loading}
                         className={`inline-flex items-center gap-2.5 px-5 py-3 text-xs font-black rounded-xl border uppercase tracking-wider shadow-xl transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 ${copied
-                                ? 'bg-emerald-950/50 border-emerald-500 text-emerald-400'
-                                : 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-indigo-400 hover:text-indigo-300'
+                            ? 'bg-emerald-950/50 border-emerald-500 text-emerald-400'
+                            : 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-indigo-400 hover:text-indigo-300'
                             }`}
                     >
                         {copied ? '✓ Copied Adjusted Requirements!' : '📋 Copy Multibuy List'}
