@@ -11,7 +11,7 @@ class SSOClient
 {
     public function getAuthorizationUrl(): string
     {
-        return 'https://login.eveonline.com/v2/oauth/authorize?'.http_build_query([
+        return 'https://login.eveonline.com/v2/oauth/authorize?' . http_build_query([
             'response_type' => 'code',
             'client_id' => config('eve.client_id'),
             'redirect_uri' => config('eve.redirect_uri'),
@@ -30,7 +30,7 @@ class SSOClient
             ]);
 
         if ($response->failed()) {
-            throw new \Exception('Failed to exchange code: '.$response->body());
+            throw new \Exception('Failed to exchange code: ' . $response->body());
         }
 
         return new TokenData(
@@ -47,7 +47,7 @@ class SSOClient
             ->get('https://login.eveonline.com/oauth/verify');
 
         if ($response->failed()) {
-            throw new \Exception('Failed to verify token: '.$response->body());
+            throw new \Exception('Failed to verify token: ' . $response->body());
         }
 
         return new VerifyOauthData(
@@ -70,7 +70,7 @@ class SSOClient
                 ]);
 
             if ($response->failed()) {
-                throw new \Exception('Failed to refresh token: '.$response->body());
+                throw new \Exception('Failed to refresh token: ' . $response->body());
             }
 
             $character->update([
