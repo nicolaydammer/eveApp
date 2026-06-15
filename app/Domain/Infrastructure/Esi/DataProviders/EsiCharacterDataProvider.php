@@ -29,7 +29,9 @@ class EsiCharacterDataProvider implements EsiDataProviderInterface
             $esiData['name'],
             $esiData['security_status'] ?? null,
             now()->addHours(12),
-            $esiData['title'] ?? null
+            $esiData['corporation_title'] ?? null,
+            $esiData['character_title_id'] ?? null,
+            $esiData['achievement_score'] ?? null
         );
     }
 }

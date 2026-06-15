@@ -20,7 +20,9 @@ class Character extends Model
         'gender',
         'name',
         'security_status',
-        'title',
+        'corporation_title',
+        'character_title_id',
+        'achievement_score',
         'expires_at',
     ];
 

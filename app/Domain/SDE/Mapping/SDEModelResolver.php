@@ -63,7 +63,8 @@ class SDEModelResolver
         'compressibleTypes' => 'CompressibleType',
         'dungeons' => 'Dungeon',
         'typeLists' => 'TypeList',
-        'archetypes' => 'ArcheType'
+        'archetypes' => 'ArcheType',
+        'characterTitles' => 'CharacterTitle',
     ];
 
     public function __construct() {}

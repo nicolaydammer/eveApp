@@ -20,7 +20,9 @@ readonly class CharacterDTO implements EsiDtoInterface
         public string $name,
         public ?int $security_status,
         public DateTime $expires_at,
-        public ?string $title
+        public ?string $corporation_title,
+        public ?string $character_title_id,
+        public ?int $achievement_score
     ) {}
 
     public function isStale(): bool
@@ -44,7 +46,9 @@ readonly class CharacterDTO implements EsiDtoInterface
             'name' => $this->name,
             'security_status' => $this->security_status,
             'expires_at' => $this->expires_at,
-            'title' => $this->title
+            'corporation_title' => $this->corporation_title,
+            'character_title_id' => $this->character_title_id,
+            'achievement_score' => $this->achievement_score,
         ];
     }
 }

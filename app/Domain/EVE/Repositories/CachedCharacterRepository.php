@@ -33,7 +33,9 @@ class CachedCharacterRepository implements CachedRepositoryInterface
             $character->name,
             $character->security_status,
             $character->expires_at,
-            $character->title
+            $character->corporation_title,
+            $character->character_title_id,
+            $character->achievement_score
         );
     }
 
