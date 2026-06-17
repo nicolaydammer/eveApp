@@ -16,6 +16,7 @@ class IndustryController
         }
 
         return Inertia::render('Industry', [
+            'search' => $search,
             'results' => $blueprintManufactureViewModel->toArray($search)
         ]);
     }

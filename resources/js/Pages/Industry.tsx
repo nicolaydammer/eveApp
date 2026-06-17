@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import AppLayout from "@/Layouts/AppLayout.js";
-import MaterialRequirementsTable from "@/Components/MaterialRequirementsTable";
+import IndustryCalculator from "@/industry/IndustryCalculator.js";
 
 export default function Industry({ results = [] }) {
     const { data, setData } = useForm({
@@ -137,9 +137,10 @@ export default function Industry({ results = [] }) {
                     </div>
                 )}
 
-                {/* Simply pass the raw string _key property down to encapsulate everything */}
                 {selectedBlueprint && (
-                    <MaterialRequirementsTable blueprintKey={selectedBlueprint._key} />
+                    <IndustryCalculator
+                        blueprintKey={selectedBlueprint._key}
+                    />
                 )}
             </div>
         </AppLayout>

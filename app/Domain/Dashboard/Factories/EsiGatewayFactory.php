@@ -49,7 +49,7 @@ class EsiGatewayFactory
             $this->container->make(CachedAllianceRepository::class),
             $this->container->make(EsiAllianceDataProvider::class),
             $this->container->make(CacheSyncLock::class),
-            'corporation',
+            'alliance',
             SyncEsiAlliance::class
         );
     }
