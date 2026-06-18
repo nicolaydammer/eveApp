@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Web\Eve\SystemCostIndexController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\Eve\ListSystemsController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
 use App\Http\Controllers\Web\Industry\FullTreeController;
@@ -21,12 +23,17 @@ Route::prefix('industry')
     ->middleware('auth')
     ->group(function () {
 
-        Route::get('/', SearchController::class)
-            ->name('industry');
+        Route::get('/', SearchController::class)->name('industry');
 
-        Route::get('/full-tree/{_key}', FullTreeController::class)
-            ->name('industry.fullTree');
+        Route::get('/full-tree/{_key}', FullTreeController::class)->name('industry.fullTree');
 
-        Route::get('/direct-buy/{_key}', DirectBuyController::class)
-            ->name('industry.directBuy');
+        Route::get('/direct-buy/{_key}', DirectBuyController::class)->name('industry.directBuy');
+    });
+
+Route::prefix('eve')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/listSystems', ListSystemsController::class)->name('eve.listSystems');
+
+        Route::get('/system-cost-index', SystemCostIndexController::class)->name('eve.systemCostIndex');
     });
