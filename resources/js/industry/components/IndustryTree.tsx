@@ -1,19 +1,19 @@
-import { ProcessedIndustryNode } from "../types/ProcessedIndustryNode.js";
+import { ProcessedIndustryTree } from "../types/ProcessedIndustryTree.js";
 import IndustryNode from "./IndustryNode.js";
 
 interface IndustryTreeProps {
-    tree: ProcessedIndustryNode[];
+    tree: ProcessedIndustryTree;
 }
 
 export default function IndustryTree({
-    tree,
+    tree: { tree: nodes },
 }: IndustryTreeProps) {
 
     return (
         <>
-            {tree.map(node => (
+            {nodes.map(node => (
                 <IndustryNode
-                    key={node.material.typeID}
+                    key={node.typeID}
                     node={node}
                 />
             ))}

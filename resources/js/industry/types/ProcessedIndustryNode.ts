@@ -1,8 +1,10 @@
-import { IndustryMaterial } from "./IndustryMaterial.js";
-
 export interface ProcessedIndustryNode {
 
-    material: IndustryMaterial;
+    typeID: number;
+
+    name: string;
+
+    quantityPerRun: number;
 
     requiredUnits: number;
 

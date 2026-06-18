@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Web\IndustryController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\Industry\DirectBuyController;
+use App\Http\Controllers\Web\Industry\FullTreeController;
+use App\Http\Controllers\Web\Industry\SearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -15,7 +17,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::post('/set-main-character/{CharacterID}', [DashboardController::class, 'setMainCharacter'])->middleware('auth')->name('dashboard.setMainCharacter');
 
-Route::get('/industry', [IndustryController::class, 'index'])->middleware('auth')->name('industry');
+Route::prefix('industry')
+    ->middleware('auth')
+    ->group(function () {
 
-Route::get('/industry/full-tree/{_key}', [\App\Http\Controllers\Web\IndustryController::class, 'getFullTree'])->middleware('auth')->name('industry.fullTree');
-Route::get('/industry/direct-buy/{_key}', [\App\Http\Controllers\Web\IndustryController::class, 'directBuy'])->middleware('auth')->name('industry.directBuy');
+        Route::get('/', SearchController::class)
+            ->name('industry');
+
+        Route::get('/full-tree/{_key}', FullTreeController::class)
+            ->name('industry.fullTree');
+
+        Route::get('/direct-buy/{_key}', DirectBuyController::class)
+            ->name('industry.directBuy');
+    });

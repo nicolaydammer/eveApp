@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { IndustryPayload } from "./types/IndustryPayload.js";
 import { IndustrySettings } from "./types/IndustrySettings.js";
 import { getIndustryTree } from "./api/getIndustryTree.js";
-import { processIndustryTree } from "./ProcessIndustryTree.js";
+import { ProcessedIndustryTree, processIndustryTree } from "./processing/ProcessIndustryTree.js";
 import IndustryTree from "./components/IndustryTree.js";
 
 interface IndustryCalculatorProps {
@@ -46,15 +46,17 @@ export default function IndustryCalculator({
 
     }, [blueprintKey]);
 
-    const tree = useMemo(() => {
+    const tree: ProcessedIndustryTree = useMemo(() => {
 
         if (!payload) {
-            return [];
+            return {
+                tree: [],
+            };
         }
 
         return processIndustryTree(
             payload,
-            settings
+            settings,
         );
 
     }, [payload, settings]);

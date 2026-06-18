@@ -19,7 +19,7 @@ export default function IndustryNode({
             <div className="ml-4">
 
                 <div>
-                    <strong>{node.material.name}</strong>
+                    <strong>{node.name}</strong>
                 </div>
 
                 <div>
@@ -37,7 +37,7 @@ export default function IndustryNode({
             {node.children.map(child => (
 
                 <IndustryNode
-                    key={child.material.typeID}
+                    key={child.typeID}
                     node={child}
                 />
 
