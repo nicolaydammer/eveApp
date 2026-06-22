@@ -56,7 +56,7 @@ class SyncEveOnlineSDE extends Command
         }
 
         if (! $plan->isSupported) {
-            $this->error('There is a new build! ('.$plan->latestVersion.') But it is not supported by the application, notifiy the developer!');
+            $this->error('There is a new build! (' . $plan->latestVersion . ') But it is not supported by the application, notifiy the developer!');
         }
 
         if ($plan->stashCurrentSDEFiles) {
@@ -93,7 +93,7 @@ class SyncEveOnlineSDE extends Command
             $this->info('importing new SDE data into the database');
             $this->info('This might take some time depending on other running jobs and hardware.');
             $countJobs = $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
-            $this->info('Started '.$countJobs.' jobs to import the SDE data');
+            $this->info('Started ' . $countJobs . ' jobs to import the SDE data');
             $this->updateSDE->updateCurrentVersion($plan->latestVersion);
         }
 
@@ -107,7 +107,7 @@ class SyncEveOnlineSDE extends Command
             $this->info('importing new SDE data into the database');
             $this->info('This might take some time depending on other running jobs and hardware.');
             $countJobs = $this->runSDEImport->import($plan->isFreshInstall, (int) $this->option('batch'));
-            $this->info('Started '.$countJobs.' jobs to import the SDE data');
+            $this->info('Started ' . $countJobs . ' jobs to import the SDE data');
         }
     }
 }

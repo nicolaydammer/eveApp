@@ -37,7 +37,23 @@ services:
       test:
         - CMD
         - healthcheck-horizon
-
+scheduler:
+    image: serversideup/php:8.4-fpm-nginx
+    restart: unless-stopped
+    command:
+      - php
+      - /var/www/html/artisan
+      - schedule:work
+    stop_signal: SIGTERM
+    volumes:
+      - ${APP_SOURCE_DIR}:/var/www/html
+    depends_on:
+      php:
+        condition: service_started
+    healthcheck:
+      start_period: 10s
+      test:
+        - CMD
   redis:
     image: redis:alpine
     restart: unless-stopped

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('hash');
         });
 
-        (new VersionRepository())->setSupportedVersion(3393779);
+        (new VersionRepository())->setSupportedVersion(3396210);
 
         Schema::table('cache.characters', function (Blueprint $table) {
             $table->renameColumn('title', 'corporation_title');
