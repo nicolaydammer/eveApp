@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domain\Synchronization\Mappers;
+namespace App\Domain\Synchronization\Mapping;
 
 use App\Domain\Synchronization\Contracts\SynchronizationInterface;
 use InvalidArgumentException;
 
-final class SynchronizationMap
+final class SynchronizationClassMapping
 {
     private const MAP = [
         // 'industry-cost-indices' => SynchronizeIndustryCostIndices::class,

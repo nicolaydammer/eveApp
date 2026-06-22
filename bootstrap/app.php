@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Foundation\Application;
+use App\Domain\Health\Actions\ReportHealth;
+use App\Domain\Health\Mapping\HealthExceptionMapping;
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
@@ -20,5 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo('/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->report(function (Throwable $exception) {
+
+            if (! HealthExceptionMapping::has($exception::class)) {
+                return;
+            }
+
+            app(ReportHealth::class)->execute($exception);
+        });
     })->create();

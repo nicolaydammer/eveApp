@@ -3,7 +3,7 @@
 namespace App\Domain\Synchronization\Actions;
 
 use App\Domain\Synchronization\Enums\SynchronizationStatus;
-use App\Domain\Synchronization\Mappers\SynchronizationMap;
+use App\Domain\Synchronization\Mapping\SynchronizationClassMapping;
 use App\Domain\Synchronization\Models\Synchronization;
 
 class RunSynchronization
@@ -23,7 +23,7 @@ class RunSynchronization
 
     private function canRun(Synchronization $synchronization): bool
     {
-        if (! SynchronizationMap::has($synchronization->name)) {
+        if (! SynchronizationClassMapping::has($synchronization->name)) {
             return false;
         }
 
@@ -62,7 +62,7 @@ class RunSynchronization
 
     private function run(Synchronization $synchronization): void
     {
-        SynchronizationMap::resolve($synchronization->name)
+        SynchronizationClassMapping::resolve($synchronization->name)
             ->run($synchronization);
     }
 }
