@@ -22,20 +22,16 @@ class FinishSynchronization
             'finished_at' => $finishedAt,
             'last_synced_at' => $finishedAt,
             'next_synced_at' => $nextSyncAt,
+        ]);
+
+        $synchronization->loadMissing('latestRun');
+
+        $synchronization->latestRun?->update([
+            'status' => SynchronizationStatus::Success,
+            'finished_at' => $finishedAt,
 
             'completed_jobs' => $batch->processedJobs(),
             'failed_jobs' => $batch->failedJobs,
         ]);
-
-        $synchronization->runs()
-            ->latest('started_at')
-            ->first()
-            ?->update([
-                'status' => SynchronizationStatus::Success,
-                'finished_at' => $finishedAt,
-
-                'completed_jobs' => $batch->processedJobs(),
-                'failed_jobs' => $batch->failedJobs,
-            ]);
     }
 }

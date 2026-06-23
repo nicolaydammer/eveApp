@@ -11,6 +11,7 @@ use App\Domain\Synchronization\Contracts\SynchronizationInterface;
 use App\Domain\Synchronization\Helpers\SynchronizationLock;
 use App\Domain\Synchronization\Helpers\SynchronizationScheduler;
 use App\Domain\Synchronization\Models\Synchronization;
+use Exception;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
@@ -59,20 +60,14 @@ class IndustryCostIndices implements SynchronizationInterface
                 ->map(fn($chunk) => new SaveIndustryCostIndices($chunk->all()))
                 ->all();
 
-            $synchronization->refresh()->load('state');
-
-            $synchronization->state->update([
-                'expected_jobs' => count($jobs),
-                'completed_jobs' => 0,
-                'failed_jobs' => 0,
+            $synchronization->refresh()->load([
+                'state',
+                'latestRun',
             ]);
 
-            $synchronization->runs()
-                ->latest('started_at')
-                ->first()
-                ?->update([
-                    'expected_jobs' => count($jobs),
-                ]);
+            $synchronization->latestRun?->update([
+                'expected_jobs' => count($jobs),
+            ]);
 
             $synchronizationId = $synchronization->id;
 
@@ -105,9 +100,24 @@ class IndustryCostIndices implements SynchronizationInterface
                 })
                 ->dispatch();
         } catch (Throwable $exception) {
+
+            SynchronizationLock::lock(
+                $synchronization,
+                5,
+            );
+
+            app(FailSynchronization::class)->execute(
+                synchronization: $synchronization,
+                batch: null,
+                finishedAt: now(),
+            );
+
             throw new SynchronizationFailedException(
                 healthCode: 'industry.sync.fetch-indices',
                 previous: $exception,
+                context: [
+                    'message' => $exception->getMessage(),
+                ],
             );
         }
     }

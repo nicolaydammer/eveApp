@@ -35,10 +35,6 @@ return new class extends Migration
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamp('next_synced_at')->nullable();
 
-            $table->unsignedInteger('expected_jobs')->default(0);
-            $table->unsignedInteger('completed_jobs')->default(0);
-            $table->unsignedInteger('failed_jobs')->default(0);
-
             $table->timestamps();
 
             $table->unique('synchronization_id');
@@ -56,9 +52,9 @@ return new class extends Migration
             $table->timestamp('started_at');
             $table->timestamp('finished_at')->nullable();
 
-            $table->unsignedInteger('expected_jobs')->default(0);
-            $table->unsignedInteger('completed_jobs')->default(0);
-            $table->unsignedInteger('failed_jobs')->default(0);
+            $table->unsignedInteger('expected_jobs')->nullable();
+            $table->unsignedInteger('completed_jobs')->nullable();
+            $table->unsignedInteger('failed_jobs')->nullable();
 
             $table->timestamps();
 

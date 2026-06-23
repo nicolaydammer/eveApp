@@ -11,7 +11,7 @@ class SynchronizationFailedException extends RuntimeException implements HealthE
 {
     public function __construct(
         private readonly string $healthCode,
-        private readonly array $healthContext = [],
+        private readonly array $context = [],
         ?Throwable $previous = null,
     ) {
         parent::__construct('', 0, $previous);
@@ -29,6 +29,14 @@ class SynchronizationFailedException extends RuntimeException implements HealthE
 
     public function context(): array
     {
-        return $this->healthContext;
+        $context = $this->context;
+
+        if ($this->getPrevious()?->getMessage()) {
+            $context = array_merge([
+                'message' => $this->getPrevious()->getMessage(),
+            ], $context);
+        }
+
+        return $context;
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Health\Exceptions\SynchronizationFailedException;
 use App\Domain\Synchronization\Actions\GetSynchronizationDebugData;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 
 class DebugSynchronizationCommand extends Command
@@ -31,20 +31,50 @@ class DebugSynchronizationCommand extends Command
         $this->table([
             'Name',
             'Status',
+            'Jobs',
+            'Duration',
             'Last Sync',
             'Next Sync',
-            'Started',
-            'Finished',
             'Runs',
         ], $synchronizations->map(function ($synchronization) {
+            $state = $synchronization->state;
+            $run = $synchronization->latestRun;
+
+            if ($run === null || $run->expected_jobs === null) {
+                $jobs = 'N/A';
+            } else {
+                $jobs = sprintf(
+                    '%d/%d (%d failed)',
+                    $run->completed_jobs,
+                    $run->expected_jobs,
+                    $run->failed_jobs,
+                );
+            }
+
+            $duration = 'N/A';
+
+            if (
+                $state?->started_at !== null &&
+                $state?->finished_at !== null
+            ) {
+                $duration = $state->started_at->diffForHumans(
+                    $state->finished_at,
+                    [
+                        'parts' => 2,
+                        'short' => true,
+                        'syntax' => CarbonInterface::DIFF_ABSOLUTE,
+                    ],
+                );
+            }
+
             return [
                 $synchronization->name,
-                $synchronization->state->status->value ?? 'N/A',
-                $synchronization->state->last_synced_at ?? 'N/A',
-                $synchronization->state->next_synced_at ?? 'N/A',
-                $synchronization->state->started_at ?? 'N/A',
-                $synchronization->state->finished_at ?? 'N/A',
-                $synchronization->runs->count() ?? 0,
+                $state?->status->value ?? 'N/A',
+                $jobs,
+                $duration,
+                $state?->last_synced_at ?? 'N/A',
+                $state?->next_synced_at ?? 'N/A',
+                $synchronization->runs_count,
             ];
         }));
 

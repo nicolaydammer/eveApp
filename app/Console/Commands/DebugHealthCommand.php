@@ -22,7 +22,7 @@ class DebugHealthCommand extends Command
         $days = $this->option('days');
 
         $events = $this->getHealthDebugData->execute(
-            $days !== null ? (int) $days : null
+            $days !== null ? (int) $days : null,
         );
 
         if ($events->isEmpty()) {
@@ -46,6 +46,38 @@ class DebugHealthCommand extends Command
             $event->first_seen_at,
             $event->last_seen_at,
         ]));
+
+        foreach ($events as $event) {
+            if (empty($event->context)) {
+                continue;
+            }
+
+            $this->newLine();
+
+            $this->info(sprintf(
+                '[%s] %s',
+                $event->source->value,
+                $event->code,
+            ));
+
+            foreach ($event->context as $key => $value) {
+                if (! is_scalar($value)) {
+                    $value = json_encode($value, JSON_PRETTY_PRINT);
+                }
+
+                $value = str_replace(
+                    PHP_EOL,
+                    PHP_EOL . '    ',
+                    (string) $value,
+                );
+
+                $this->line(sprintf(
+                    '  <comment>%s:</comment> %s',
+                    ucfirst(str_replace('_', ' ', $key)),
+                    $value,
+                ));
+            }
+        }
 
         return self::SUCCESS;
     }

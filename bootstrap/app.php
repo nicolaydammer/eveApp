@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Health\Actions\ReportHealth;
+use App\Domain\Health\Contracts\HealthException;
 use App\Domain\Health\Mapping\HealthExceptionMapping;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -24,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (Throwable $exception) {
 
-            if (! HealthExceptionMapping::has($exception::class)) {
+            if (! $exception instanceof HealthException) {
                 return;
             }
 

@@ -30,4 +30,10 @@ class Synchronization extends Model
     {
         return $this->hasMany(SynchronizationRun::class);
     }
+
+    public function latestRun(): HasOne
+    {
+        return $this->hasOne(SynchronizationRun::class)
+            ->latestOfMany();
+    }
 }

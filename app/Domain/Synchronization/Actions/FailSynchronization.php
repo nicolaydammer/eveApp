@@ -11,27 +11,23 @@ class FailSynchronization
 {
     public function execute(
         Synchronization $synchronization,
-        Batch $batch,
+        ?Batch $batch,
         Carbon $finishedAt,
     ): void {
         $synchronization->state->update([
             'status' => SynchronizationStatus::Failed,
 
             'finished_at' => $finishedAt,
-
-            'completed_jobs' => $batch->processedJobs(),
-            'failed_jobs' => $batch->failedJobs,
         ]);
 
-        $synchronization->runs()
-            ->latest('started_at')
-            ->first()
-            ?->update([
-                'status' => SynchronizationStatus::Failed,
-                'finished_at' => $finishedAt,
+        $synchronization->loadMissing('latestRun');
 
-                'completed_jobs' => $batch->processedJobs(),
-                'failed_jobs' => $batch->failedJobs,
-            ]);
+        $synchronization->latestRun?->update([
+            'status' => SynchronizationStatus::Failed,
+            'finished_at' => $finishedAt,
+
+            'completed_jobs' => $batch?->processedJobs(),
+            'failed_jobs' => $batch?->failedJobs,
+        ]);
     }
 }

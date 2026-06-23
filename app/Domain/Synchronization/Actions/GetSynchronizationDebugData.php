@@ -12,10 +12,9 @@ class GetSynchronizationDebugData
         return Synchronization::query()
             ->with([
                 'state',
-                'runs' => fn($query) => $query
-                    ->latest('started_at')
-                    ->limit(10),
+                'latestRun',
             ])
+            ->withCount('runs')
             ->orderBy('name')
             ->get();
     }

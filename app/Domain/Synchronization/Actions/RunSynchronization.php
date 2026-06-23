@@ -61,6 +61,8 @@ class RunSynchronization
             ],
         );
 
+        $synchronization->setRelation('state', $state);
+
         $state->update([
             'status' => SynchronizationStatus::Running,
             'started_at' => now(),
