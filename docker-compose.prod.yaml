@@ -37,7 +37,7 @@ services:
       test:
         - CMD
         - healthcheck-horizon
-scheduler:
+  scheduler:
     image: serversideup/php:8.4-fpm-nginx
     restart: unless-stopped
     command:

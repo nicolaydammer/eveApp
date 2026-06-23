@@ -3,6 +3,7 @@
 namespace App\Domain\Synchronization\Actions;
 
 use App\Domain\Synchronization\Enums\SynchronizationStatus;
+use App\Domain\Synchronization\Helpers\SynchronizationLock;
 use App\Domain\Synchronization\Mapping\SynchronizationClassMapping;
 use App\Domain\Synchronization\Models\Synchronization;
 
@@ -27,7 +28,15 @@ class RunSynchronization
             return false;
         }
 
+        if (SynchronizationLock::isLocked($synchronization)) {
+            return false;
+        }
+
         $state = $synchronization->state;
+
+        if ($state === null) {
+            return true;
+        }
 
         if ($state->status->isRunning()) {
             return false;
@@ -45,7 +54,14 @@ class RunSynchronization
 
     private function markAsRunning(Synchronization $synchronization): void
     {
-        $synchronization->state->update([
+        $state = $synchronization->state()->firstOrCreate(
+            [],
+            [
+                'status' => SynchronizationStatus::Pending,
+            ],
+        );
+
+        $state->update([
             'status' => SynchronizationStatus::Running,
             'started_at' => now(),
             'finished_at' => null,

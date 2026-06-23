@@ -39,12 +39,12 @@ class DebugSynchronizationCommand extends Command
         ], $synchronizations->map(function ($synchronization) {
             return [
                 $synchronization->name,
-                $synchronization->state->status->value,
-                $synchronization->state->last_synced_at,
-                $synchronization->state->next_synced_at,
-                $synchronization->state->started_at,
-                $synchronization->state->finished_at,
-                $synchronization->runs->count(),
+                $synchronization->state->status->value ?? 'N/A',
+                $synchronization->state->last_synced_at ?? 'N/A',
+                $synchronization->state->next_synced_at ?? 'N/A',
+                $synchronization->state->started_at ?? 'N/A',
+                $synchronization->state->finished_at ?? 'N/A',
+                $synchronization->runs->count() ?? 0,
             ];
         }));
 

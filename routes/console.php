@@ -1,7 +1,8 @@
 <?php
 
+use App\Domain\Synchronization\Actions\RunSynchronizations;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::call(function () {
-    // call action of the synchronization domain -> they handle everything related to syncing.
+    app(RunSynchronizations::class)->execute();
 })->everyMinute();

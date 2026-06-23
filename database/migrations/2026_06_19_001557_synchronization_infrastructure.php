@@ -17,10 +17,6 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->boolean('enabled')->default(true);
 
-            $table->string('frequency');
-            $table->unsignedSmallInteger('offset_minutes')->default(0);
-            $table->boolean('downtime_aware')->default(true);
-
             $table->timestamps();
         });
 

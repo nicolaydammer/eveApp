@@ -3,14 +3,13 @@
 namespace App\Domain\Synchronization\Mapping;
 
 use App\Domain\Synchronization\Contracts\SynchronizationInterface;
+use App\Domain\Synchronization\Synchronizations\IndustryCostIndices;
 use InvalidArgumentException;
 
 final class SynchronizationClassMapping
 {
     private const MAP = [
-        // 'industry-cost-indices' => SynchronizeIndustryCostIndices::class,
-        // 'market-prices' => SynchronizeMarketPrices::class,
-        // 'sde-import' => SynchronizeSde::class,
+        IndustryCostIndices::NAME => IndustryCostIndices::class,
     ];
 
     /**
