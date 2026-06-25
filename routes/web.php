@@ -33,7 +33,6 @@ Route::prefix('industry')
 Route::prefix('eve')
     ->middleware('auth')
     ->group(function () {
-        Route::get('/listSystems', ListSystemsController::class)->name('eve.listSystems');
-
-        Route::get('/system-cost-index', SystemCostIndexController::class)->name('eve.systemCostIndex');
+        Route::get('/systems', ListSystemsController::class)->name('eve.listSystems');
+        Route::get('/indices/{system}', SystemCostIndexController::class)->name('eve.systemCostIndex');
     });
