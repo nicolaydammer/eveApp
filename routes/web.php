@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Web\Eve\SystemCostIndexController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\Eve\ListSystemsController;
+use App\Http\Controllers\Web\Eve\SystemCostIndexController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
 use App\Http\Controllers\Web\Industry\FullTreeController;

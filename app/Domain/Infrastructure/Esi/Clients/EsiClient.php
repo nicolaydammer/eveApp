@@ -4,7 +4,6 @@ namespace App\Domain\Infrastructure\Esi\Clients;
 
 use App\Domain\Auth\Entities\Character;
 use Illuminate\Http\Client\Response;
-use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,7 +13,7 @@ class EsiClient
     private SSOClient $SSOClient;
     private string $baseUrl = 'https://esi.evetech.net';
 
-    public function __construct(SSOClient $SSOClient, private Logger $logger)
+    public function __construct(SSOClient $SSOClient)
     {
         $this->SSOClient = $SSOClient;
     }
@@ -22,8 +21,6 @@ class EsiClient
     public function get(string $endpoint, ?Character $character = null): array
     {
         $response = $this->request('GET', $endpoint, $character);
-
-        $this->logger->info([$endpoint, $character, $response->status()]);
 
         return $response->json() ?? [];
     }
