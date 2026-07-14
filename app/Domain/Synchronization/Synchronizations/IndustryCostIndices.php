@@ -3,122 +3,66 @@
 namespace App\Domain\Synchronization\Synchronizations;
 
 use App\Domain\EVE\Jobs\SaveIndustryCostIndices;
-use App\Domain\Health\Exceptions\SynchronizationFailedException;
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
-use App\Domain\Synchronization\Actions\FailSynchronization;
-use App\Domain\Synchronization\Actions\FinishSynchronization;
-use App\Domain\Synchronization\Contracts\SynchronizationInterface;
-use App\Domain\Synchronization\Helpers\SynchronizationLock;
 use App\Domain\Synchronization\Helpers\SynchronizationScheduler;
-use App\Domain\Synchronization\Models\Synchronization;
-use Exception;
-use Illuminate\Bus\Batch;
-use Illuminate\Support\Facades\Bus;
-use Throwable;
+use App\Domain\Synchronization\Synchronizations\AbstractSynchronization;
+use Carbon\Carbon;
 
-class IndustryCostIndices implements SynchronizationInterface
+class IndustryCostIndices extends AbstractSynchronization
 {
-    public const NAME = 'industry-cost-indices';
+    public function __construct(private EsiClient $esiClient) {}
 
-    public function __construct(
-        private readonly EsiClient $esiClient,
-    ) {}
-
-    public function run(Synchronization $synchronization): void
+    public static function name(): string
     {
-        try {
-            $esiData = $this->esiClient->get('/industry/systems');
+        return 'industry-cost-indices';
+    }
 
-            $now = now();
+    protected function getData(): array
+    {
+        return $this->esiClient->get('/industry/systems');
+    }
 
-            $rows = collect($esiData)
-                ->map(function (array $system) use ($now) {
-                    $row = [
-                        'solar_system_id' => $system['solar_system_id'],
-                        'manufacturing' => null,
-                        'researching_material_efficiency' => null,
-                        'researching_time_efficiency' => null,
-                        'copying' => null,
-                        'invention' => null,
-                        'reaction' => null,
-                        'reverse_engineering' => null,
-                        'duplicating' => null,
-                        'synced_at' => $now,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
+    protected function transformData(array $data): array
+    {
+        $now = now();
 
-                    foreach ($system['cost_indices'] as $index) {
-                        $row[$index['activity']] = $index['cost_index'];
-                    }
+        return collect($data)
+            ->map(function (array $system) use ($now) {
+                $row = [
+                    'solar_system_id' => $system['solar_system_id'],
+                    'manufacturing' => null,
+                    'researching_material_efficiency' => null,
+                    'researching_time_efficiency' => null,
+                    'copying' => null,
+                    'invention' => null,
+                    'reaction' => null,
+                    'reverse_engineering' => null,
+                    'duplicating' => null,
+                    'synced_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
 
-                    return $row;
-                });
+                foreach ($system['cost_indices'] as $index) {
+                    $row[$index['activity']] = $index['cost_index'];
+                }
 
-            $jobs = $rows
-                ->chunk(500)
-                ->map(fn($chunk) => new SaveIndustryCostIndices($chunk->all()))
-                ->all();
+                return $row;
+            })->toArray();
+    }
 
-            $synchronization->refresh()->load([
-                'state',
-                'latestRun',
-            ]);
+    protected function createJobs(array $data): array
+    {
+        $data = collect($data);
 
-            $synchronization->latestRun?->update([
-                'expected_jobs' => count($jobs),
-            ]);
+        return $data
+            ->chunk(500)
+            ->map(fn($chunk) => new SaveIndustryCostIndices($chunk->all()))
+            ->all();
+    }
 
-            $synchronizationId = $synchronization->id;
-
-            Bus::batch($jobs)
-                ->then(function (Batch $batch) use ($synchronizationId) {
-                    app(FinishSynchronization::class)->execute(
-                        synchronization: Synchronization::findOrFail($synchronizationId),
-                        batch: $batch,
-                        finishedAt: now(),
-                        nextSyncAt: SynchronizationScheduler::avoidDowntime(
-                            now()->addHour(),
-                        ),
-                    );
-                })
-                ->catch(function (Batch $batch, Throwable $exception) use ($synchronizationId) {
-                    $synchronization = Synchronization::findOrFail($synchronizationId);
-
-                    SynchronizationLock::lock($synchronization, 5);
-
-                    app(FailSynchronization::class)->execute(
-                        $synchronization,
-                        $batch,
-                        now(),
-                    );
-
-                    throw new SynchronizationFailedException(
-                        healthCode: 'industry.sync.fetch-indices',
-                        previous: $exception,
-                    );
-                })
-                ->dispatch();
-        } catch (Throwable $exception) {
-
-            SynchronizationLock::lock(
-                $synchronization,
-                5,
-            );
-
-            app(FailSynchronization::class)->execute(
-                synchronization: $synchronization,
-                batch: null,
-                finishedAt: now(),
-            );
-
-            throw new SynchronizationFailedException(
-                healthCode: 'industry.sync.fetch-indices',
-                previous: $exception,
-                context: [
-                    'message' => $exception->getMessage(),
-                ],
-            );
-        }
+    protected function scheduleNextSync(): Carbon
+    {
+        return SynchronizationScheduler::avoidDowntime(now()->addHour());
     }
 }

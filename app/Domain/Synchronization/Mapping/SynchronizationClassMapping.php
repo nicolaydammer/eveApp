@@ -2,22 +2,30 @@
 
 namespace App\Domain\Synchronization\Mapping;
 
-use App\Domain\Synchronization\Contracts\SynchronizationInterface;
+use App\Domain\Synchronization\Synchronizations\AbstractSynchronization;
 use App\Domain\Synchronization\Synchronizations\IndustryCostIndices;
 use InvalidArgumentException;
 
 final class SynchronizationClassMapping
 {
-    private const MAP = [
-        IndustryCostIndices::NAME => IndustryCostIndices::class,
-    ];
+    /**
+     * Get all registered synchronizations.
+     *
+     * @return array<string, class-string<AbstractSynchronization>>
+     */
+    public static function all(): array
+    {
+        return [
+            IndustryCostIndices::name() => IndustryCostIndices::class,
+        ];
+    }
 
     /**
      * Determine whether a synchronization has an implementation.
      */
     public static function has(string $name): bool
     {
-        return isset(self::MAP[$name]);
+        return isset(self::all()[$name]);
     }
 
     /**
@@ -25,25 +33,17 @@ final class SynchronizationClassMapping
      *
      * @throws InvalidArgumentException
      */
-    public static function resolve(string $name): SynchronizationInterface
+    public static function resolve(string $name): AbstractSynchronization
     {
-        if (! self::has($name)) {
+        $map = self::all();
+
+        if (! isset($map[$name])) {
             throw new InvalidArgumentException(
                 "Synchronization '{$name}' is not registered."
             );
         }
 
-        return app(self::MAP[$name]);
-    }
-
-    /**
-     * Get all registered synchronizations.
-     *
-     * @return array<string, class-string>
-     */
-    public static function all(): array
-    {
-        return self::MAP;
+        return app($map[$name]);
     }
 
     /**
@@ -53,6 +53,6 @@ final class SynchronizationClassMapping
      */
     public static function names(): array
     {
-        return array_keys(self::MAP);
+        return array_keys(self::all());
     }
 }

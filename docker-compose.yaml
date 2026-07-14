@@ -25,6 +25,18 @@ services:
         depends_on:
             - redis
             - pgsql
+            - eve-ref
+    eve-ref:
+        stdin_open: true
+        tty: true
+        environment:
+            - DATABASE_URL=jdbc:postgresql://${EVEREF_DB_HOST}:${EVEREF_DB_PORT}/${EVEREF_DB_DATABASE}
+            - DATABASE_USERNAME=${EVEREF_DB_USERNAME}
+            - DATABASE_PASSWORD=${EVEREF_DB_PASSWORD}
+            - INSERT_SIZE=100000
+            - IMPORT_MARKET_HISTORY_MIN_DATE=${EVEREF_HISTORY_MIN_DATE}
+        image: autonomouslogic/eve-ref:latest
+        command: import-market-history
     redis:
         image: "redis:alpine"
         ports:

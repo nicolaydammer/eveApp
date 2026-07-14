@@ -98,6 +98,20 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'everef' => [
+            'driver' => 'pgsql',
+            'host' => env('EVEREF_DB_HOST', '127.0.0.1'),
+            'port' => env('EVEREF_DB_PORT', '5432'),
+            'database' => env('EVEREF_DB_DATABASE', 'laravel'),
+            'username' => env('EVEREF_DB_USERNAME', 'root'),
+            'password' => env('EVEREF_DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
@@ -148,7 +162,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
