@@ -1,6 +1,6 @@
 {
-  "_AppLayout-CvuHkzd0.js": {
-    "file": "assets/AppLayout-CvuHkzd0.js",
+  "_AppLayout-ppYR35HY.js": {
+    "file": "assets/AppLayout-ppYR35HY.js",
     "name": "AppLayout",
     "imports": [
       "resources/js/app.tsx",
@@ -48,25 +48,25 @@
     "src": "node_modules/@fontsource-variable/geist/files/geist-vietnamese-wght-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-Dt1Uizyn.css",
+    "file": "assets/app-CzCIQJzd.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/Pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-sPVWORZ4.js",
+    "file": "assets/Dashboard-DoybZYyl.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "_vendor-D-91PCVR.js",
-      "_AppLayout-CvuHkzd0.js",
+      "_AppLayout-ppYR35HY.js",
       "_index-FSFl0VXl.js",
       "_createLucideIcon-DZQAKJsY.js"
     ]
   },
   "resources/js/Pages/Home.tsx": {
-    "file": "assets/Home-D9YEEvnU.js",
+    "file": "assets/Home-BMcCnBRa.js",
     "name": "Home",
     "src": "resources/js/Pages/Home.tsx",
     "isDynamicEntry": true,
@@ -78,19 +78,19 @@
     ]
   },
   "resources/js/Pages/Industry.tsx": {
-    "file": "assets/Industry-KhFnnyGR.js",
+    "file": "assets/Industry-CqJRvnZ4.js",
     "name": "Industry",
     "src": "resources/js/Pages/Industry.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "_vendor-D-91PCVR.js",
-      "_AppLayout-CvuHkzd0.js",
+      "_AppLayout-ppYR35HY.js",
       "_createLucideIcon-DZQAKJsY.js"
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-By9EvBAR.js",
+    "file": "assets/app-Csk5lQE7.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
