@@ -24,6 +24,12 @@ abstract class AbstractSynchronization
 
     abstract protected function scheduleNextSync(): Carbon;
 
+    // override this to reconcile after completing the batch
+    protected function reconcile(Batch $batch): void {}
+
+    // override this to clean up after every batch disregarding the fail or success state
+    protected function cleanUp(Batch $batch): void {}
+
     final public function run(Synchronization $synchronization): void
     {
         try {
@@ -48,6 +54,8 @@ abstract class AbstractSynchronization
 
             Bus::batch($jobs)
                 ->then(function (Batch $batch) use ($nextSync, $synchronizationId) {
+
+                    $this->reconcile($batch);
                     app(FinishSynchronization::class)->execute(
                         synchronization: Synchronization::findOrFail($synchronizationId),
                         batch: $batch,
@@ -70,6 +78,9 @@ abstract class AbstractSynchronization
                         healthCode: 'sync.' . static::name(),
                         previous: $exception,
                     );
+                })
+                ->finally(function (Batch $batch) {
+                    $this->cleanUp($batch);
                 })
                 ->dispatch();
         } catch (Throwable $exception) {

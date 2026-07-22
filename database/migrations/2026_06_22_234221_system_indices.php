@@ -28,7 +28,7 @@ return new class extends Migration
         });
 
         DB::table('synchronizations')->insert([
-            'name' => IndustryCostIndices::NAME,
+            'name' => IndustryCostIndices::name(),
             'enabled' => true,
             'created_at' => now(),
             'updated_at' => now(),
@@ -40,7 +40,7 @@ return new class extends Migration
         Schema::dropIfExists('cache.industry_cost_indices');
 
         DB::table('synchronizations')
-            ->where('name', IndustryCostIndices::NAME)
+            ->where('name', IndustryCostIndices::name())
             ->delete();
     }
 };
