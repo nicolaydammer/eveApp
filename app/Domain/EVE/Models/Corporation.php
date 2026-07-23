@@ -15,13 +15,17 @@ class Corporation extends Model
         'creator_id',
         'date_founded',
         'description',
-        'faction_id',
+        'enlisted_faction_id',
+        'friendly_fire',
         'home_station_id',
         'member_count',
         'name',
+        'palette',
         'shares',
-        'tax_rate',
+        'state',
+        'tax_rates',
         'ticker',
+        'type',
         'url',
         'war_eligible',
         'expires_at',
@@ -29,6 +33,8 @@ class Corporation extends Model
 
     protected $casts = [
         'expires_at' => 'datetime',
-        'date_founded' => 'datetime'
+        'date_founded' => 'datetime',
+        'palette' => 'array',
+        'tax_rates' => 'array',
     ];
 }

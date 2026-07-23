@@ -53,7 +53,10 @@ class EsiClient
         $cacheKey = "esi:etag:" . md5($url . ($character->id ?? 'public'));
 
         $cached = Cache::get($cacheKey);
-        $request = Http::acceptJson();
+        $request = Http::acceptJson()
+            ->withHeaders([
+                'X-Compatibility-Date' => '2026-07-22'
+            ]);
 
         if ($character) {
             $token = $this->SSOClient->getValidAccessToken($character);
