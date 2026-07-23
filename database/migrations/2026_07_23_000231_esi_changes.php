@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cache.corporations', function (Blueprint $blueprint) {
-            $blueprint->removeColumn('tax_rate');
+            $blueprint->dropColumn('tax_rate');
 
             $blueprint->text('friendly_fire')->nullable();
             $blueprint->jsonb('palette')->nullable();

@@ -55,6 +55,7 @@ readonly class CorporationDTO implements EsiDtoInterface
             'state' => $this->state,
             'tax_rates' => $this->tax_rates,
             'ticker' => $this->ticker,
+            'type' => $this->type,
             'url' => $this->url,
             'war_eligible' => $this->war_eligible,
             'expires_at' => $this->expires_at

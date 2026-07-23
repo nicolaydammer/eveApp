@@ -15,8 +15,6 @@ class EsiCorporationDataProvider implements EsiDataProviderInterface
     {
         $esiData = $this->esi_client->get("/corporations/{$id}");
 
-        dd($id, $esiData);
-
         return new CorporationDTO(
             null,
             $id,
