@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Web\Admin\MarketController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\Eve\ListSystemsController;
 use App\Http\Controllers\Web\Eve\SystemCostIndexController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
 use App\Http\Controllers\Web\Industry\FullTreeController;
 use App\Http\Controllers\Web\Industry\SearchController;
+use App\Http\Middleware\IsAdminUser;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -35,4 +37,13 @@ Route::prefix('eve')
     ->group(function () {
         Route::get('/systems', ListSystemsController::class)->name('eve.listSystems');
         Route::get('/indices/{system}', SystemCostIndexController::class)->name('eve.systemCostIndex');
+    });
+
+Route::prefix('admin')
+    ->middleware(['auth', IsAdminUser::class])
+    ->group(function () {
+        // frontend page route
+        Route::get('/market', [MarketController::class, 'index'])->name('admin.index');
+
+        // save config one route fits all
     });

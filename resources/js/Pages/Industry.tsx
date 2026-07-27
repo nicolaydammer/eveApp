@@ -1,72 +1,108 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import {
+    type ChangeEvent,
+    useEffect,
+    useState,
+} from "react";
+import { useForm, router } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout.js";
 import IndustryCalculator from "@/industry/IndustryCalculator.js";
 
-export default function Industry({ results = [] }) {
-    const { data, setData } = useForm({
-        blueprint_key: '',
+interface BlueprintSearchResult {
+    _key: number;
+    name: string;
+}
+
+interface IndustryProps {
+    results?: BlueprintSearchResult[];
+}
+
+interface IndustryForm {
+    blueprint_key: number | "";
+}
+
+export default function Industry({
+    results = [],
+}: IndustryProps) {
+    const { data, setData } = useForm<IndustryForm>({
+        blueprint_key: "",
     });
 
-    const [search, setSearch] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [selectedBlueprint, setSelectedBlueprint] = useState(null);
+    const [search, setSearch] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [selectedBlueprint, setSelectedBlueprint] =
+        useState<BlueprintSearchResult | null>(null);
 
     // Inertia handle for search bar ONLY
     useEffect(() => {
         if (!search.trim()) {
-            router.get(window.location.pathname, { search: '' }, {
-                preserveState: true,
-                only: ['results']
-            });
+            router.get(
+                window.location.pathname,
+                { search: "" },
+                {
+                    preserveState: true,
+                    only: ["results"],
+                },
+            );
+
             return;
         }
 
         setLoading(true);
 
-        const delayDebounce = setTimeout(() => {
+        const delayDebounce = window.setTimeout(() => {
             router.get(
                 window.location.pathname,
-                { search: search },
+                { search },
                 {
                     preserveState: true,
                     preserveScroll: true,
-                    only: ['results'],
-                    onFinish: () => setLoading(false)
-                }
+                    only: ["results"],
+                    onFinish: () => setLoading(false),
+                },
             );
         }, 250);
 
-        return () => clearTimeout(delayDebounce);
+        return () => {
+            window.clearTimeout(delayDebounce);
+        };
     }, [search]);
 
-    const handleSelect = (blueprint) => {
+    const handleSelect = (blueprint: BlueprintSearchResult): void => {
         setSelectedBlueprint(blueprint);
-        setData('blueprint_key', blueprint._key);
-        setSearch('');
+        setData("blueprint_key", blueprint._key);
+        setSearch("");
     };
 
-    const handleClear = () => {
-        setData('blueprint_key', '');
+    const handleClear = (): void => {
+        setData("blueprint_key", "");
         setSelectedBlueprint(null);
     };
 
-    const cleanResults = Array.isArray(results) ? results : [];
+    const cleanResults: BlueprintSearchResult[] =
+        Array.isArray(results) ? results : [];
 
     return (
         <AppLayout>
             <div className="p-6 space-y-6">
-
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">EVE Dashboard</h1>
+                    <h1 className="text-2xl font-bold">
+                        EVE Dashboard
+                    </h1>
 
                     {/* Snap target blueprint to top right upon selection */}
                     {selectedBlueprint && (
                         <div className="w-80 bg-gray-900 text-white p-3 rounded-lg border border-gray-700 shadow-md flex items-center justify-between">
                             <div className="truncate pr-2">
-                                <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Target Blueprint</p>
-                                <p className="text-sm font-semibold truncate text-indigo-400">{selectedBlueprint.name}</p>
+                                <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+                                    Target Blueprint
+                                </p>
+
+                                <p className="text-sm font-semibold truncate text-indigo-400">
+                                    {selectedBlueprint.name}
+                                </p>
                             </div>
+
                             <button
                                 type="button"
                                 onClick={handleClear}
@@ -98,14 +134,33 @@ export default function Industry({ results = [] }) {
                                     className="w-full border border-gray-300 rounded-lg pl-3 pr-10 py-2.5 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all shadow-sm"
                                     placeholder="Type blueprint name..."
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={(
+                                        e: ChangeEvent<HTMLInputElement>,
+                                    ) => setSearch(e.target.value)}
                                     autoFocus
                                 />
+
                                 {loading && (
                                     <div className="absolute right-3 top-3">
-                                        <svg className="animate-spin h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        <svg
+                                            className="animate-spin h-5 w-5 text-indigo-500"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                className="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                strokeWidth="4"
+                                            />
+
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            />
                                         </svg>
                                     </div>
                                 )}
@@ -122,7 +177,9 @@ export default function Industry({ results = [] }) {
                                             <button
                                                 key={blueprint._key}
                                                 type="button"
-                                                onClick={() => handleSelect(blueprint)}
+                                                onClick={() =>
+                                                    handleSelect(blueprint)
+                                                }
                                                 className="w-full text-left px-4 py-3 hover:bg-indigo-600 hover:text-white transition-colors flex flex-col group"
                                             >
                                                 <span className="text-sm font-medium text-gray-900 group-hover:text-white">

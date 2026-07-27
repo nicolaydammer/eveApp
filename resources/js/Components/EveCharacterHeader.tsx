@@ -1,15 +1,40 @@
-import { Card, CardContent } from "@/Components/ui/card";
+import { Card, CardContent } from "@/Components/ui/card.js";
 
-export default function EveCharacterHeader({ character, isSelected }) {
+export interface CharacterOrganization {
+    name: string;
+    logo: string;
+}
+
+export interface Character {
+    id: number;
+    name: string;
+    portrait: string;
+    isMain: boolean;
+
+    corporation: CharacterOrganization;
+    alliance?: CharacterOrganization | null;
+}
+
+interface EveCharacterHeaderProps {
+    character: Character;
+    isSelected: boolean;
+}
+
+export default function EveCharacterHeader({
+    character,
+    isSelected,
+}: EveCharacterHeaderProps) {
     return (
-        <Card className={`
-            cursor-pointer rounded-2xl transition-all duration-200 bg-white dark:bg-zinc-900 
-            border-2 
-            ${isSelected
-                ? "border-blue-500 ring-2 ring-blue-500/10 shadow-md scale-[1.02]"
-                : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
-            }
-        `}>
+        <Card
+            className={`
+                cursor-pointer rounded-2xl transition-all duration-200 bg-white dark:bg-zinc-900
+                border-2
+                ${isSelected
+                    ? "border-blue-500 ring-2 ring-blue-500/10 shadow-md scale-[1.02]"
+                    : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
+                }
+            `}
+        >
             <CardContent className="p-4 flex gap-4">
                 <img
                     src={character.portrait}
@@ -22,6 +47,7 @@ export default function EveCharacterHeader({ character, isSelected }) {
                         <h2 className="text-md font-bold truncate">
                             {character.name}
                         </h2>
+
                         {character.isMain && (
                             <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-green-500/20 text-green-600 dark:text-green-400 uppercase">
                                 Main
@@ -38,12 +64,14 @@ export default function EveCharacterHeader({ character, isSelected }) {
                                     alt="Alliance"
                                 />
                             )}
+
                             <img
                                 src={character.corporation.logo}
                                 className="w-12 h-12 rounded border border-white dark:border-zinc-900"
                                 alt="Corp"
                             />
                         </div>
+
                         <div className="truncate text-sm font-medium text-zinc-500 ml-2">
                             {character.corporation.name}
                         </div>

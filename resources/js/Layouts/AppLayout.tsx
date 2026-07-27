@@ -1,12 +1,33 @@
 import { Link, usePage } from "@inertiajs/react";
-import { LogOut } from "lucide-react"; // Optional: if you're using lucide icons
+import {
+    ChevronDown,
+    ChevronRight,
+    LogOut,
+    Shield,
+} from "lucide-react";
+import { useState } from "react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { url } = usePage();
 
+    const { auth } = usePage().props;
+
+    const isAdmin = auth?.user.is_admin;
+
+    const isAdminRoute = url.startsWith("/admin");
+
+    const [adminOpen, setAdminOpen] = useState(isAdminRoute);
+
     const navItems = [
         { name: "Dashboard", href: "/dashboard" },
         { name: "Industry planner", href: "/industry" },
+    ];
+
+    const adminNavItems = [
+        { name: "Market Settings", href: "/admin/market" },
+        { name: "Users", href: "/admin/users" },
+        { name: "Characters", href: "/admin/characters" },
+        { name: "Scopes", href: "/admin/scopes" },
     ];
 
     return (
@@ -37,6 +58,55 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 </Link>
                             );
                         })}
+
+                        {/* Admin group */}
+                        {isAdmin && (
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={() => setAdminOpen((open) => !open)}
+                                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
+                                    ${isAdminRoute
+                                            ? "bg-zinc-200 dark:bg-zinc-800 font-semibold"
+                                            : "hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                                        }`}
+                                >
+                                    <Shield size={16} />
+
+                                    <span className="flex-1 text-left">
+                                        Admin Panel
+                                    </span>
+
+                                    {adminOpen ? (
+                                        <ChevronDown size={16} />
+                                    ) : (
+                                        <ChevronRight size={16} />
+                                    )}
+                                </button>
+
+                                {adminOpen && (
+                                    <div className="mt-1 ml-5 pl-3 border-l border-zinc-200 dark:border-zinc-800 space-y-1">
+                                        {adminNavItems.map((item) => {
+                                            const active = url === item.href;
+
+                                            return (
+                                                <Link
+                                                    key={item.href}
+                                                    href={item.href}
+                                                    className={`block px-3 py-2 rounded-lg text-sm transition
+                                                    ${active
+                                                            ? "bg-zinc-200 dark:bg-zinc-800 font-semibold"
+                                                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                                        }`}
+                                                >
+                                                    {item.name}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </nav>
                 </div>
 

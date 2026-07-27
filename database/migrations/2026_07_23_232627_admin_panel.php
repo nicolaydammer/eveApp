@@ -17,6 +17,10 @@ return new class extends Migration
             $blueprint->jsonb('configuration');
             $blueprint->timestamps();
         });
+
+        Schema::table('users', function (Blueprint $blueprint) {
+            $blueprint->boolean('is_admin')->default(0);
+        });
     }
 
     /**
@@ -25,5 +29,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('configuration');
+        Schema::table('users', function (Blueprint $blueprint) {
+            $blueprint->dropColumn('is_admin');
+        });
     }
 };

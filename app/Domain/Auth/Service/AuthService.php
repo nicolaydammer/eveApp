@@ -59,7 +59,13 @@ class AuthService
 
             if (is_null($character)) {
 
+                $isFirstUser = ! $this->userRepository->hasUsers();
+
                 $user = $this->userRepository->create($verifyOauthData->CharacterID);
+
+                if ($isFirstUser) {
+                    $this->userRepository->setAdmin($user, true);
+                }
 
                 $this->characterRepository->create($verifyOauthData, $user);
             }

@@ -2,8 +2,8 @@
 
 use App\Domain\Health\Actions\ReportHealth;
 use App\Domain\Health\Contracts\HealthException;
-use App\Domain\Health\Mapping\HealthExceptionMapping;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\IsAdminUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

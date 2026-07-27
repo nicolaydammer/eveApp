@@ -20,4 +20,15 @@ class UserRepository
         $user->main_character_id = $mainCharacterId;
         $user->save();
     }
+
+    public function hasUsers(): bool
+    {
+        return User::query()->exists();
+    }
+
+    public function setAdmin(User $user, bool $isAdmin): void
+    {
+        $user->is_admin = $isAdmin;
+        $user->save();
+    }
 }

@@ -43,6 +43,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => Auth::user()->id,
                     'main_character_id' => Auth::user()->main_character_id,
                     'characters' => Auth::user()->characters()->get(['CharacterID', 'CharacterName']),
+                    'is_admin' => Auth::user()->is_admin,
                 ] : null,
             ],
         ];
