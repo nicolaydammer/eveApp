@@ -27,5 +27,7 @@ class Character extends Model
 
     protected $casts = [
         'expires_at' => 'datetime',
+        'accessToken' => 'encrypted',
+        'refreshToken' => 'encrypted',
     ];
 }
