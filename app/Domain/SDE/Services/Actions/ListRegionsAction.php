@@ -10,7 +10,7 @@ class ListRegionsAction
     {
         return MapRegion::query()
             ->select('_key')
-            ->selectRaw("name->>'en' AS system")
+            ->selectRaw("name->>'en' AS region")
             ->when(
                 $search !== '',
                 fn($query) => $query->whereRaw(

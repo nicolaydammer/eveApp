@@ -6,13 +6,16 @@ import {
     Plus,
     Trash2,
 } from "lucide-react";
+import { Input } from "@/Components/ui/input.js";
 
 import AppLayout from "@/Layouts/AppLayout.js";
 import ThemeToggle from "@/Components/ThemeToggle.js";
 
 import {
+    getMarketRegions,
     getExistingRegionConfiguration,
     getExistingStructureConfiguration,
+    saveRegionConfiguration,
     Region,
     StructureMarketConfiguration,
 } from "@/admin/adminMarket.js";
@@ -60,6 +63,7 @@ export default function Market() {
 
 function RegionMarketSettings() {
     const [regions, setRegions] = useState<Region[]>([]);
+    const [searchResults, setSearchResults] = useState<Region[]>([]);
     const [synced, setSynced] = useState<number[]>([]);
 
     const [selectedAvailable, setSelectedAvailable] = useState<number[]>([]);
@@ -67,40 +71,65 @@ function RegionMarketSettings() {
 
     const [loading, setLoading] = useState(true);
 
+    const [regionSearch, setRegionSearch] = useState('');
+
     useEffect(() => {
-        getExistingRegionConfiguration()
-            .then((data) => {
-                setRegions(data.regions);
-                setSynced(data.synced);
+        Promise.all([
+            getMarketRegions(),
+            getExistingRegionConfiguration(),
+        ])
+            .then(([regions, configuration]) => {
+                setRegions(regions);
+                setSearchResults(regions);
+                setSynced(configuration);
             })
             .finally(() => setLoading(false));
     }, []);
 
+    useEffect(() => {
+        const timeout = setTimeout(async () => {
+            try {
+                const regions = await getMarketRegions(regionSearch);
+                setSearchResults(regions);
+            } catch (error) {
+                console.error('Failed to fetch regions', error);
+            }
+        }, 250);
+
+        return () => clearTimeout(timeout);
+    }, [regionSearch]);
+
     const availableRegions = useMemo(
-        () => regions.filter((region) => !synced.includes(region.id)),
-        [regions, synced]
+        () => searchResults.filter((region) => !synced.includes(region._key)),
+        [searchResults, synced]
     );
 
     const syncedRegions = useMemo(
-        () => regions.filter((region) => synced.includes(region.id)),
+        () => regions.filter((region) => synced.includes(region._key)),
         [regions, synced]
     );
+
+    const updateConfiguration = (configuration: number[]) => {
+        setSynced(configuration);
+
+        saveRegionConfiguration(configuration);
+    };
 
     const moveRight = () => {
         if (selectedAvailable.length === 0) {
             return;
         }
 
-        setSynced((current) => [
+        const configuration = [
             ...new Set([
-                ...current,
+                ...synced,
                 ...selectedAvailable,
             ]),
-        ]);
+        ];
 
+        updateConfiguration(configuration);
         setSelectedAvailable([]);
-
-        // TODO: Persist configuration.
+        setRegionSearch("");
     };
 
     const moveLeft = () => {
@@ -108,15 +137,12 @@ function RegionMarketSettings() {
             return;
         }
 
-        setSynced((current) =>
-            current.filter(
-                (id) => !selectedSynced.includes(id)
-            )
+        const configuration = synced.filter(
+            (id) => !selectedSynced.includes(id)
         );
 
+        updateConfiguration(configuration);
         setSelectedSynced([]);
-
-        // TODO: Persist configuration.
     };
 
     if (loading) {
@@ -146,6 +172,8 @@ function RegionMarketSettings() {
                     regions={availableRegions}
                     selected={selectedAvailable}
                     setSelected={setSelectedAvailable}
+                    regionSearch={regionSearch}
+                    setRegionSearch={setRegionSearch}
                 />
 
                 <div className="flex flex-col gap-3">
@@ -194,16 +222,55 @@ function RegionList({
     regions,
     selected,
     setSelected,
+    regionSearch,
+    setRegionSearch,
 }: {
     title: string;
     regions: Region[];
     selected: number[];
     setSelected: (ids: number[]) => void;
+    regionSearch?: string;
+    setRegionSearch?: (value: string) => void;
 }) {
+
+    const [lastSelectedId, setLastSelectedId] = useState<number | null>(null);
+
     const select = (
         regionId: number,
-        multiSelect: boolean
+        multiSelect: boolean,
+        rangeSelect: boolean
     ) => {
+
+        if (rangeSelect && lastSelectedId !== null) {
+            const startIndex = regions.findIndex(
+                (region) => region._key === lastSelectedId
+            );
+
+            const endIndex = regions.findIndex(
+                (region) => region._key === regionId
+            );
+
+            if (startIndex !== -1 && endIndex !== -1) {
+                const start = Math.min(startIndex, endIndex);
+                const end = Math.max(startIndex, endIndex);
+
+                const rangeIds = regions
+                    .slice(start, end + 1)
+                    .map((region) => region._key);
+
+                setSelected([
+                    ...new Set([
+                        ...selected,
+                        ...rangeIds,
+                    ]),
+                ]);
+
+                return;
+            }
+        }
+
+        setLastSelectedId(regionId);
+
         if (!multiSelect) {
             setSelected([regionId]);
             return;
@@ -229,18 +296,30 @@ function RegionList({
                 {title}
             </h3>
 
+            {regionSearch !== undefined && setRegionSearch && (
+                <Input
+                    type="text"
+                    placeholder="Search regions..."
+                    value={regionSearch}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setRegionSearch(e.target.value)
+                    }
+                />
+            )}
+
             <div className="h-80 overflow-y-auto border border-zinc-800 rounded bg-zinc-950 p-1">
                 {regions.map((region) => {
-                    const isSelected = selected.includes(region.id);
+                    const isSelected = selected.includes(region._key);
 
                     return (
                         <button
-                            key={region.id}
+                            key={region._key}
                             type="button"
                             onClick={(event) =>
                                 select(
-                                    region.id,
-                                    event.ctrlKey || event.metaKey
+                                    region._key,
+                                    event.ctrlKey || event.metaKey,
+                                    event.shiftKey
                                 )
                             }
                             className={`
@@ -252,11 +331,11 @@ function RegionList({
                             `}
                         >
                             <div>
-                                {region.name}
+                                {region.region}
                             </div>
 
                             <div className="text-xs text-zinc-500">
-                                {region.id}
+                                {region._key}
                             </div>
                         </button>
                     );

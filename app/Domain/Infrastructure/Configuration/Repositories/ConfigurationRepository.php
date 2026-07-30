@@ -8,7 +8,9 @@ class ConfigurationRepository
 {
     public function get(string $name): array
     {
-        return Configuration::query()->where('name', $name)->firstOrFail()->configuration;
+        $configuration = Configuration::query()->where('name', $name)->value('configuration');
+
+        return ['configuration' => $configuration ?? []];
     }
 
     public function set(string $name, array $configuration): void

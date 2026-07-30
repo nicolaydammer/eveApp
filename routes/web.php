@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Web\Admin\MarketController;
+use App\Http\Controllers\Web\Configuration\ConfigurationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\Eve\ListSystemsController;
 use App\Http\Controllers\Web\Eve\RegionController;
@@ -44,8 +45,8 @@ Route::prefix('eve')
 Route::prefix('admin')
     ->middleware(['auth', IsAdminUser::class])
     ->group(function () {
-        // frontend page route
         Route::get('/market', [MarketController::class, 'index'])->name('admin.index');
 
-        // save config one route fits all
+        Route::post('/{type}', [ConfigurationController::class, 'adminStore'])->name('admin.store');
+        Route::get('/{type}', [ConfigurationController::class, 'adminGet'])->name('admin.get');
     });

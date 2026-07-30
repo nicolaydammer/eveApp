@@ -18,9 +18,9 @@ class UserRepository
 
     public function setMainCharacter(User $user, int $mainCharacterId): void
     {
-        $characters = $user->characters()->get();
+        $characterExists = $user->characters()->where('CharacterID', $mainCharacterId)->exists();
 
-        if ($characters->where('CharacterID', $mainCharacterId)->count() === 0) {
+        if (!$characterExists) {
             throw new Exception('Character not found');
         }
 
