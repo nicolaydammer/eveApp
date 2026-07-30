@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Web\Admin\MarketController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\Eve\ListSystemsController;
+use App\Http\Controllers\Web\Eve\RegionController;
 use App\Http\Controllers\Web\Eve\SystemCostIndexController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
@@ -36,6 +37,7 @@ Route::prefix('eve')
     ->middleware('auth')
     ->group(function () {
         Route::get('/systems', ListSystemsController::class)->name('eve.listSystems');
+        Route::get('/regions', RegionController::class)->name('eve.listRegions');
         Route::get('/indices/{system}', SystemCostIndexController::class)->name('eve.systemCostIndex');
     });
 

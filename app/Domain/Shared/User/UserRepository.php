@@ -3,6 +3,7 @@
 namespace App\Domain\Shared\User;
 
 use App\Domain\Auth\Entities\User;
+use Exception;
 
 class UserRepository
 {
@@ -17,6 +18,12 @@ class UserRepository
 
     public function setMainCharacter(User $user, int $mainCharacterId): void
     {
+        $characters = $user->characters()->get();
+
+        if ($characters->where('CharacterID', $mainCharacterId)->count() === 0) {
+            throw new Exception('Character not found');
+        }
+
         $user->main_character_id = $mainCharacterId;
         $user->save();
     }

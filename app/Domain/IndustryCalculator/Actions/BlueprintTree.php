@@ -2,9 +2,9 @@
 
 namespace App\Domain\IndustryCalculator\Actions;
 
-use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingProduct;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionProduct;
+use App\Domain\SDE\Models\Blueprint\Blueprint;
+use App\Domain\SDE\Models\Blueprint\BlueprintManufacturingProduct;
+use App\Domain\SDE\Models\Blueprint\BlueprintReactionProduct;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 

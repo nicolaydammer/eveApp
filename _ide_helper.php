@@ -2452,7 +2452,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get the currently authenticated user.
          *
-         * @return \App\Models\User|null
+         * @return \App\Domain\Auth\Entities\User|null
          * @static
          */
         public static function user()

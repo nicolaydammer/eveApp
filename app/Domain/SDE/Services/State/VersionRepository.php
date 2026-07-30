@@ -2,7 +2,7 @@
 
 namespace App\Domain\SDE\Services\State;
 
-use App\Domain\Infrastructure\SDE\Models\SDEVersion;
+use App\Domain\SDE\Models\SDEVersion;
 
 class VersionRepository
 {

@@ -38,7 +38,7 @@ class FileStasher
 
         fclose($SDEVersionFile);
 
-        $stashPath = 'oldSDE/'.$currentVersion;
+        $stashPath = 'oldSDE/' . $currentVersion;
 
         if (! $this->eveDisk->directoryExists($stashPath)) {
             $this->eveDisk->makeDirectory($stashPath);
@@ -46,7 +46,7 @@ class FileStasher
 
         foreach ($files as $file) {
             if (str_ends_with($file, '.jsonl')) {
-                $this->eveDisk->move($file, $stashPath.'/'.$file);
+                $this->eveDisk->move($file, $stashPath . '/' . $file);
             }
         }
     }

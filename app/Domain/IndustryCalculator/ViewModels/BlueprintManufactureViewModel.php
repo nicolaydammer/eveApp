@@ -2,7 +2,7 @@
 
 namespace App\Domain\IndustryCalculator\ViewModels;
 
-use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
+use App\Domain\SDE\Models\Blueprint\Blueprint;
 
 class BlueprintManufactureViewModel
 {

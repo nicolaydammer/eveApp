@@ -2,7 +2,7 @@
 
 namespace App\Domain\IndustryCalculator\Actions;
 
-use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
+use App\Domain\SDE\Models\Blueprint\Blueprint;
 
 class BlueprintDirectBuy
 {

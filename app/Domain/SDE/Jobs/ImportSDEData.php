@@ -7,7 +7,6 @@ use App\Domain\SDE\Jobs\AbstractSDEJob;
 use App\Domain\SDE\Jobs\SDEJobInterface;
 use App\Domain\SDE\Mapping\SDEModelResolver;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
 {
@@ -29,7 +28,7 @@ class ImportSDEData extends AbstractSDEJob implements SDEJobInterface
         $modelName = $this->trimFileExtension($this->modelName, '.jsonl');
         $modelName = $SDEModelResolver->resolveModelName($modelName);
 
-        $modelClass = "App\\Domain\\Infrastructure\\SDE\\Models\\{$modelName}";
+        $modelClass = "App\\Domain\\SDE\\Models\\{$modelName}";
         $modelClassInstance = new $modelClass;
         $table = $modelClassInstance->getTable();
         $fillables = $modelClassInstance->getFillable();

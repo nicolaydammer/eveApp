@@ -2,13 +2,13 @@
 
 namespace App\Domain\SDE\Services\Actions;
 
-use App\Domain\SDE\Models\MapSolarSystem;
+use App\Domain\SDE\Models\MapRegion;
 
-class ListSystemsAction
+class ListRegionsAction
 {
-    public function listSystems(string $search)
+    public function listRegions(string $search)
     {
-        return MapSolarSystem::query()
+        return MapRegion::query()
             ->select('_key')
             ->selectRaw("name->>'en' AS system")
             ->when(
@@ -19,7 +19,6 @@ class ListSystemsAction
                 )
             )
             ->orderByRaw("name->>'en'")
-            ->limit(20)
             ->get();
     }
 }

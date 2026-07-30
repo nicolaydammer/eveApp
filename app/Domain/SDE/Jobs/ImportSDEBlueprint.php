@@ -2,19 +2,19 @@
 
 namespace App\Domain\SDE\Jobs;
 
-use App\Domain\Infrastructure\SDE\Models\Blueprint\Blueprint;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintInvention;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintInventionMaterial;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintInventionProduct;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintInventionSkill;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturing;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingMaterial;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingProduct;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintManufacturingSkill;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReaction;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionMaterial;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionProduct;
-use App\Domain\Infrastructure\SDE\Models\Blueprint\BlueprintReactionSkill;
+use App\Domain\SDE\Models\Blueprint\Blueprint;
+use App\Domain\SDE\Models\Blueprint\BlueprintInvention;
+use App\Domain\SDE\Models\Blueprint\BlueprintInventionMaterial;
+use App\Domain\SDE\Models\Blueprint\BlueprintInventionProduct;
+use App\Domain\SDE\Models\Blueprint\BlueprintInventionSkill;
+use App\Domain\SDE\Models\Blueprint\BlueprintManufacturing;
+use App\Domain\SDE\Models\Blueprint\BlueprintManufacturingMaterial;
+use App\Domain\SDE\Models\Blueprint\BlueprintManufacturingProduct;
+use App\Domain\SDE\Models\Blueprint\BlueprintManufacturingSkill;
+use App\Domain\SDE\Models\Blueprint\BlueprintReaction;
+use App\Domain\SDE\Models\Blueprint\BlueprintReactionMaterial;
+use App\Domain\SDE\Models\Blueprint\BlueprintReactionProduct;
+use App\Domain\SDE\Models\Blueprint\BlueprintReactionSkill;
 use App\Domain\SDE\Jobs\AbstractSDEJob;
 use App\Domain\SDE\Jobs\SDEJobInterface;
 use App\Domain\SDE\Mapping\SDEModelResolver;
