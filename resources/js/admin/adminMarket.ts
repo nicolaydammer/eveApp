@@ -6,6 +6,11 @@ export interface Region {
 }
 
 export interface StructureMarketConfiguration {
+    structure: number;
+    char: number;
+}
+
+export interface StructureMarketMapping {
     structure_id: number;
     character_id: number;
     character_name: string;
@@ -46,7 +51,17 @@ export async function saveRegionConfiguration(
 export async function getExistingStructureConfiguration(): Promise<
     StructureMarketConfiguration[]
 > {
-    const response = await axios.get("/admin/market/structures");
+    const response = await axios.get<
+        ConfigurationResponse<StructureMarketConfiguration[]>
+    >("/admin/structure_markets");
 
-    return response.data ?? [];
+    return response.data.configuration ?? [];
+}
+
+export async function saveStructureConfiguration(
+    configuration: StructureMarketConfiguration[]
+): Promise<void> {
+    await axios.post("/admin/structure_markets", {
+        configuration,
+    });
 }

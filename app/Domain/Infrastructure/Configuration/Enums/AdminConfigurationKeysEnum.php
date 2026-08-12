@@ -14,6 +14,13 @@ enum AdminConfigurationKeysEnum: string
                 'configuration' => ['required', 'array'],
                 'configuration.*' => ['integer']
             ],
+            self::STRUCTURE_MARKETS => [
+                'configuration' => ['present', 'array'],
+
+                'configuration.*' => ['required', 'array:structure,char'],
+                'configuration.*.structure' => ['required', 'integer', 'min:1'],
+                'configuration.*.char' => ['required', 'integer', 'min:1'],
+            ],
         };
     }
 }

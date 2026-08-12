@@ -76,7 +76,7 @@ class AuthService
                 $this->characterRepository->update($verifyOauthData, $character);
             }
 
-            Auth::login($user);
+            Auth::login($user, true);
         }
     }
 }

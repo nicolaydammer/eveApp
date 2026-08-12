@@ -1,0 +1,1 @@
+import{a}from"./vendor-D-91PCVR.js";const o=a.create({baseURL:"/",withCredentials:!0,headers:{"X-Requested-With":"XMLHttpRequest",Accept:"application/json"}});var t;const e=(t=document.querySelector('meta[name="csrf-token"]'))==null?void 0:t.getAttribute("content");e&&(o.defaults.headers.common["X-CSRF-TOKEN"]=e);export{o as a};

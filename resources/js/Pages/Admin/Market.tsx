@@ -16,8 +16,10 @@ import {
     getExistingRegionConfiguration,
     getExistingStructureConfiguration,
     saveRegionConfiguration,
+    saveStructureConfiguration,
     Region,
     StructureMarketConfiguration,
+    StructureMarketMapping,
 } from "@/admin/adminMarket.js";
 
 interface Character {
@@ -364,9 +366,9 @@ function StructureMarketSettings() {
 
     const characters = auth.user.characters;
 
-    const [mappings, setMappings] = useState<StructureMarketConfiguration[]>([]);
+    const [mappings, setMappings] = useState<StructureMarketMapping[]>([]);
     const [selectedMapping, setSelectedMapping] =
-        useState<StructureMarketConfiguration | null>(null);
+        useState<StructureMarketMapping | null>(null);
 
     const [structureId, setStructureId] = useState("");
     const [characterId, setCharacterId] = useState("");
@@ -375,9 +377,38 @@ function StructureMarketSettings() {
 
     useEffect(() => {
         getExistingStructureConfiguration()
-            .then(setMappings)
+            .then((configuration) => {
+                setMappings(
+                    configuration.map((mapping) => {
+                        const character = characters.find(
+                            (character) =>
+                                character.CharacterID === mapping.char
+                        );
+
+                        return {
+                            structure_id: mapping.structure,
+                            character_id: mapping.char,
+                            character_name:
+                                character?.CharacterName ?? "Unknown character",
+                        };
+                    })
+                );
+            })
             .finally(() => setLoading(false));
-    }, []);
+    }, [characters]);
+
+    const saveMappings = (mappings: StructureMarketMapping[]) => {
+        setMappings(mappings);
+
+        const configuration: StructureMarketConfiguration[] = mappings.map(
+            (mapping) => ({
+                structure: mapping.structure_id,
+                char: mapping.character_id,
+            })
+        );
+
+        saveStructureConfiguration(configuration);
+    };
 
     const addMapping = () => {
         if (!structureId || !characterId) {
@@ -393,21 +424,29 @@ function StructureMarketSettings() {
             return;
         }
 
-        const mapping: StructureMarketConfiguration = {
+        const mapping: StructureMarketMapping = {
             structure_id: Number(structureId),
             character_id: character.CharacterID,
             character_name: character.CharacterName,
         };
 
-        setMappings((current) => [
-            ...current,
+        if (
+            mappings.some(
+                (current) =>
+                    current.structure_id === mapping.structure_id &&
+                    current.character_id === mapping.character_id
+            )
+        ) {
+            return;
+        }
+
+        saveMappings([
+            ...mappings,
             mapping,
         ]);
 
         setStructureId("");
         setCharacterId("");
-
-        // TODO: Persist configuration.
     };
 
     const removeMapping = () => {
@@ -415,19 +454,16 @@ function StructureMarketSettings() {
             return;
         }
 
-        setMappings((current) =>
-            current.filter(
-                (mapping) =>
-                    !(
-                        mapping.structure_id === selectedMapping.structure_id &&
-                        mapping.character_id === selectedMapping.character_id
-                    )
-            )
+        const configuration = mappings.filter(
+            (mapping) =>
+                !(
+                    mapping.structure_id === selectedMapping.structure_id &&
+                    mapping.character_id === selectedMapping.character_id
+                )
         );
 
+        saveMappings(configuration);
         setSelectedMapping(null);
-
-        // TODO: Persist configuration.
     };
 
     if (loading) {
