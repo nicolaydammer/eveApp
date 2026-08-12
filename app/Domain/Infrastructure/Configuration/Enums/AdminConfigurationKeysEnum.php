@@ -2,10 +2,14 @@
 
 namespace App\Domain\Infrastructure\Configuration\Enums;
 
+use App\Domain\Infrastructure\Esi\Enums\Scope;
+use Illuminate\Validation\Rule;
+
 enum AdminConfigurationKeysEnum: string
 {
     case MARKET_REGIONS = 'market_regions';
     case STRUCTURE_MARKETS = 'structure_markets';
+    case ESI_SCOPES = 'esi_scopes';
 
     public function rules(): array
     {
@@ -21,6 +25,13 @@ enum AdminConfigurationKeysEnum: string
                 'configuration.*.structure' => ['required', 'integer', 'min:1'],
                 'configuration.*.char' => ['required', 'integer', 'min:1'],
             ],
+            self::ESI_SCOPES => [
+                'configuration' => ['present', 'array'],
+                'configuration.*' => [
+                    'string',
+                    Rule::enum(Scope::class),
+                ],
+            ]
         };
     }
 }

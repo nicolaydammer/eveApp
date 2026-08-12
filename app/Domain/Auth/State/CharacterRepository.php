@@ -21,6 +21,7 @@ class CharacterRepository
             'accessToken' => $verifyOauthData->accessToken,
             'refreshToken' => $verifyOauthData->refreshToken,
             'expires_at' => $verifyOauthData->expiresAt,
+            'scopes' => $verifyOauthData->scopes,
         ]);
     }
 
@@ -30,6 +31,7 @@ class CharacterRepository
             'accessToken' => $verifyOauthData->accessToken,
             'refreshToken' => $verifyOauthData->refreshToken,
             'expires_at' => $verifyOauthData->expiresAt,
+            'scopes' => $verifyOauthData->scopes,
         ]);
     }
 }

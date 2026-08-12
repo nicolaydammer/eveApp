@@ -9,6 +9,7 @@ final class VerifyOauthData
         public readonly string $CharacterName,
         public readonly string $accessToken,
         public readonly string $refreshToken,
-        public readonly \DateTime $expiresAt
+        public readonly \DateTime $expiresAt,
+        public readonly array $scopes
     ) {}
 }

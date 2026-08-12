@@ -18,6 +18,7 @@ class Character extends Model
         'accessToken',
         'refreshToken',
         'expires_at',
+        'scopes'
     ];
 
     public function user(): BelongsTo
@@ -29,5 +30,6 @@ class Character extends Model
         'expires_at' => 'datetime',
         'accessToken' => 'encrypted',
         'refreshToken' => 'encrypted',
+        'scopes' => 'array'
     ];
 }

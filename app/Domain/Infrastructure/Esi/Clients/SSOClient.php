@@ -5,17 +5,23 @@ namespace App\Domain\Infrastructure\Esi\Clients;
 use App\Domain\Auth\DTO\TokenData;
 use App\Domain\Auth\DTO\VerifyOauthData;
 use App\Domain\Auth\Entities\Character;
+use App\Domain\Infrastructure\Configuration\Repositories\ConfigurationRepository;
 use Illuminate\Support\Facades\Http;
 
 class SSOClient
 {
+    public function __construct(private ConfigurationRepository $configurationRepository) {}
+
     public function getAuthorizationUrl(): string
     {
+        $scopes = $this->configurationRepository->get('esi_scopes');
+        $scopes = implode(' ', $scopes['configuration']);
+
         return 'https://login.eveonline.com/v2/oauth/authorize?' . http_build_query([
             'response_type' => 'code',
             'client_id' => config('eve.client_id'),
             'redirect_uri' => config('eve.redirect_uri'),
-            'scope' => config('eve.scopes'),
+            'scope' => $scopes,
             'state' => csrf_token(),
         ]);
     }
@@ -50,12 +56,15 @@ class SSOClient
             throw new \Exception('Failed to verify token: ' . $response->body());
         }
 
+        $scopes = json_decode(base64_decode(explode('.', $tokenData->accessToken)[1]), true)['scp'];
+
         return new VerifyOauthData(
             CharacterID: $response->json('CharacterID'),
             CharacterName: $response->json('CharacterName'),
             accessToken: $tokenData->accessToken,
             refreshToken: $tokenData->refreshToken,
-            expiresAt: now()->addSeconds($tokenData->expiresIn)
+            expiresAt: now()->addSeconds($tokenData->expiresIn),
+            scopes: $scopes
         );
     }
 

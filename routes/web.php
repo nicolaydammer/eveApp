@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Web\Admin\MarketController;
+use App\Http\Controllers\Web\Admin\ScopeController;
 use App\Http\Controllers\Web\Configuration\ConfigurationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\Eve\ListSystemsController;
@@ -46,6 +47,9 @@ Route::prefix('admin')
     ->middleware(['auth', IsAdminUser::class])
     ->group(function () {
         Route::get('/market', [MarketController::class, 'index'])->name('admin.index');
+        Route::get('/scopes', [ScopeController::class, 'index'])->name('admin.scopes');
+        Route::get('/scopes/list', [ScopeController::class, 'listScopes'])->name('admin.scopes.list');
+
 
         Route::post('/{type}', [ConfigurationController::class, 'adminStore'])->name('admin.store');
         Route::get('/{type}', [ConfigurationController::class, 'adminGet'])->name('admin.get');
