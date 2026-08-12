@@ -1,4 +1,4 @@
-import{j as e}from"./app-DwCkABw5.js";import{f as c,r as b,L as t}from"./vendor-D-91PCVR.js";import{c as d,C as f,a as u}from"./chevron-right-Bi93QP8G.js";/**
+import{j as e}from"./app-9sF6Of1R.js";import{f as c,r as b,L as t}from"./vendor-D-91PCVR.js";import{c as d,C as f,a as u}from"./chevron-right-Bi93QP8G.js";/**
  * @license lucide-react v1.16.0 - ISC
  *
  * This source code is licensed under the ISC license.
