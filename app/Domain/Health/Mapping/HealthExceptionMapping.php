@@ -3,6 +3,7 @@
 namespace App\Domain\Health\Mapping;
 
 use App\Domain\Health\Contracts\HealthException;
+use App\Domain\Health\Exceptions\MissingEsiScopeException;
 use App\Domain\Health\Exceptions\SynchronizationFailedException;
 
 final class HealthExceptionMapping
@@ -12,6 +13,7 @@ final class HealthExceptionMapping
      */
     private const MAP = [
         SynchronizationFailedException::class,
+        MissingEsiScopeException::class,
     ];
 
     /**

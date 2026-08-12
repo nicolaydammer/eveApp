@@ -11,7 +11,7 @@ class SyncEsiAlliance extends AbstractEsiSyncJob
         CachedAllianceRepository $cachedAllianceRepository,
         EsiAllianceDataProvider $esiAllianceDataProvider
     ): void {
-        $freshData = $esiAllianceDataProvider->provide($this->entityId);
+        $freshData = $esiAllianceDataProvider->provide($this->esiRequest);
 
         $cachedAllianceRepository->save($freshData);
     }

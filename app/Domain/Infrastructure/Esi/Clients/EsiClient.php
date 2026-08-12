@@ -3,6 +3,8 @@
 namespace App\Domain\Infrastructure\Esi\Clients;
 
 use App\Domain\Auth\Entities\Character;
+use App\Domain\Health\Exceptions\MissingEsiScopeException;
+use App\Domain\Infrastructure\Esi\Requests\EsiRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -18,15 +20,39 @@ class EsiClient
         $this->SSOClient = $SSOClient;
     }
 
-    public function get(string $endpoint, ?Character $character = null): array
+    public function get(EsiRequest $request): array
     {
+        if (is_null($request->id())) {
+            $endpoint = $request->endpoint();
+        } else {
+            $endpoint = sprintf($request->endpoint(), $request->id());
+        }
+
+        $character = $request->character();
+        $scopes = $request->requiredScopes();
+
+        $this->checkScopes($character, $scopes);
+
         $response = $this->request('GET', $endpoint, $character);
 
         return $response->json() ?? [];
     }
 
-    public function post(string $endpoint, array $data = [], ?Character $character = null): array
+    public function post(EsiRequest $request): array
     {
+        if (is_null($request->id())) {
+            $endpoint = $request->endpoint();
+        } else {
+            $endpoint = sprintf($request->endpoint(), $request->id());
+        }
+
+        $character = $request->character();
+        $scopes = $request->requiredScopes();
+
+        $this->checkScopes($character, $scopes);
+
+        $data = $request->data();
+
         $response = $this->request('POST', $endpoint, $character, $data);
         return $response->json() ?? [];
     }
@@ -55,7 +81,7 @@ class EsiClient
         $cached = Cache::get($cacheKey);
         $request = Http::acceptJson()
             ->withHeaders([
-                'X-Compatibility-Date' => '2026-07-22'
+                'X-Compatibility-Date' => '2026-08-11'
             ]);
 
         if ($character) {
@@ -145,6 +171,20 @@ class EsiClient
         // If we are getting close to the limit (less than 10 errors left), trigger cooldown
         if ($remain !== null && (int)$remain < 10) {
             Cache::put('esi:cooldown', true, (int)$reset);
+        }
+    }
+
+    private function checkScopes(?Character $character, array $requiredScopes): void
+    {
+        if (empty($character) || is_null($character) || empty($requiredScopes)) return;
+
+        foreach ($requiredScopes as $scope) {
+            if (!$character->hasScope($scope)) {
+                throw new MissingEsiScopeException(
+                    scope: $scope,
+                    healthCode: 'esi.request.missing-scope',
+                );
+            }
         }
     }
 }

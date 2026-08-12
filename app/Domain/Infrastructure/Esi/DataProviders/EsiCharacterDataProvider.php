@@ -5,15 +5,18 @@ namespace App\Domain\Infrastructure\Esi\DataProviders;
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
 use App\Domain\Infrastructure\Esi\DTO\CharacterDTO;
 use App\Domain\Infrastructure\Esi\DTO\EsiDtoInterface;
+use App\Domain\Infrastructure\Esi\Requests\EsiRequest;
 use Illuminate\Support\Carbon;
 
 class EsiCharacterDataProvider implements EsiDataProviderInterface
 {
     public function __construct(private EsiClient $esi_client) {}
 
-    public function provide(int $id): EsiDtoInterface
+    public function provide(EsiRequest $esiRequest): EsiDtoInterface
     {
-        $esiData = $this->esi_client->get("/characters/{$id}");
+        $esiData = $this->esi_client->get($esiRequest);
+
+        $id = $esiRequest->id();
 
         return new CharacterDTO(
             null,

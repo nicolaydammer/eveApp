@@ -11,7 +11,7 @@ class SyncEsiCharacter extends AbstractEsiSyncJob
         CachedCharacterRepository $cachedCharacterRepository,
         EsiCharacterDataProvider $esiCharacterDataProvider
     ): void {
-        $freshData = $esiCharacterDataProvider->provide($this->entityId);
+        $freshData = $esiCharacterDataProvider->provide($this->esiRequest);
 
         $cachedCharacterRepository->save($freshData);
     }

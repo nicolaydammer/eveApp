@@ -11,7 +11,7 @@ class SyncEsiCorporation extends AbstractEsiSyncJob
         CachedCorporationRepository $cachedCorporationRepository,
         EsiCorporationDataProvider $esiCorporationDataProvider
     ): void {
-        $freshData = $esiCorporationDataProvider->provide($this->entityId);
+        $freshData = $esiCorporationDataProvider->provide($this->esiRequest);
 
         $cachedCorporationRepository->save($freshData);
     }

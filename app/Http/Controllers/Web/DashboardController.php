@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Web;
 
 use App\Domain\Dashboard\Factories\EsiGatewayFactory;
 use App\Domain\Dashboard\ViewModels\DashboardViewModel;
+use App\Domain\Infrastructure\Esi\Requests\Alliance\PublicAllianceInfoRequest;
+use App\Domain\Infrastructure\Esi\Requests\Character\PublicCharInfoRequest;
+use App\Domain\Infrastructure\Esi\Requests\Corporation\PublicCorpInfoRequest;
 use App\Domain\Shared\User\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,9 +31,16 @@ class DashboardController
             ->withQueryString()
             ->through(function ($character) {
 
-                $charDto = $this->esiGatewayFactory->character()->get($character->CharacterID);
-                $corpDto = $this->esiGatewayFactory->corporation()->get($charDto->corporation_id);
-                $allianceDto = $charDto->alliance_id ? $this->esiGatewayFactory->alliance()->get($charDto->alliance_id) : null;
+                $characterRequest = new PublicCharInfoRequest($character->CharacterID);
+
+                $charDto = $this->esiGatewayFactory->character()->get($characterRequest);
+
+                $corpRequest = new PublicCorpInfoRequest($charDto->corporation_id);
+                $corpDto = $this->esiGatewayFactory->corporation()->get($corpRequest);
+
+                $allianceDto = $charDto->alliance_id ? $this->esiGatewayFactory->alliance()->get(
+                    new PublicAllianceInfoRequest($charDto->alliance_id)
+                ) : null;
 
                 return (new DashboardViewModel(
                     Auth::user()->main_character_id,

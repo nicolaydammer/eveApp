@@ -4,6 +4,7 @@ namespace App\Domain\Synchronization\Synchronizations;
 
 use App\Domain\EVE\Jobs\SaveIndustryCostIndices;
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
+use App\Domain\Infrastructure\Esi\Requests\Industry\ListSystemCostIndicesRequest;
 use App\Domain\Synchronization\Helpers\SynchronizationScheduler;
 use App\Domain\Synchronization\Synchronizations\AbstractSynchronization;
 use Carbon\Carbon;
@@ -19,7 +20,8 @@ class IndustryCostIndices extends AbstractSynchronization
 
     protected function getData(): array
     {
-        return $this->esiClient->get('/industry/systems');
+        $request = new ListSystemCostIndicesRequest();
+        return $this->esiClient->get($request);
     }
 
     protected function transformData(array $data): array

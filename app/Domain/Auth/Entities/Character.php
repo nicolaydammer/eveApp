@@ -2,6 +2,7 @@
 
 namespace App\Domain\Auth\Entities;
 
+use App\Domain\Infrastructure\Esi\Enums\Scope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,4 +33,13 @@ class Character extends Model
         'refreshToken' => 'encrypted',
         'scopes' => 'array'
     ];
+
+    public function hasScope(Scope $scope): bool
+    {
+        return in_array(
+            $scope->value,
+            $this->scopes ?? [],
+            true
+        );
+    }
 }
