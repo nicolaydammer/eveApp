@@ -3,11 +3,14 @@
 namespace App\Domain\Auth\Entities;
 
 use App\Domain\Infrastructure\Esi\Enums\Scope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Character extends Model
 {
+    use HasFactory;
+
     protected $primaryKey = 'CharacterID';
 
     public $incrementing = false;
@@ -22,9 +25,15 @@ class Character extends Model
         'scopes'
     ];
 
+    protected $hidden = [
+        'accessToken',
+        'refreshToken',
+        'expires_at',
+    ];
+
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     protected $casts = [
@@ -41,5 +50,10 @@ class Character extends Model
             $this->scopes ?? [],
             true
         );
+    }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\CharacterFactory::new();
     }
 }

@@ -2,43 +2,80 @@
 
 namespace Database\Factories;
 
+use App\Domain\Auth\Entities\Character;
+use App\Domain\Auth\Entities\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'main_character_id' => $this->generateCharacterId(),
+            'remember_token' => null,
+            'is_admin' => false,
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function withCharacters(int $count): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        $count = max(1, $count);
+
+        return $this->afterCreating(function (User $user) use ($count) {
+            // Create the main character.
+            Character::factory()->create([
+                'CharacterID' => $user->main_character_id,
+                'user_id' => $user->id,
+            ]);
+
+            // Create additional characters.
+            if ($count > 1) {
+                Character::factory()
+                    ->count($count - 1)
+                    ->create([
+                        'user_id' => $user->id,
+                    ]);
+            }
+        });
+    }
+
+    public function withRandomCharacters(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $count = fake()->numberBetween(1, 3);
+
+            Character::factory()->create([
+                'CharacterID' => $user->main_character_id,
+                'user_id' => $user->id,
+            ]);
+
+            if ($count > 1) {
+                Character::factory()
+                    ->count($count - 1)
+                    ->create([
+                        'user_id' => $user->id,
+                    ]);
+            }
+        });
+    }
+
+    private function generateCharacterId(): int
+    {
+        do {
+            $id = fake()->numberBetween(
+                100_000_000,
+                999_999_999
+            );
+        } while (
+            User::where('main_character_id', $id)->exists()
+            || Character::where('CharacterID', $id)->exists()
+        );
+
+        return $id;
     }
 }

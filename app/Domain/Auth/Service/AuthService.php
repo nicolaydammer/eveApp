@@ -39,44 +39,78 @@ class AuthService
         return $this->SSOClient->verifyLogin($tokenData);
     }
 
-    public function authenticateCharacter(VerifyOauthData $verifyOauthData)
+    public function authenticateCharacter(VerifyOauthData $verifyOauthData): void
     {
-        $character = $this->characterRepository->find($verifyOauthData->CharacterID);
+        $character = $this->characterRepository->find(
+            $verifyOauthData->CharacterID
+        );
 
-        // logged in, add it as alt, not logged in create new user and log in
+        /*
+     * Already authenticated:
+     *
+     * The authenticated user is trusted, so an existing character
+     * can be added to or transferred to this user.
+     */
         if (Auth::check()) {
             $user = Auth::user();
 
             if (is_null($character)) {
-                $this->characterRepository->create($verifyOauthData, $user);
+                $this->characterRepository->create(
+                    $verifyOauthData,
+                    $user
+                );
+
+                return;
             }
 
-            if ($character) {
-                $this->characterRepository->update($verifyOauthData, $character);
+            $this->characterRepository->update(
+                $verifyOauthData,
+                $character,
+                $user
+            );
+
+            return;
+        }
+
+        /*
+     * Not authenticated:
+     *
+     * A character can only establish a session if it is the
+     * main character of its existing user.
+     */
+        if (is_null($character)) {
+            $isFirstUser = ! $this->userRepository->hasUsers();
+
+            $user = $this->userRepository->create(
+                $verifyOauthData->CharacterID
+            );
+
+            if ($isFirstUser) {
+                $this->userRepository->setAdmin($user, true);
             }
-        } else {
-            $user = null;
 
-            if (is_null($character)) {
-
-                $isFirstUser = ! $this->userRepository->hasUsers();
-
-                $user = $this->userRepository->create($verifyOauthData->CharacterID);
-
-                if ($isFirstUser) {
-                    $this->userRepository->setAdmin($user, true);
-                }
-
-                $this->characterRepository->create($verifyOauthData, $user);
-            }
-
-            if ($character) {
-                $user = $character->get()->first()->user()->get()->first();
-
-                $this->characterRepository->update($verifyOauthData, $character);
-            }
+            $this->characterRepository->create(
+                $verifyOauthData,
+                $user
+            );
 
             Auth::login($user, true);
+
+            return;
         }
+
+        $user = $character->user;
+
+        if ($character->CharacterID !== $user->main_character_id) {
+            return;
+        }
+
+        $this->characterRepository->update(
+            $verifyOauthData,
+            $character,
+            $user
+        );
+
+        Auth::login($user, true);
     }
 }

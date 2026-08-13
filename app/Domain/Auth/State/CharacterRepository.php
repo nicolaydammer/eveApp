@@ -10,7 +10,7 @@ class CharacterRepository
 {
     public function find(int $characterId): ?Character
     {
-        return Character::query()->find($characterId, 'CharacterID');
+        return Character::query()->find($characterId);
     }
 
     public function create(VerifyOauthData $verifyOauthData, User $user): void
@@ -25,13 +25,23 @@ class CharacterRepository
         ]);
     }
 
-    public function update(VerifyOauthData $verifyOauthData, Character $character): void
+    public function update(VerifyOauthData $verifyOauthData, Character $character, User $user): void
     {
-        $character->update([
-            'accessToken' => $verifyOauthData->accessToken,
-            'refreshToken' => $verifyOauthData->refreshToken,
-            'expires_at' => $verifyOauthData->expiresAt,
-            'scopes' => $verifyOauthData->scopes,
-        ]);
+        if ($character->user_id != $user->id) {
+            $character->update([
+                'accessToken' => $verifyOauthData->accessToken,
+                'refreshToken' => $verifyOauthData->refreshToken,
+                'expires_at' => $verifyOauthData->expiresAt,
+                'scopes' => $verifyOauthData->scopes,
+                'user_id' => $user->id,
+            ]);
+        } else {
+            $character->update([
+                'accessToken' => $verifyOauthData->accessToken,
+                'refreshToken' => $verifyOauthData->refreshToken,
+                'expires_at' => $verifyOauthData->expiresAt,
+                'scopes' => $verifyOauthData->scopes,
+            ]);
+        }
     }
 }
