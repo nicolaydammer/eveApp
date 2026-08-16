@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Domain\Auth\Entities\User;
 use App\Domain\Shared\User\UserRepository;
-use Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

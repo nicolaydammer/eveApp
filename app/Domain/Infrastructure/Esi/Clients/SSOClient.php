@@ -6,7 +6,10 @@ use App\Domain\Auth\DTO\TokenData;
 use App\Domain\Auth\DTO\VerifyOauthData;
 use App\Domain\Auth\Entities\Character;
 use App\Domain\Infrastructure\Configuration\Repositories\ConfigurationRepository;
+use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
 
 class SSOClient
 {
@@ -36,7 +39,7 @@ class SSOClient
             ]);
 
         if ($response->failed()) {
-            throw new \Exception('Failed to exchange code: ' . $response->body());
+            throw new Exception('Failed to exchange code: ' . $response->body());
         }
 
         return new TokenData(
@@ -90,5 +93,34 @@ class SSOClient
         }
 
         return $character->accessToken;
+    }
+
+    public function testToken(int $CharacterID)
+    {
+        $key = 'test-token:' . Auth::user()->id . ':' . $CharacterID;
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            return response(status: 429);
+        }
+
+        RateLimiter::hit($key, 300);
+
+        $character = Character::query()->findOrFail($CharacterID);
+
+        try {
+            $accessToken = $this->getValidAccessToken($character);
+
+            $response = Http::withToken($accessToken)
+                ->acceptJson()
+                ->get('https://login.eveonline.com/oauth/verify');
+
+            if ($response->failed()) {
+                return response(status: 401);
+            }
+
+            return response(status: 204);
+        } catch (Exception $exception) {
+            return response(status: 401);
+        }
     }
 }

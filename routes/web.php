@@ -58,6 +58,8 @@ Route::prefix('admin')
         Route::get('/users/list', [UserController::class, 'getUsers'])->name('admin.users.getUsers');
 
         Route::get('/characters', [CharacterController::class, 'index'])->name('admin.characters.index');
+        Route::get('/characters/list', [CharacterController::class, 'listCharacters'])->name('admin.characters.list');
+        Route::get('/characters/{CharacterID}/test-token', [CharacterController::class, 'testToken'])->name('admin.character.token.test');
 
         Route::post('/{type}', [ConfigurationController::class, 'adminStore'])->name('admin.store');
         Route::get('/{type}', [ConfigurationController::class, 'adminGet'])->name('admin.get');

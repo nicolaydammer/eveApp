@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { usePage } from "@inertiajs/react";
+import { usePage, Link } from "@inertiajs/react";
 import axios from "@/lib/axios.js";
 import AppLayout from "@/Layouts/AppLayout.js";
 import ThemeToggle from "@/Components/ThemeToggle.js";
@@ -64,7 +64,7 @@ export default function AdminUsers() {
     const { auth } = usePage<PageProps>().props;
 
     const [users, setUsers] = useState<PaginatedUsers | null>(null);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get("search") ?? "");
     const [loading, setLoading] = useState(true);
     const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
     const [expandedUsers, setExpandedUsers] = useState<Set<number>>(
@@ -396,16 +396,23 @@ function CharacterRow({
     return (
         <div
             className={`
-                text-sm
-                px-3 py-1.5
-                rounded
-                ${isMatch
+            text-sm
+            px-3 py-1.5
+            rounded
+            ${isMatch
                     ? "text-zinc-100 bg-zinc-800"
                     : "text-zinc-400"
                 }
-            `}
+        `}
         >
-            {character.CharacterName}
+            <Link
+                href={`/admin/characters?search=${encodeURIComponent(
+                    character.CharacterName,
+                )}`}
+                className="hover:text-zinc-100 hover:underline"
+            >
+                {character.CharacterName}
+            </Link>
         </div>
     );
 }
