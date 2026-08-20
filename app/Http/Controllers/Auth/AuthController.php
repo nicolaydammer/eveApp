@@ -16,7 +16,7 @@ class AuthController
 
     public function handleEveCallback(Request $request, HandleEveCallback $handleEveCallback)
     {
-        $handleEveCallback->handle($request->get('code'));
+        $handleEveCallback->handle($request->get('code'), $request->get('state'));
 
         return redirect()->route('home');
     }

@@ -29,9 +29,9 @@ class AuthService
         return $this->SSOClient->getAuthorizationUrl();
     }
 
-    public function exchangeCode(string $code): TokenData
+    public function exchangeCode(string $code, string $state): TokenData
     {
-        return $this->SSOClient->exchangeCode($code);
+        return $this->SSOClient->exchangeCode($code, $state);
     }
 
     public function verifyLogin(TokenData $tokenData): VerifyOauthData

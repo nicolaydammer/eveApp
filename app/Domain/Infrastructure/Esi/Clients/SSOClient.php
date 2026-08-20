@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class SSOClient
 {
@@ -20,17 +21,29 @@ class SSOClient
         $scopes = $this->configurationRepository->get('esi_scopes');
         $scopes = implode(' ', $scopes['configuration']);
 
+        $state = Str::random(40);
+
+        session(['eve_sso_state' => $state]);
+
         return 'https://login.eveonline.com/v2/oauth/authorize?' . http_build_query([
             'response_type' => 'code',
             'client_id' => config('eve.client_id'),
             'redirect_uri' => config('eve.redirect_uri'),
             'scope' => $scopes,
-            'state' => csrf_token(),
+            'state' => $state,
         ]);
     }
 
-    public function exchangeCode(string $code): TokenData
+    public function exchangeCode(string $code, string $state): TokenData
     {
+        $bState = session('eve_sso_state');
+
+        if (empty($state) || empty($bState) || !hash_equals($bState, $state)) {
+            throw new Exception('SSO state did not match');
+        }
+
+        session()->forget('eve_sso_state');
+
         $response = Http::asForm()
             ->withBasicAuth(config('eve.client_id'), config('eve.client_secret'))
             ->post('https://login.eveonline.com/v2/oauth/token', [
@@ -99,7 +112,7 @@ class SSOClient
     {
         $key = 'test-token:' . Auth::user()->id . ':' . $CharacterID;
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
+        if (RateLimiter::tooManyAttempts($key, 3)) {
             return response(status: 429);
         }
 

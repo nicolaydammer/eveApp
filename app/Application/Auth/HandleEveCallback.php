@@ -13,9 +13,9 @@ class HandleEveCallback
         $this->authService = $authService;
     }
 
-    public function handle(string $code)
+    public function handle(string $code, string $state)
     {
-        $tokenData = $this->authService->exchangeCode($code);
+        $tokenData = $this->authService->exchangeCode($code, $state);
 
         $characterData = $this->authService->verifyLogin($tokenData);
 
