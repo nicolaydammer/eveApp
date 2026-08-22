@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Domain\Health\Actions\GetHealthDebugData;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class DebugHealthCommand extends Command
 {
@@ -56,8 +57,9 @@ class DebugHealthCommand extends Command
 
             $this->info(sprintf(
                 '[%s] %s',
-                $event->source->value,
+                $event->exception,
                 $event->code,
+
             ));
 
             foreach ($event->context as $key => $value) {
@@ -65,10 +67,15 @@ class DebugHealthCommand extends Command
                     $value = json_encode($value, JSON_PRETTY_PRINT);
                 }
 
+                $value = Str::limit(
+                    (string) $value,
+                    500,
+                );
+
                 $value = str_replace(
                     PHP_EOL,
                     PHP_EOL . '    ',
-                    (string) $value,
+                    $value,
                 );
 
                 $this->line(sprintf(
