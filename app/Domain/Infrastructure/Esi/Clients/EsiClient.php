@@ -3,6 +3,7 @@
 namespace App\Domain\Infrastructure\Esi\Clients;
 
 use App\Domain\Auth\Entities\Character;
+use App\Domain\Health\Exceptions\EsiRequestFailedException;
 use App\Domain\Health\Exceptions\MissingEsiScopeException;
 use App\Domain\Infrastructure\Esi\Requests\EsiRequest;
 use Illuminate\Http\Client\Response;
@@ -35,6 +36,16 @@ class EsiClient
 
         $response = $this->request('GET', $endpoint, $character);
 
+        if ($response->failed()) {
+            throw new EsiRequestFailedException(
+                endpoint: $endpoint,
+                method: 'GET',
+                status: $response->status(),
+                character: $character ?? null,
+                message: $response->json('error') ?? $response->body()
+            );
+        }
+
         return $response->json() ?? [];
     }
 
@@ -54,13 +65,29 @@ class EsiClient
         $data = $request->data();
 
         $response = $this->request('POST', $endpoint, $character, $data);
+
+        if ($response->failed()) {
+            throw new EsiRequestFailedException(
+                endpoint: $endpoint,
+                method: 'POST',
+                status: $response->status(),
+                character: $character ?? null,
+                message: $response->json('error') ?? $response->body()
+            );
+        }
+
         return $response->json() ?? [];
     }
 
     private function request(string $method, string $endpoint, ?Character $character = null, array $data = []): Response
     {
         if (Cache::get('esi:cooldown')) {
-            throw new \Exception('ESI is cooling down due to error limits.');
+            throw new EsiRequestFailedException(
+                endpoint: $endpoint,
+                method: $method,
+                character: $character ?? null,
+                message: 'ESI requests are temporarily blocked due to cooldown on retry limit.'
+            );
         }
 
         // Wrap everything in retry logic so that Lock or RateLimit failures trigger a retry
@@ -81,7 +108,7 @@ class EsiClient
         $cached = Cache::get($cacheKey);
         $request = Http::acceptJson()
             ->withHeaders([
-                'X-Compatibility-Date' => '2026-08-11'
+                'X-Compatibility-Date' => now()->subDay()
             ]);
 
         if ($character) {
@@ -137,7 +164,7 @@ class EsiClient
                 /** @var Response $response */
                 $response = $callback();
 
-                if ($response->status() === 420 || $response->status() >= 500) {
+                if ($response->status() === 420) {
                     throw new \Exception("ESI Error: {$response->status()}");
                 }
 

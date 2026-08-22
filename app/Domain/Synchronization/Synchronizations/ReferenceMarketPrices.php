@@ -3,6 +3,8 @@
 namespace App\Domain\Synchronization\Synchronizations;
 
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
+use App\Domain\Infrastructure\Esi\Requests\Market\ListMarketPricesRequest;
+use App\Domain\Market\External\Esi\Jobs\SaveReferencePrices;
 use Carbon\Carbon;
 
 class ReferenceMarketPrices extends AbstractSynchronization
@@ -11,25 +13,33 @@ class ReferenceMarketPrices extends AbstractSynchronization
 
     public static function name(): string
     {
-        return 'structure-market-orders';
+        return 'reference-market-prices';
     }
 
     protected function getData(): array
     {
-        // TODO: Implement getData() method.
-        return [];
+        $request = new ListMarketPricesRequest();
+        return $this->esiClient->get($request);
     }
 
     protected function transformData(array $data): array
     {
-        // TODO: Implement transformData() method.
-        return [];
+        return array_values($data);
     }
 
     protected function createJobs(array $data): array
     {
-        // TODO: Implement createJobs() method.
-        return [];
+        $data = collect($data)
+            ->map(fn(array $price) => [
+                'adjusted_price' => $price['adjusted_price'] ?? null,
+                'average_price' => $price['average_price'] ?? null,
+                'type_id' => $price['type_id'],
+            ]);
+
+        return $data
+            ->chunk(500)
+            ->map(fn($chunk) => new SaveReferencePrices($chunk->values()->all()))
+            ->all();
     }
 
     protected function scheduleNextSync(): Carbon

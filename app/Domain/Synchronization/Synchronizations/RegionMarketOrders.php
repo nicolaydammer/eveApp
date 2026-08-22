@@ -11,7 +11,7 @@ class RegionMarketOrders extends AbstractSynchronization
 
     public static function name(): string
     {
-        return 'structure-market-orders';
+        return 'region-market-orders';
     }
 
     protected function getData(): array

@@ -31,9 +31,16 @@ class SynchronizationFailedException extends RuntimeException implements HealthE
     {
         $context = $this->context;
 
-        if ($this->getPrevious()?->getMessage()) {
+        $previous = $this->getPrevious();
+
+        if ($previous instanceof HealthException) {
+            $context = array_merge(
+                $previous->context(),
+                $context,
+            );
+        } elseif ($previous?->getMessage()) {
             $context = array_merge([
-                'message' => $this->getPrevious()->getMessage(),
+                'message' => $previous->getMessage(),
             ], $context);
         }
 

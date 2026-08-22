@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('health_events', function (Blueprint $blueprint) {
+            $blueprint->dropUnique('health_events_code_unique');
+            $blueprint->unique(['code', 'exception']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('health_events', function (Blueprint $blueprint) {
+            $blueprint->dropUnique([
+                'code',
+                'exception',
+            ]);
+
+            $blueprint->unique('code');
+        });
+    }
+};

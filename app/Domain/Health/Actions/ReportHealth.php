@@ -4,6 +4,7 @@ namespace App\Domain\Health\Actions;
 
 use App\Domain\Health\Contracts\HealthException;
 use App\Domain\Health\Models\HealthEvent;
+use Throwable;
 
 class ReportHealth
 {
@@ -13,26 +14,28 @@ class ReportHealth
             return;
         }
 
+        $rootException = $exception->getPrevious() ?? $exception;
+
         $healthEvent = HealthEvent::query()
             ->where('code', $exception->code())
+            ->where('exception', class_basename($rootException))
             ->first();
 
         if ($healthEvent !== null) {
             $this->updateHealthEvent(
                 $healthEvent,
                 $exception,
+                $rootException
             );
 
             return;
         }
 
-        $this->createHealthEvent($exception);
+        $this->createHealthEvent($exception, $rootException);
     }
 
-    private function createHealthEvent(HealthException $exception): void
+    private function createHealthEvent(HealthException $exception, Throwable $rootException): void
     {
-        $rootException = $exception->getPrevious() ?? $exception;
-
         HealthEvent::query()->create([
             'code' => $exception->code(),
             'source' => $exception->source(),
@@ -47,8 +50,8 @@ class ReportHealth
     private function updateHealthEvent(
         HealthEvent $healthEvent,
         HealthException $exception,
+        Throwable $rootException
     ): void {
-        $rootException = $exception->getPrevious() ?? $exception;
 
         $healthEvent->increment('occurrences');
 

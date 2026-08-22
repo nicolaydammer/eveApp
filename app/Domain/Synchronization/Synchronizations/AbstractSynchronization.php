@@ -32,6 +32,8 @@ abstract class AbstractSynchronization
 
     final public function run(Synchronization $synchronization): void
     {
+        $synchronizationName = static::name();
+
         try {
             $data = $this->getData();
 
@@ -63,7 +65,7 @@ abstract class AbstractSynchronization
                         nextSyncAt: $nextSync,
                     );
                 })
-                ->catch(function (Batch $batch, Throwable $exception) use ($synchronizationId) {
+                ->catch(function (Batch $batch, Throwable $exception) use ($synchronizationId, $synchronizationName) {
                     $synchronization = Synchronization::findOrFail($synchronizationId);
 
                     SynchronizationLock::lock($synchronization, 5);
@@ -75,7 +77,7 @@ abstract class AbstractSynchronization
                     );
 
                     throw new SynchronizationFailedException(
-                        healthCode: 'sync.' . static::name(),
+                        healthCode: 'sync.' . $synchronizationName,
                         previous: $exception,
                     );
                 })
@@ -97,7 +99,7 @@ abstract class AbstractSynchronization
             );
 
             throw new SynchronizationFailedException(
-                healthCode: 'sync.' . static::name(),
+                healthCode: 'sync.' . $synchronizationName,
                 previous: $exception,
                 context: [
                     'message' => $exception->getMessage(),
