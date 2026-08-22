@@ -108,7 +108,7 @@ class EsiClient
         $cached = Cache::get($cacheKey);
         $request = Http::acceptJson()
             ->withHeaders([
-                'X-Compatibility-Date' => now()->subDay()
+                'X-Compatibility-Date' => now()->subDay()->toDateString()
             ]);
 
         if ($character) {
