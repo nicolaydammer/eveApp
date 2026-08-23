@@ -26,7 +26,7 @@ class StructureMarketOrders extends AbstractSynchronization
         return [];
     }
 
-    protected function createJobs(array $data): array
+    protected function createJobs(array $data, int $synchronizationRunId): array
     {
         // TODO: Implement createJobs() method.
         return [];

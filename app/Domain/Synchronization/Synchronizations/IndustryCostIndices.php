@@ -53,7 +53,7 @@ class IndustryCostIndices extends AbstractSynchronization
             })->toArray();
     }
 
-    protected function createJobs(array $data): array
+    protected function createJobs(array $data, int $synchronizationRunId): array
     {
         $data = collect($data);
 

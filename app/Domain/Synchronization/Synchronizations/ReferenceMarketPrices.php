@@ -2,10 +2,14 @@
 
 namespace App\Domain\Synchronization\Synchronizations;
 
+use App\Domain\Infrastructure\Configuration\Repositories\ConfigurationRepository;
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
 use App\Domain\Infrastructure\Esi\Requests\Market\ListMarketPricesRequest;
 use App\Domain\Market\External\Esi\Jobs\SaveReferencePrices;
+use App\Domain\Market\External\Esi\Models\RegionMarketOrder;
 use Carbon\Carbon;
+use Illuminate\Bus\Batch;
+use Override;
 
 class ReferenceMarketPrices extends AbstractSynchronization
 {
@@ -27,7 +31,7 @@ class ReferenceMarketPrices extends AbstractSynchronization
         return array_values($data);
     }
 
-    protected function createJobs(array $data): array
+    protected function createJobs(array $data, int $synchronizationRunId): array
     {
         $data = collect($data)
             ->map(fn(array $price) => [
@@ -45,5 +49,18 @@ class ReferenceMarketPrices extends AbstractSynchronization
     protected function scheduleNextSync(): Carbon
     {
         return now()->addHours(1);
+    }
+
+    #[Override]
+    protected function reconcile(Batch $batch, int $synchronizationRunId): void
+    {
+        $configurationRepository = new ConfigurationRepository();
+        $regionIds = $configurationRepository
+            ->get('market_regions')['configuration'];
+
+        RegionMarketOrder::query()
+            ->whereIn('region_id', $regionIds)
+            ->where('last_sync_run_id', '!=', $synchronizationRunId)
+            ->delete();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Domain\Synchronization\Mapping;
 use App\Domain\Synchronization\Synchronizations\AbstractSynchronization;
 use App\Domain\Synchronization\Synchronizations\IndustryCostIndices;
 use App\Domain\Synchronization\Synchronizations\ReferenceMarketPrices;
+use App\Domain\Synchronization\Synchronizations\RegionMarketOrders;
 use InvalidArgumentException;
 
 final class SynchronizationClassMapping
@@ -19,6 +20,7 @@ final class SynchronizationClassMapping
         return [
             IndustryCostIndices::name() => IndustryCostIndices::class,
             ReferenceMarketPrices::name() => ReferenceMarketPrices::class,
+            RegionMarketOrders::name() => RegionMarketOrders::class,
         ];
     }
 

@@ -13,7 +13,7 @@ class FinishSynchronization
         Synchronization $synchronization,
         Carbon $nextSyncAt,
         Carbon $finishedAt,
-        Batch $batch
+        ?Batch $batch
     ): void {
 
         $synchronization->state->update([
@@ -30,8 +30,8 @@ class FinishSynchronization
             'status' => SynchronizationStatus::Success,
             'finished_at' => $finishedAt,
 
-            'completed_jobs' => $batch->processedJobs(),
-            'failed_jobs' => $batch->failedJobs,
+            'completed_jobs' => $batch?->processedJobs() ?? 0,
+            'failed_jobs' => $batch?->failedJobs ?? 0,
         ]);
     }
 }

@@ -20,12 +20,12 @@ abstract class AbstractSynchronization
 
     abstract protected function transformData(array $data): array;
 
-    abstract protected function createJobs(array $data): array;
+    abstract protected function createJobs(array $data, int $synchronizationRunId): array;
 
     abstract protected function scheduleNextSync(): Carbon;
 
     // override this to reconcile after completing the batch
-    protected function reconcile(Batch $batch): void {}
+    protected function reconcile(Batch $batch, int $synchronizationRunId): void {}
 
     // override this to clean up after every batch disregarding the fail or success state
     protected function cleanUp(Batch $batch): void {}
@@ -35,18 +35,35 @@ abstract class AbstractSynchronization
         $synchronizationName = static::name();
 
         try {
-            $data = $this->getData();
-
-            $data = $this->transformData($data);
-
-            $jobs = $this->createJobs($data);
-
             $nextSync = $this->scheduleNextSync();
+
+            $data = $this->getData();
 
             $synchronization->refresh()->load([
                 'state',
                 'latestRun',
             ]);
+
+            if (empty($data)) {
+                app(FinishSynchronization::class)->execute(
+                    synchronization: Synchronization::findOrFail($synchronization->id),
+                    batch: null,
+                    finishedAt: now(),
+                    nextSyncAt: $nextSync,
+                );
+
+                return;
+            }
+
+            $data = $this->transformData($data);
+
+            $synchronization->refresh()->load([
+                'state',
+                'latestRun',
+            ]);
+
+            $synchronizationRunId = $synchronization->latestRun?->id;
+            $jobs = $this->createJobs($data, $synchronizationRunId);
 
             $synchronization->latestRun?->update([
                 'expected_jobs' => count($jobs),
@@ -55,9 +72,9 @@ abstract class AbstractSynchronization
             $synchronizationId = $synchronization->id;
 
             Bus::batch($jobs)
-                ->then(function (Batch $batch) use ($nextSync, $synchronizationId) {
+                ->then(function (Batch $batch) use ($nextSync, $synchronizationId, $synchronizationRunId) {
 
-                    $this->reconcile($batch);
+                    $this->reconcile($batch, $synchronizationRunId);
                     app(FinishSynchronization::class)->execute(
                         synchronization: Synchronization::findOrFail($synchronizationId),
                         batch: $batch,

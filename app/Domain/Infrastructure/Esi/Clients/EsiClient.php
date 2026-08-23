@@ -3,8 +3,10 @@
 namespace App\Domain\Infrastructure\Esi\Clients;
 
 use App\Domain\Auth\Entities\Character;
+use App\Domain\Health\Exceptions\EsiRateLimitException;
 use App\Domain\Health\Exceptions\EsiRequestFailedException;
 use App\Domain\Health\Exceptions\MissingEsiScopeException;
+use App\Domain\Infrastructure\Esi\Enums\PaginationType;
 use App\Domain\Infrastructure\Esi\Requests\EsiRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +36,9 @@ class EsiClient
 
         $this->checkScopes($character, $scopes);
 
-        $response = $this->request('GET', $endpoint, $character);
+        $data = $request->data();
+
+        $response = $this->request('GET', $endpoint, $character, $data);
 
         if ($response->failed()) {
             throw new EsiRequestFailedException(
@@ -46,7 +50,36 @@ class EsiClient
             );
         }
 
-        return $response->json() ?? [];
+        switch ($request->paginated()) {
+            case PaginationType::Page:
+                $page = 1;
+                $pages = $response->header('X-Pages');
+                $responseData = [$page => $response->json()];
+
+                while ($page < $pages) {
+                    $page++;
+                    $data['page'] = $page;
+                    $response = $this->request('GET', $endpoint, $character, $data);
+
+                    if ($response->failed()) {
+                        throw new EsiRequestFailedException(
+                            endpoint: $endpoint,
+                            method: 'GET',
+                            status: $response->status(),
+                            character: $character ?? null,
+                            message: $response->json('error') ?? $response->body()
+                        );
+                    }
+
+                    $responseData[$page] = $response->json();
+                }
+
+                return $responseData;
+            case PaginationType::Cursor:
+            case PaginationType::None:
+            default:
+                return $response->json() ?? [];
+        }
     }
 
     public function post(EsiRequest $request): array
@@ -62,9 +95,7 @@ class EsiClient
 
         $this->checkScopes($character, $scopes);
 
-        $data = $request->data();
-
-        $response = $this->request('POST', $endpoint, $character, $data);
+        $response = $this->request('POST', $endpoint, $character, $request->data());
 
         if ($response->failed()) {
             throw new EsiRequestFailedException(
@@ -86,14 +117,14 @@ class EsiClient
                 endpoint: $endpoint,
                 method: $method,
                 character: $character ?? null,
-                message: 'ESI requests are temporarily blocked due to cooldown on retry limit.'
+                message: 'ESI requests are temporarily blocked due to reaching the retry limit.'
             );
         }
 
         // Wrap everything in retry logic so that Lock or RateLimit failures trigger a retry
         return $this->retry(function () use ($method, $endpoint, $character, $data) {
             return $this->withLock($endpoint, function () use ($method, $endpoint, $character, $data) {
-                return $this->rateLimit(function () use ($method, $endpoint, $character, $data) {
+                return $this->rateLimit($method, $endpoint, $character, function () use ($method, $endpoint, $character, $data) {
                     return $this->performRequest($method, $endpoint, $character, $data);
                 });
             });
@@ -103,7 +134,7 @@ class EsiClient
     private function performRequest(string $method, string $endpoint, ?Character $character, array $data): Response
     {
         $url = "{$this->baseUrl}{$endpoint}";
-        $cacheKey = "esi:etag:" . md5($url . ($character->id ?? 'public'));
+        $cacheKey = $this->cacheKey($url, $character, $data);
 
         $cached = Cache::get($cacheKey);
         $request = Http::acceptJson()
@@ -125,17 +156,19 @@ class EsiClient
 
         // Handle 304: Return a manual response object containing cached data
         if ($response->status() === 304 && $cached) {
-            return new Response(new \GuzzleHttp\Psr7\Response(200, [], json_encode($cached['data'])));
+            return new Response(new \GuzzleHttp\Psr7\Response(200, $cached['headers'], json_encode($cached['data'])));
         }
 
         $this->handleEsiHeaders($response);
 
         if ($response->successful()) {
             $etag = $response->header('ETag');
+
             if ($etag) {
                 Cache::put($cacheKey, [
                     'etag' => $etag,
                     'data' => $response->json(),
+                    'headers' => $response->headers()
                 ], now()->addHours(6));
             }
         }
@@ -143,12 +176,16 @@ class EsiClient
         return $response;
     }
 
-    private function rateLimit(callable $callback)
+    private function rateLimit(string $method, string $endpoint, ?Character $character, callable $callback)
     {
-        $executed = RateLimiter::attempt('esi:global', 100, $callback);
+        $executed = RateLimiter::attempt('esi:global', 1000, $callback);
 
         if ($executed === false) {
-            throw new \Exception('Local rate limit reached');
+            throw new EsiRateLimitException(
+                endpoint: $endpoint,
+                method: $method,
+                character: $character,
+            );
         }
 
         return $executed;
@@ -213,5 +250,17 @@ class EsiClient
                 );
             }
         }
+    }
+
+    private function cacheKey(
+        string $url,
+        ?Character $character,
+        array $data,
+    ): string {
+        return 'esi:etag:' . md5(
+            $url .
+                ($character?->id ?? 'public') .
+                json_encode($data),
+        );
     }
 }
