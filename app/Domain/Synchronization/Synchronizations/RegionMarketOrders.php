@@ -29,8 +29,6 @@ class RegionMarketOrders extends AbstractSynchronization
 
         $data = [];
 
-        logger('data', $this->configurationRepository->get('market_regions'));
-
         foreach ($this->configurationRepository->get('market_regions')['configuration'] as $region_id) {
             $request = new RegionMarketOrdersRequest($region_id);
             $data[$region_id] = $this->esiClient->get($request);

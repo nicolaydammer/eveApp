@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Domain\Infrastructure\Esi\Requests\Market;
+
+use App\Domain\Auth\Entities\Character;
+use App\Domain\Infrastructure\Esi\Enums\PaginationType;
+use App\Domain\Infrastructure\Esi\Requests\EsiRequest;
+use Override;
+
+class StructureMarketOrdersRequest extends EsiRequest
+{
+    public function __construct(private Character $character, private int $structureId) {}
+
+    #[Override]
+    public function id(): int|string|array|null
+    {
+        return $this->structureId;
+    }
+
+    #[Override]
+    public function endpoint(): string
+    {
+        return '/markets/structures/%d';
+    }
+
+    #[Override]
+    public function paginated(): PaginationType
+    {
+        return PaginationType::Page;
+    }
+
+    #[Override]
+    public function character(): ?Character
+    {
+        return $this->character;
+    }
+}

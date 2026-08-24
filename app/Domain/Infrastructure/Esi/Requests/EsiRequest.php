@@ -2,7 +2,7 @@
 
 namespace App\Domain\Infrastructure\Esi\Requests;
 
-use App\Domain\EVE\Models\Character;
+use App\Domain\Auth\Entities\Character;
 use App\Domain\Infrastructure\Esi\Enums\PaginationType;
 
 abstract class EsiRequest

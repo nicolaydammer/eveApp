@@ -6,6 +6,7 @@ use App\Domain\Synchronization\Synchronizations\AbstractSynchronization;
 use App\Domain\Synchronization\Synchronizations\IndustryCostIndices;
 use App\Domain\Synchronization\Synchronizations\ReferenceMarketPrices;
 use App\Domain\Synchronization\Synchronizations\RegionMarketOrders;
+use App\Domain\Synchronization\Synchronizations\StructureMarketOrders;
 use InvalidArgumentException;
 
 final class SynchronizationClassMapping
@@ -21,6 +22,7 @@ final class SynchronizationClassMapping
             IndustryCostIndices::name() => IndustryCostIndices::class,
             ReferenceMarketPrices::name() => ReferenceMarketPrices::class,
             RegionMarketOrders::name() => RegionMarketOrders::class,
+            StructureMarketOrders::name() => StructureMarketOrders::class,
         ];
     }
 
