@@ -246,6 +246,7 @@ class EsiClient
             if (!$character->hasScope($scope)) {
                 throw new MissingEsiScopeException(
                     scope: $scope,
+                    character: $character,
                     healthCode: 'esi.request.missing-scope',
                 );
             }

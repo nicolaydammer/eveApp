@@ -2,6 +2,7 @@
 
 namespace App\Domain\Health\Exceptions;
 
+use App\Domain\Auth\Entities\Character;
 use App\Domain\Health\Contracts\HealthException;
 use App\Domain\Health\Enums\HealthSource;
 use App\Domain\Infrastructure\Esi\Enums\Scope;
@@ -12,11 +13,16 @@ class MissingEsiScopeException extends RuntimeException implements HealthExcepti
 {
     public function __construct(
         private readonly Scope $scope,
+        private readonly Character $character,
         private readonly string $healthCode,
         private readonly array $context = [],
         ?Throwable $previous = null,
     ) {
-        parent::__construct('', 0, $previous);
+        parent::__construct(
+            message: "Missing required ESI scope: {$scope->value} character: {$character->CharacterID} {$character->CharacterName}",
+            code: 0,
+            previous: $previous,
+        );
     }
 
     public function code(): string
