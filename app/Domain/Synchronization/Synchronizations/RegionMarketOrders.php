@@ -7,7 +7,10 @@ use App\Domain\Infrastructure\Configuration\Repositories\ConfigurationRepository
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
 use App\Domain\Infrastructure\Esi\Requests\Market\RegionMarketOrdersRequest;
 use App\Domain\Market\External\Esi\Jobs\SaveRegionMarketOrders;
+use App\Domain\Market\External\Esi\Models\RegionMarketOrder;
 use Carbon\Carbon;
+use Illuminate\Bus\Batch;
+use Override;
 
 class RegionMarketOrders extends AbstractSynchronization
 {
@@ -58,5 +61,18 @@ class RegionMarketOrders extends AbstractSynchronization
     protected function scheduleNextSync(): Carbon
     {
         return now()->addMinutes(15);
+    }
+
+    #[Override]
+    protected function reconcile(Batch $batch, int $synchronizationRunId): void
+    {
+        $configurationRepository = new ConfigurationRepository();
+        $regionIds = $configurationRepository
+            ->get('market_regions')['configuration'];
+
+        RegionMarketOrder::query()
+            ->whereIn('region_id', $regionIds)
+            ->where('last_sync_run_id', '!=', $synchronizationRunId)
+            ->delete();
     }
 }

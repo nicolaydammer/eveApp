@@ -50,17 +50,4 @@ class ReferenceMarketPrices extends AbstractSynchronization
     {
         return now()->addHours(1);
     }
-
-    #[Override]
-    protected function reconcile(Batch $batch, int $synchronizationRunId): void
-    {
-        $configurationRepository = new ConfigurationRepository();
-        $regionIds = $configurationRepository
-            ->get('market_regions')['configuration'];
-
-        RegionMarketOrder::query()
-            ->whereIn('region_id', $regionIds)
-            ->where('last_sync_run_id', '!=', $synchronizationRunId)
-            ->delete();
-    }
 }
