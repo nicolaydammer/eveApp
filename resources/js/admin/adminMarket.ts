@@ -1,8 +1,8 @@
 import axios from "@/lib/axios.js";
 
-export interface Region {
+export interface System {
     _key: number;
-    region: string;
+    system: string;
 }
 
 export interface StructureMarketConfiguration {
@@ -20,10 +20,10 @@ interface ConfigurationResponse<T> {
     configuration: T;
 }
 
-export async function getMarketRegions(
+export async function getMarketSystems(
     search: string = ''
-): Promise<Region[]> {
-    const response = await axios.get('/eve/regions', {
+): Promise<System[]> {
+    const response = await axios.get('/eve/systems', {
         params: {
             search,
         },
@@ -32,7 +32,7 @@ export async function getMarketRegions(
     return response.data;
 }
 
-export async function getExistingRegionConfiguration(): Promise<number[]> {
+export async function getExistingSystemConfiguration(): Promise<number[]> {
     const response = await axios.get<ConfigurationResponse<number[]>>(
         "/admin/market_regions"
     );
@@ -40,7 +40,7 @@ export async function getExistingRegionConfiguration(): Promise<number[]> {
     return response.data.configuration ?? [];
 }
 
-export async function saveRegionConfiguration(
+export async function saveSystemConfiguration(
     configuration: number[]
 ): Promise<void> {
     await axios.post("/admin/market_regions", {

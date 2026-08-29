@@ -19,7 +19,6 @@ class ListSystemsAction
                 )
             )
             ->orderByRaw("name->>'en'")
-            ->limit(20)
             ->get();
     }
 }

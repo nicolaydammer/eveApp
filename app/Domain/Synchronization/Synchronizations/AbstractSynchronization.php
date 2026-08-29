@@ -30,6 +30,11 @@ abstract class AbstractSynchronization
     // override this to clean up after every batch disregarding the fail or success state
     protected function cleanUp(Batch $batch): void {}
 
+    protected function afterFinishEvents(): array
+    {
+        return [];
+    }
+
     final public function run(Synchronization $synchronization): void
     {
         $synchronizationName = static::name();
@@ -81,6 +86,13 @@ abstract class AbstractSynchronization
                         finishedAt: now(),
                         nextSyncAt: $nextSync,
                     );
+
+                    $afterFinishEvents = $this->afterFinishEvents();
+                    if (!empty($afterFinishEvents)) {
+                        foreach ($afterFinishEvents as $event) {
+                            event($event);
+                        }
+                    }
                 })
                 ->catch(function (Batch $batch, Throwable $exception) use ($synchronizationId, $synchronizationName) {
                     $synchronization = Synchronization::findOrFail($synchronizationId);

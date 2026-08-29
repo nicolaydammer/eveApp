@@ -91,38 +91,9 @@ return new class extends Migration
 
             $table->timestamps();
 
-            /*
-             * Primary lookup indexes
-             */
-            $table->index('synchronization_run_id');
-            $table->index('order_id');
             $table->index('structure_id');
-            $table->index('type_id');
-
-            /*
-             * Statistics queries
-             */
-            $table->index([
-                'structure_id',
-                'type_id',
-                'created_at',
-            ]);
-
-            /*
-             * Order lifetime queries
-             */
-            $table->index([
-                'order_id',
-                'created_at',
-            ]);
-
-            /*
-             * Snapshot reconstruction
-             */
-            $table->index([
-                'synchronization_run_id',
-                'structure_id',
-            ]);
+            $table->index(['type_id', 'structure_id']);
+            $table->index('created_at');
         });
 
         Schema::create('market.region_market_orders', function (Blueprint $table) {
@@ -203,35 +174,13 @@ return new class extends Migration
             /*
              * Primary lookup indexes
              */
-            $table->index('synchronization_run_id');
-            $table->index('order_id');
-            $table->index('region_id');
+            $table->index('system_id');
             $table->index('type_id');
-
-            /*
-             * Statistics queries
-             */
-            $table->index([
-                'region_id',
-                'type_id',
-                'created_at',
-            ]);
 
             /*
              * Order lifetime queries
              */
-            $table->index([
-                'order_id',
-                'created_at',
-            ]);
-
-            /*
-             * Snapshot reconstruction
-             */
-            $table->index([
-                'synchronization_run_id',
-                'region_id',
-            ]);
+            $table->index('created_at');
         });
 
         DB::table('synchronizations')->insert([

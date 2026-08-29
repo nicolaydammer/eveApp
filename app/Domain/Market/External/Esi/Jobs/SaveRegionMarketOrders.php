@@ -77,6 +77,7 @@ class SaveRegionMarketOrders implements ShouldQueue
         );
 
         $history = [];
+        $now = now();
 
         foreach ($orders as $order) {
             $history[] = [
@@ -103,6 +104,9 @@ class SaveRegionMarketOrders implements ShouldQueue
                 'duration' => $order['duration'],
 
                 'issued' => $order['issued'],
+
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 

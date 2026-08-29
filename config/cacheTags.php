@@ -2,4 +2,5 @@
 
 return [
     'industry_blueprints' => 'industry_blueprints',
+    'market' => 'market'
 ];

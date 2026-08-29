@@ -8,13 +8,19 @@ use App\Domain\Infrastructure\Esi\Clients\EsiClient;
 use App\Domain\Infrastructure\Esi\Requests\Market\RegionMarketOrdersRequest;
 use App\Domain\Market\External\Esi\Jobs\SaveRegionMarketOrders;
 use App\Domain\Market\External\Esi\Models\RegionMarketOrder;
+use App\Domain\SDE\Services\Actions\ResolveRegionIdAction;
+use App\Domain\Synchronization\Events\RegionMarketOrdersSynchronized;
 use Carbon\Carbon;
 use Illuminate\Bus\Batch;
 use Override;
 
 class RegionMarketOrders extends AbstractSynchronization
 {
-    public function __construct(private EsiClient $esiClient, private ConfigurationRepository $configurationRepository) {}
+    public function __construct(
+        private EsiClient $esiClient,
+        private ConfigurationRepository $configurationRepository,
+        private ResolveRegionIdAction $resolveRegionIdAction
+    ) {}
 
     public static function name(): string
     {
@@ -30,9 +36,12 @@ class RegionMarketOrders extends AbstractSynchronization
             );
         }
 
+        $systemIds = $this->configurationRepository->get('market_regions')['configuration'];
+        $regionIds = $this->resolveRegionIdAction->fromSystemIds($systemIds);
+
         $data = [];
 
-        foreach ($this->configurationRepository->get('market_regions')['configuration'] as $region_id) {
+        foreach ($regionIds as $region_id) {
             $request = new RegionMarketOrdersRequest($region_id);
             $data[$region_id] = $this->esiClient->get($request);
         }
@@ -74,5 +83,13 @@ class RegionMarketOrders extends AbstractSynchronization
             ->whereIn('region_id', $regionIds)
             ->where('last_sync_run_id', '!=', $synchronizationRunId)
             ->delete();
+    }
+
+    #[Override]
+    protected function afterFinishEvents(): array
+    {
+        return [
+            new RegionMarketOrdersSynchronized(),
+        ];
     }
 }

@@ -9,6 +9,7 @@ use App\Domain\Infrastructure\Esi\Clients\EsiClient;
 use App\Domain\Infrastructure\Esi\Requests\Market\StructureMarketOrdersRequest;
 use App\Domain\Market\External\Esi\Jobs\SaveStructureMarketOrders;
 use App\Domain\Market\External\Esi\Models\StructureMarketOrder;
+use App\Domain\Synchronization\Events\StructureMarketOrdersSynchronized;
 use Carbon\Carbon;
 use Illuminate\Bus\Batch;
 use Override;
@@ -85,5 +86,13 @@ class StructureMarketOrders extends AbstractSynchronization
             ->whereIn('structure_id', $structureIds)
             ->where('last_sync_run_id', '!=', $synchronizationRunId)
             ->delete();
+    }
+
+    #[Override]
+    protected function afterFinishEvents(): array
+    {
+        return [
+            new StructureMarketOrdersSynchronized(),
+        ];
     }
 }

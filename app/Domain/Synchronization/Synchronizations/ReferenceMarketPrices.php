@@ -2,13 +2,11 @@
 
 namespace App\Domain\Synchronization\Synchronizations;
 
-use App\Domain\Infrastructure\Configuration\Repositories\ConfigurationRepository;
 use App\Domain\Infrastructure\Esi\Clients\EsiClient;
 use App\Domain\Infrastructure\Esi\Requests\Market\ListMarketPricesRequest;
 use App\Domain\Market\External\Esi\Jobs\SaveReferencePrices;
-use App\Domain\Market\External\Esi\Models\RegionMarketOrder;
+use App\Domain\Synchronization\Events\ReferenceMarketPricesSynchronized;
 use Carbon\Carbon;
-use Illuminate\Bus\Batch;
 use Override;
 
 class ReferenceMarketPrices extends AbstractSynchronization
@@ -49,5 +47,13 @@ class ReferenceMarketPrices extends AbstractSynchronization
     protected function scheduleNextSync(): Carbon
     {
         return now()->addHours(1);
+    }
+
+    #[Override]
+    protected function afterFinishEvents(): array
+    {
+        return [
+            new ReferenceMarketPricesSynchronized(),
+        ];
     }
 }

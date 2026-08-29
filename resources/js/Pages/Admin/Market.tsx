@@ -12,12 +12,12 @@ import AppLayout from "@/Layouts/AppLayout.js";
 import ThemeToggle from "@/Components/ThemeToggle.js";
 
 import {
-    getMarketRegions,
-    getExistingRegionConfiguration,
+    getMarketSystems,
+    getExistingSystemConfiguration,
     getExistingStructureConfiguration,
-    saveRegionConfiguration,
+    saveSystemConfiguration,
     saveStructureConfiguration,
-    Region,
+    System,
     StructureMarketConfiguration,
     StructureMarketMapping,
 } from "@/admin/adminMarket.js";
@@ -64,8 +64,8 @@ export default function Market() {
 */
 
 function RegionMarketSettings() {
-    const [regions, setRegions] = useState<Region[]>([]);
-    const [searchResults, setSearchResults] = useState<Region[]>([]);
+    const [systems, setSystems] = useState<System[]>([]);
+    const [searchResults, setSearchResults] = useState<System[]>([]);
     const [synced, setSynced] = useState<number[]>([]);
 
     const [selectedAvailable, setSelectedAvailable] = useState<number[]>([]);
@@ -73,16 +73,16 @@ function RegionMarketSettings() {
 
     const [loading, setLoading] = useState(true);
 
-    const [regionSearch, setRegionSearch] = useState('');
+    const [systemSearch, setSystemSearch] = useState('');
 
     useEffect(() => {
         Promise.all([
-            getMarketRegions(),
-            getExistingRegionConfiguration(),
+            getMarketSystems(),
+            getExistingSystemConfiguration(),
         ])
-            .then(([regions, configuration]) => {
-                setRegions(regions);
-                setSearchResults(regions);
+            .then(([systems, configuration]) => {
+                setSystems(systems);
+                setSearchResults(systems);
                 setSynced(configuration);
             })
             .finally(() => setLoading(false));
@@ -91,7 +91,7 @@ function RegionMarketSettings() {
     useEffect(() => {
         const timeout = setTimeout(async () => {
             try {
-                const regions = await getMarketRegions(regionSearch);
+                const regions = await getMarketSystems(systemSearch);
                 setSearchResults(regions);
             } catch (error) {
                 console.error('Failed to fetch regions', error);
@@ -99,22 +99,22 @@ function RegionMarketSettings() {
         }, 250);
 
         return () => clearTimeout(timeout);
-    }, [regionSearch]);
+    }, [systemSearch]);
 
-    const availableRegions = useMemo(
-        () => searchResults.filter((region) => !synced.includes(region._key)),
+    const availableSystems = useMemo(
+        () => searchResults.filter((system) => !synced.includes(system._key)),
         [searchResults, synced]
     );
 
-    const syncedRegions = useMemo(
-        () => regions.filter((region) => synced.includes(region._key)),
-        [regions, synced]
+    const syncedSystems = useMemo(
+        () => systems.filter((system) => synced.includes(system._key)),
+        [systems, synced]
     );
 
     const updateConfiguration = (configuration: number[]) => {
         setSynced(configuration);
 
-        saveRegionConfiguration(configuration);
+        saveSystemConfiguration(configuration);
     };
 
     const moveRight = () => {
@@ -131,7 +131,7 @@ function RegionMarketSettings() {
 
         updateConfiguration(configuration);
         setSelectedAvailable([]);
-        setRegionSearch("");
+        setSystemSearch("");
     };
 
     const moveLeft = () => {
@@ -150,7 +150,7 @@ function RegionMarketSettings() {
     if (loading) {
         return (
             <div className="border border-zinc-800 rounded-lg p-5">
-                Loading regions...
+                Loading systems...
             </div>
         );
     }
@@ -159,23 +159,23 @@ function RegionMarketSettings() {
         <div className="border border-zinc-800 rounded-lg">
             <div className="p-4 border-b border-zinc-800">
                 <h2 className="font-semibold">
-                    Region Market Sync
+                    System Market Sync
                 </h2>
 
                 <p className="text-sm text-zinc-400 mt-1">
-                    Select which regions should have their market orders
+                    Select which system should have their market orders
                     synchronized.
                 </p>
             </div>
 
             <div className="p-4 grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
-                <RegionList
+                <SystemList
                     title="Available"
-                    regions={availableRegions}
+                    systems={availableSystems}
                     selected={selectedAvailable}
                     setSelected={setSelectedAvailable}
-                    regionSearch={regionSearch}
-                    setRegionSearch={setRegionSearch}
+                    systemSearch={systemSearch}
+                    setSystemSearch={setSystemSearch}
                 />
 
                 <div className="flex flex-col gap-3">
@@ -208,9 +208,9 @@ function RegionMarketSettings() {
                     </button>
                 </div>
 
-                <RegionList
+                <SystemList
                     title="Synchronized"
-                    regions={syncedRegions}
+                    systems={syncedSystems}
                     selected={selectedSynced}
                     setSelected={setSelectedSynced}
                 />
@@ -219,46 +219,46 @@ function RegionMarketSettings() {
     );
 }
 
-function RegionList({
+function SystemList({
     title,
-    regions,
+    systems,
     selected,
     setSelected,
-    regionSearch,
-    setRegionSearch,
+    systemSearch,
+    setSystemSearch,
 }: {
     title: string;
-    regions: Region[];
+    systems: System[];
     selected: number[];
     setSelected: (ids: number[]) => void;
-    regionSearch?: string;
-    setRegionSearch?: (value: string) => void;
+    systemSearch?: string;
+    setSystemSearch?: (value: string) => void;
 }) {
 
     const [lastSelectedId, setLastSelectedId] = useState<number | null>(null);
 
     const select = (
-        regionId: number,
+        systemId: number,
         multiSelect: boolean,
         rangeSelect: boolean
     ) => {
 
         if (rangeSelect && lastSelectedId !== null) {
-            const startIndex = regions.findIndex(
-                (region) => region._key === lastSelectedId
+            const startIndex = systems.findIndex(
+                (system) => system._key === lastSelectedId
             );
 
-            const endIndex = regions.findIndex(
-                (region) => region._key === regionId
+            const endIndex = systems.findIndex(
+                (system) => system._key === systemId
             );
 
             if (startIndex !== -1 && endIndex !== -1) {
                 const start = Math.min(startIndex, endIndex);
                 const end = Math.max(startIndex, endIndex);
 
-                const rangeIds = regions
+                const rangeIds = systems
                     .slice(start, end + 1)
-                    .map((region) => region._key);
+                    .map((system) => system._key);
 
                 setSelected([
                     ...new Set([
@@ -271,16 +271,16 @@ function RegionList({
             }
         }
 
-        setLastSelectedId(regionId);
+        setLastSelectedId(systemId);
 
         if (!multiSelect) {
-            setSelected([regionId]);
+            setSelected([systemId]);
             return;
         }
 
-        if (selected.includes(regionId)) {
+        if (selected.includes(systemId)) {
             setSelected(
-                selected.filter((id) => id !== regionId)
+                selected.filter((id) => id !== systemId)
             );
 
             return;
@@ -288,7 +288,7 @@ function RegionList({
 
         setSelected([
             ...selected,
-            regionId,
+            systemId,
         ]);
     };
 
@@ -298,28 +298,28 @@ function RegionList({
                 {title}
             </h3>
 
-            {regionSearch !== undefined && setRegionSearch && (
+            {systemSearch !== undefined && setSystemSearch && (
                 <Input
                     type="text"
-                    placeholder="Search regions..."
-                    value={regionSearch}
+                    placeholder="Search system..."
+                    value={systemSearch}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setRegionSearch(e.target.value)
+                        setSystemSearch(e.target.value)
                     }
                 />
             )}
 
             <div className="h-80 overflow-y-auto border border-zinc-800 rounded bg-zinc-950 p-1">
-                {regions.map((region) => {
-                    const isSelected = selected.includes(region._key);
+                {systems.map((system) => {
+                    const isSelected = selected.includes(system._key);
 
                     return (
                         <button
-                            key={region._key}
+                            key={system._key}
                             type="button"
                             onClick={(event) =>
                                 select(
-                                    region._key,
+                                    system._key,
                                     event.ctrlKey || event.metaKey,
                                     event.shiftKey
                                 )
@@ -333,17 +333,17 @@ function RegionList({
                             `}
                         >
                             <div>
-                                {region.region}
+                                {system.system}
                             </div>
 
                             <div className="text-xs text-zinc-500">
-                                {region._key}
+                                {system._key}
                             </div>
                         </button>
                     );
                 })}
 
-                {regions.length === 0 && (
+                {systems.length === 0 && (
                     <div className="h-full flex items-center justify-center text-sm text-zinc-500">
                         Empty
                     </div>

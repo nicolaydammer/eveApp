@@ -81,7 +81,9 @@ class SaveStructureMarketOrders implements ShouldQueue
             ],
         );
 
-        $history = array_map(function (array $order): array {
+        $now = now();
+
+        $history = array_map(function (array $order) use ($now): array {
             return [
                 'synchronization_run_id' => $this->synchronizationRunId,
 
@@ -104,11 +106,14 @@ class SaveStructureMarketOrders implements ShouldQueue
                 'duration' => $order['duration'],
 
                 'issued' => $order['issued'],
+
+                'created_at' => $now,
+                'updated_at' => $now
             ];
         }, $orders);
 
         StructureMarketOrderHistory::query()->insert(
-            $history,
+            $history
         );
     }
 }
