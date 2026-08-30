@@ -11,8 +11,6 @@ use Override;
 
 class ReferenceMarketPrices extends AbstractSynchronization
 {
-    public function __construct(private EsiClient $esiClient) {}
-
     public static function name(): string
     {
         return 'reference-market-prices';
@@ -21,7 +19,8 @@ class ReferenceMarketPrices extends AbstractSynchronization
     protected function getData(): array
     {
         $request = new ListMarketPricesRequest();
-        return $this->esiClient->get($request);
+        $esiClient = app(EsiClient::class);
+        return $esiClient->get($request);
     }
 
     protected function transformData(array $data): array

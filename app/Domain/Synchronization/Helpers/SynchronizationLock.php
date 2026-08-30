@@ -9,6 +9,7 @@ class SynchronizationLock
 {
     public static function isLocked(Synchronization $synchronization): bool
     {
+        return false;
         return Cache::has(self::key($synchronization));
     }
 

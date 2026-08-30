@@ -8,6 +8,7 @@ use App\Domain\Health\Exceptions\EsiRequestFailedException;
 use App\Domain\Health\Exceptions\MissingEsiScopeException;
 use App\Domain\Infrastructure\Esi\Enums\PaginationType;
 use App\Domain\Infrastructure\Esi\Requests\EsiRequest;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -17,10 +18,19 @@ class EsiClient
 {
     private SSOClient $SSOClient;
     private string $baseUrl = 'https://esi.evetech.net';
+    private PendingRequest $http;
 
     public function __construct(SSOClient $SSOClient)
     {
         $this->SSOClient = $SSOClient;
+
+        $this->http = Http::acceptJson()
+            ->withOptions([
+                'curl' => [
+                    CURLOPT_TCP_KEEPALIVE => 1,
+                    CURLOPT_TCP_KEEPIDLE  => 120,
+                ],
+            ]);
     }
 
     public function get(EsiRequest $request): array
@@ -137,10 +147,12 @@ class EsiClient
         $cacheKey = $this->cacheKey($url, $character, $data);
 
         $cached = Cache::get($cacheKey);
-        $request = Http::acceptJson()
-            ->withHeaders([
-                'X-Compatibility-Date' => now()->subDay()->toDateString()
-            ]);
+
+        $request = clone($this->http);
+
+        $request = $request->withHeaders([
+            'X-Compatibility-Date' => now()->subDay()->toDateString()
+        ]);
 
         if ($character) {
             $token = $this->SSOClient->getValidAccessToken($character);

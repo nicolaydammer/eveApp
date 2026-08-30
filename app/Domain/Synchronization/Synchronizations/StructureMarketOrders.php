@@ -16,7 +16,7 @@ use Override;
 
 class StructureMarketOrders extends AbstractSynchronization
 {
-    public function __construct(private EsiClient $esiClient, private ConfigurationRepository $configurationRepository, private CharacterRepository $characterRepository) {}
+    public function __construct(private ConfigurationRepository $configurationRepository, private CharacterRepository $characterRepository) {}
 
     public static function name(): string
     {
@@ -33,6 +33,7 @@ class StructureMarketOrders extends AbstractSynchronization
         }
 
         $data = [];
+        $esiClient = app(EsiClient::class);
 
         foreach ($this->configurationRepository->get('structure_markets')['configuration'] as $marketStructure) {
 
@@ -40,7 +41,7 @@ class StructureMarketOrders extends AbstractSynchronization
 
             if (!is_null($character)) {
                 $request = new StructureMarketOrdersRequest($character, $marketStructure['structure']);
-                $data[$marketStructure['structure']] = $this->esiClient->get($request);
+                $data[$marketStructure['structure']] = $esiClient->get($request);
             }
         }
 

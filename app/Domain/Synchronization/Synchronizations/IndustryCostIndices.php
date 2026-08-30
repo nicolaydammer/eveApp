@@ -11,8 +11,6 @@ use Carbon\Carbon;
 
 class IndustryCostIndices extends AbstractSynchronization
 {
-    public function __construct(private EsiClient $esiClient) {}
-
     public static function name(): string
     {
         return 'industry-cost-indices';
@@ -21,7 +19,9 @@ class IndustryCostIndices extends AbstractSynchronization
     protected function getData(): array
     {
         $request = new ListSystemCostIndicesRequest();
-        return $this->esiClient->get($request);
+        $esiClient = app(EsiClient::class);
+
+        return $esiClient->get($request);
     }
 
     protected function transformData(array $data): array

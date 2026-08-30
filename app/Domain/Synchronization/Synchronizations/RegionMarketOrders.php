@@ -17,7 +17,6 @@ use Override;
 class RegionMarketOrders extends AbstractSynchronization
 {
     public function __construct(
-        private EsiClient $esiClient,
         private ConfigurationRepository $configurationRepository,
         private ResolveRegionIdAction $resolveRegionIdAction
     ) {}
@@ -36,6 +35,7 @@ class RegionMarketOrders extends AbstractSynchronization
             );
         }
 
+        $esiClient = app(EsiClient::class);
         $systemIds = $this->configurationRepository->get('market_regions')['configuration'];
         $regionIds = $this->resolveRegionIdAction->fromSystemIds($systemIds);
 
@@ -43,7 +43,7 @@ class RegionMarketOrders extends AbstractSynchronization
 
         foreach ($regionIds as $region_id) {
             $request = new RegionMarketOrdersRequest($region_id);
-            $data[$region_id] = $this->esiClient->get($request);
+            $data[$region_id] = $esiClient->get($request);
         }
 
         return $data;
