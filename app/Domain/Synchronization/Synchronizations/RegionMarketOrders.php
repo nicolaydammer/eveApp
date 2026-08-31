@@ -76,8 +76,9 @@ class RegionMarketOrders extends AbstractSynchronization
     protected function reconcile(Batch $batch, int $synchronizationRunId): void
     {
         $configurationRepository = new ConfigurationRepository();
-        $regionIds = $configurationRepository
+        $systemIds = $configurationRepository
             ->get('market_regions')['configuration'];
+        $regionIds = $this->resolveRegionIdAction->fromSystemIds($systemIds);
 
         RegionMarketOrder::query()
             ->whereIn('region_id', $regionIds)
