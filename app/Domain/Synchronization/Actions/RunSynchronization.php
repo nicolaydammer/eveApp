@@ -9,10 +9,10 @@ use App\Domain\Synchronization\Models\Synchronization;
 
 class RunSynchronization
 {
-    public function execute(Synchronization $synchronization): void
+    public function execute(Synchronization $synchronization): bool
     {
         if (! $this->canRun($synchronization)) {
-            return;
+            return false;
         }
 
         $this->markAsRunning($synchronization);
@@ -20,6 +20,8 @@ class RunSynchronization
         $this->createRun($synchronization);
 
         $this->run($synchronization);
+
+        return true;
     }
 
     private function canRun(Synchronization $synchronization): bool

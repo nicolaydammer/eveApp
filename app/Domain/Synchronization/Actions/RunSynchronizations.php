@@ -18,7 +18,9 @@ class RunSynchronizations
             ->get();
 
         foreach ($synchronizations as $synchronization) {
-            $this->runSynchronization->execute($synchronization);
+            if ($this->runSynchronization->execute($synchronization)) {
+                break;
+            }
         }
     }
 }
