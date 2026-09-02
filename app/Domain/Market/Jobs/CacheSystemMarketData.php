@@ -24,10 +24,13 @@ class CacheSystemMarketData implements ShouldQueue
         type_id,
         MAX(price) FILTER (WHERE is_buy_order = true) AS buy,
         MIN(price) FILTER (WHERE is_buy_order = false) AS sell,
+        ROUND(
         (
             MAX(price) FILTER (WHERE is_buy_order = true)
             + MIN(price) FILTER (WHERE is_buy_order = false)
-        ) / 2 AS split
+        ) / 2,
+        2
+        ) AS split
     ')
             ->where('system_id', $this->systemId)
             ->groupBy('type_id')

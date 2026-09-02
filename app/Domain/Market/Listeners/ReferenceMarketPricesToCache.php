@@ -2,6 +2,7 @@
 
 namespace App\Domain\Market\Listeners;
 
+use App\Domain\Market\Jobs\CacheReferenceMarketData;
 use App\Domain\Synchronization\Events\ReferenceMarketPricesSynchronized;
 
 class ReferenceMarketPricesToCache
@@ -9,13 +10,14 @@ class ReferenceMarketPricesToCache
     /**
      * Create the event listener.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct() {}
+
 
     /**
      * Handle the event.
      */
-    public function handle(ReferenceMarketPricesSynchronized $event): void {}
+    public function handle(ReferenceMarketPricesSynchronized $event): void
+    {
+        CacheReferenceMarketData::dispatch();
+    }
 }
