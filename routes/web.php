@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Web\Admin\CharacterController;
-use App\Http\Controllers\Web\Admin\MarketController;
+use App\Http\Controllers\Web\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Web\Admin\ScopeController;
 use App\Http\Controllers\Web\Admin\UserController;
 use App\Http\Controllers\Web\Configuration\ConfigurationController;
@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
 use App\Http\Controllers\Web\Industry\FullTreeController;
 use App\Http\Controllers\Web\Industry\SearchController;
+use App\Http\Controllers\Web\Market\MarketController;
 use App\Http\Middleware\IsAdminUser;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::post('/set-main-character/{CharacterID}', [DashboardController::class, 'setMainCharacter'])->middleware('auth')->name('dashboard.setMainCharacter');
+
+Route::prefix('market')
+    ->middleware('auth')
+    ->group(function () {
+
+        Route::get('priceList', [MarketController::class, 'index'])->name('market.pricelists');
+    });
 
 Route::prefix('industry')
     ->middleware('auth')
@@ -48,7 +56,7 @@ Route::prefix('eve')
 Route::prefix('admin')
     ->middleware(['auth', IsAdminUser::class])
     ->group(function () {
-        Route::get('/market', [MarketController::class, 'index'])->name('admin.market.index');
+        Route::get('/market', [AdminMarketController::class, 'index'])->name('admin.market.index');
 
         Route::get('/scopes', [ScopeController::class, 'index'])->name('admin.scopes.index');
         Route::get('/scopes/list', [ScopeController::class, 'listScopes'])->name('admin.scopes.list');
