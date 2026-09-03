@@ -45,6 +45,9 @@ class Type extends Model
         'basePrice',
         'capacity',
         'marketGroupID',
+        'packagedVolume',
+        'isDynamicType',
+        'isRepackable',
         'hash',
     ];
 

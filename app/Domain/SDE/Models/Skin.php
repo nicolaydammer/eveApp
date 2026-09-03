@@ -20,7 +20,6 @@ class Skin extends Model
         'skinMaterialID',
         'types',
         'allowCCPDevs',
-        'skinDescription',
         'visibleSerenity',
         'visibleTranquility',
         'isStructureSkin',

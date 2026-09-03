@@ -36,13 +36,13 @@ class DiscoverMissingSDEModels
         }
 
         $latestVersion = $this->versionFetcher->getVersion();
-        $SDEZipFileName = 'eve-online-static-data-'.$latestVersion.'-jsonl.zip';
+        $SDEZipFileName = 'eve-online-static-data-' . $latestVersion . '-jsonl.zip';
 
         $this->downloader->download($latestVersion);
 
         $zipService = new ZipArchive;
 
-        if ($zipService->open($this->eveDisk->path('/zipFiles/'.$SDEZipFileName)) !== true) {
+        if ($zipService->open($this->eveDisk->path('/zipFiles/' . $SDEZipFileName)) !== true) {
             throw new Exception('Could not extract new SDE files from ZIP.');
         }
 
