@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Market\Enums;
+namespace App\Domain\Market\Enums;
 
 enum MarketOrderRange: string
 {
