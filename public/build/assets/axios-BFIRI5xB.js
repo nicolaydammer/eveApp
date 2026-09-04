@@ -1,0 +1,1 @@
+import{g as a}from"./vendor-DO8gJMv4.js";const o=a.create({baseURL:"/",withCredentials:!0,headers:{"X-Requested-With":"XMLHttpRequest",Accept:"application/json"}});var t;const e=(t=document.querySelector('meta[name="csrf-token"]'))==null?void 0:t.getAttribute("content");e&&(o.defaults.headers.common["X-CSRF-TOKEN"]=e);export{o as a};
