@@ -11,9 +11,11 @@ use App\Http\Controllers\Web\Eve\ListSystemsController;
 use App\Http\Controllers\Web\Eve\RegionController;
 use App\Http\Controllers\Web\Eve\SystemCostIndexController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\Industry\BlueprintController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
 use App\Http\Controllers\Web\Industry\FullTreeController;
-use App\Http\Controllers\Web\Industry\SearchController;
+use App\Http\Controllers\Web\Industry\IndustryController;
+use App\Http\Controllers\Web\Industry\StructureController;
 use App\Http\Controllers\Web\Market\MarketController;
 use App\Http\Middleware\IsAdminUser;
 use Illuminate\Support\Facades\Route;
@@ -38,11 +40,13 @@ Route::prefix('industry')
     ->middleware('auth')
     ->group(function () {
 
-        Route::get('/', SearchController::class)->name('industry');
-
+        Route::get('/', [IndustryController::class, 'index'])->name('industry');
         Route::get('/full-tree/{_key}', FullTreeController::class)->name('industry.fullTree');
-
         Route::get('/direct-buy/{_key}', DirectBuyController::class)->name('industry.directBuy');
+        Route::get('/blueprints', [BlueprintController::class, 'search'])->name('industry.blueprints');
+        Route::get('/activities', [IndustryController::class, 'activities'])->name('industry.activities');
+        Route::get('/structures', [StructureController::class, 'listStructuresByActivity'])->name('industry.structures');
+        Route::get('/structures/rigs', [StructureController::class, 'listRigsByStructureAndActivity'])->name('industry.structures.rigs');
     });
 
 Route::prefix('eve')

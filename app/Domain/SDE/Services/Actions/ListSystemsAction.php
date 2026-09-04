@@ -9,7 +9,10 @@ class ListSystemsAction
     public function listSystems(string $search)
     {
         return MapSolarSystem::query()
-            ->select('_key')
+            ->select([
+                '_key',
+                'securityStatus'
+            ])
             ->selectRaw("name->>'en' AS system")
             ->when(
                 $search !== '',

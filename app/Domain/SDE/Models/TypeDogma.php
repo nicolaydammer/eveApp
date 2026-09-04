@@ -8,7 +8,7 @@ class TypeDogma extends Model
 {
     protected $table = 'sde.type_dogmas';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = '_key';
 
     public $incrementing = false;
 
