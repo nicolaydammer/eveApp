@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Web\Industry;
 
+use App\Domain\SDE\Models\DogmaEffect;
 use App\Domain\SDE\Models\IndustryModifierSource;
 use App\Domain\SDE\Models\Type;
 use App\Domain\SDE\Models\TypeDogma;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class StructureController
 {
@@ -174,6 +177,130 @@ class StructureController
                 'name' => $type->name['en'] ?? null,
                 'groupID' => $type->groupID,
             ])
+        );
+    }
+
+    public function getIndustryModifiers(Request $request): JsonResponse
+    {
+        $securityStatus = $request->float('securityStatus', 0.5);
+        $rigIds = $request->input('rigIds', []);
+
+        // dd($securityStatus, $rigIds);
+
+        if (empty($rigIds)) {
+            return response()->json([]);
+        }
+
+        $rigs = TypeDogma::query()
+            ->whereIn('_key', $rigIds)
+            ->get([
+                '_key',
+                'dogmaAttributes',
+                'dogmaEffects',
+            ]);
+
+        $effectIds = $rigs
+            ->flatMap(fn(TypeDogma $rig) => $rig->dogmaEffects ?? [])
+            ->pluck('effectID')
+            ->unique();
+
+        $effects = DogmaEffect::query()
+            ->whereIn('_key', $effectIds)
+            ->get([
+                '_key',
+                'modifierInfo',
+            ])
+            ->keyBy('_key');
+
+        $modifiers = $rigs->map(function (TypeDogma $rig) use (
+            $effects,
+            $securityStatus,
+        ) {
+            $attributes = collect($rig->dogmaAttributes ?? []);
+
+            /*
+         * Get the security multiplier from this rig's SDE attributes.
+         */
+            $securityModifier = $this->getSecurityModifier(
+                $attributes,
+                $securityStatus,
+            );
+
+            /*
+         * Apply the security modifier to the rig's
+         * engineering bonus attributes.
+         */
+            $rigModifiers = collect([2593, 2594, 2595])
+                ->mapWithKeys(function (int $attributeId) use (
+                    $attributes,
+                    $securityModifier,
+                ) {
+                    $value = $attributes
+                        ->firstWhere('attributeID', $attributeId)['value'] ?? null;
+
+                    if ($value === null) {
+                        return [];
+                    }
+
+                    return [
+                        $attributeId => $value * $securityModifier,
+                    ];
+                });
+
+            /*
+         * Resolve the rig's Dogma effects into the attributes
+         * that those engineering bonuses actually modify.
+         */
+            $resolvedModifiers = collect($rig->dogmaEffects ?? [])
+                ->map(fn(array $effect) => $effects->get($effect['effectID']))
+                ->filter()
+                ->flatMap(function (DogmaEffect $effect) use ($rigModifiers) {
+                    return collect($effect->modifierInfo ?? [])
+                        ->filter(function (array $modifier) use ($rigModifiers) {
+                            return $rigModifiers->has(
+                                $modifier['modifyingAttributeID'] ?? null
+                            );
+                        })
+                        ->map(function (array $modifier) use ($rigModifiers) {
+                            return [
+                                'modifiedAttributeID' =>
+                                $modifier['modifiedAttributeID'],
+
+                                'value' => round(
+                                    $rigModifiers->get(
+                                        $modifier['modifyingAttributeID']
+                                    ),
+                                    10
+                                ),
+
+                                'operation' =>
+                                $modifier['operation'],
+                            ];
+                        });
+                })
+                ->values();
+
+            return [
+                '_key' => $rig->_key,
+                'modifiers' => $resolvedModifiers,
+            ];
+        });
+
+        return response()->json($modifiers);
+    }
+
+    private function getSecurityModifier(
+        Collection $attributes,
+        float $securityStatus,
+    ): float {
+        $attributeId = match (true) {
+            $securityStatus >= 0.5 => 2355,
+            $securityStatus > 0.0 => 2356,
+            default => 2357,
+        };
+
+        return (float) (
+            $attributes->firstWhere('attributeID', $attributeId)['value'] ?? 1
         );
     }
 }

@@ -47,6 +47,7 @@ Route::prefix('industry')
         Route::get('/activities', [IndustryController::class, 'activities'])->name('industry.activities');
         Route::get('/structures', [StructureController::class, 'listStructuresByActivity'])->name('industry.structures');
         Route::get('/structures/rigs', [StructureController::class, 'listRigsByStructureAndActivity'])->name('industry.structures.rigs');
+        Route::get('/modifiers', [StructureController::class, 'getIndustryModifiers'])->name('industry.modifiers');
     });
 
 Route::prefix('eve')
