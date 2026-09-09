@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Industry;
 
 use App\Domain\SDE\Models\DogmaEffect;
 use App\Domain\SDE\Models\IndustryModifierSource;
+use App\Domain\SDE\Models\IndustryTargetFilter;
 use App\Domain\SDE\Models\Type;
 use App\Domain\SDE\Models\TypeDogma;
 use Illuminate\Http\JsonResponse;
@@ -180,16 +181,21 @@ class StructureController
         );
     }
 
-    public function getIndustryModifiers(Request $request): JsonResponse
+    public function getIndustryModifiers(Request $request)
     {
         $securityStatus = $request->float('securityStatus', 0.5);
+        $activity = $request->string('activity')->toString();
         $rigIds = $request->input('rigIds', []);
 
-        // dd($securityStatus, $rigIds);
-
         if (empty($rigIds)) {
-            return response()->json([]);
+            return [];
         }
+
+        $securityAttribute = match (true) {
+            $securityStatus >= 0.5 => 2355,
+            $securityStatus > 0.0 => 2356,
+            default => 2357,
+        };
 
         $rigs = TypeDogma::query()
             ->whereIn('_key', $rigIds)
@@ -202,91 +208,147 @@ class StructureController
         $effectIds = $rigs
             ->flatMap(fn(TypeDogma $rig) => $rig->dogmaEffects ?? [])
             ->pluck('effectID')
-            ->unique();
+            ->filter()
+            ->unique()
+            ->values();
 
         $effects = DogmaEffect::query()
             ->whereIn('_key', $effectIds)
             ->get([
                 '_key',
                 'modifierInfo',
-            ])
-            ->keyBy('_key');
+            ]);
 
-        $modifiers = $rigs->map(function (TypeDogma $rig) use (
+        $filters = IndustryTargetFilter::query()->get();
+
+        return $rigs->map(function (TypeDogma $rig) use (
+            $activity,
+            $securityAttribute,
             $effects,
-            $securityStatus,
+            $filters,
         ) {
-            $attributes = collect($rig->dogmaAttributes ?? []);
+            $dogmaAttributes = collect($rig->dogmaAttributes ?? [])
+                ->keyBy(fn(array $attribute) => $attribute['attributeID']);
 
-            /*
-         * Get the security multiplier from this rig's SDE attributes.
-         */
-            $securityModifier = $this->getSecurityModifier(
-                $attributes,
-                $securityStatus,
+            $securityModifier = (float) (
+                $dogmaAttributes->get($securityAttribute)['value'] ?? 1
             );
 
-            /*
-         * Apply the security modifier to the rig's
-         * engineering bonus attributes.
-         */
-            $rigModifiers = collect([2593, 2594, 2595])
-                ->mapWithKeys(function (int $attributeId) use (
-                    $attributes,
-                    $securityModifier,
-                ) {
-                    $value = $attributes
-                        ->firstWhere('attributeID', $attributeId)['value'] ?? null;
+            $activitySource = IndustryModifierSource::query()
+                ->where('_key', $rig->_key)
+                ->first();
 
-                    if ($value === null) {
+            $activityModifiers = $activitySource?->getAttribute($activity) ?? [];
+
+            $modifiers = collect($rig->dogmaEffects ?? [])
+                ->flatMap(function (array $rigEffect) use (
+                    $effects,
+                    $dogmaAttributes,
+                    $securityModifier,
+                    $activityModifiers,
+                    $filters,
+                ) {
+                    $effectId = $rigEffect['effectID'] ?? null;
+
+                    if ($effectId === null) {
                         return [];
                     }
 
-                    return [
-                        $attributeId => $value * $securityModifier,
-                    ];
-                });
+                    $effect = $effects->first(
+                        fn(DogmaEffect $effect) =>
+                        (int) $effect->_key === (int) $effectId
+                    );
 
-            /*
-         * Resolve the rig's Dogma effects into the attributes
-         * that those engineering bonuses actually modify.
-         */
-            $resolvedModifiers = collect($rig->dogmaEffects ?? [])
-                ->map(fn(array $effect) => $effects->get($effect['effectID']))
-                ->filter()
-                ->flatMap(function (DogmaEffect $effect) use ($rigModifiers) {
+                    if (!$effect) {
+                        return [];
+                    }
+
                     return collect($effect->modifierInfo ?? [])
-                        ->filter(function (array $modifier) use ($rigModifiers) {
-                            return $rigModifiers->has(
-                                $modifier['modifyingAttributeID'] ?? null
+                        ->filter(function (array $modifier) {
+                            return isset(
+                                $modifier['modifiedAttributeID']
                             );
                         })
-                        ->map(function (array $modifier) use ($rigModifiers) {
-                            return [
-                                'modifiedAttributeID' =>
-                                $modifier['modifiedAttributeID'],
+                        ->map(function (array $modifier) use (
+                            $dogmaAttributes,
+                            $securityModifier,
+                            $activityModifiers,
+                            $filters,
+                        ) {
+                            $modifiedAttributeID =
+                                $modifier['modifiedAttributeID'];
 
+                            $modifierType = null;
+                            $filterEntry = null;
+
+                            foreach ($activityModifiers as $type => $entries) {
+                                $entry = collect($entries)->first(
+                                    fn(array $entry) =>
+                                    (int) ($entry['dogmaAttributeID'] ?? 0) ===
+                                        (int) $modifiedAttributeID
+                                );
+
+                                if ($entry) {
+                                    $modifierType = $type;
+                                    $filterEntry = $entry;
+
+                                    break;
+                                }
+                            }
+
+                            if ($modifierType === null) {
+                                return null;
+                            }
+
+                            $modifyingAttributeID =
+                                $modifier['modifyingAttributeID'] ?? null;
+
+                            if ($modifyingAttributeID === null) {
+                                return null;
+                            }
+
+                            $bonus = $dogmaAttributes
+                                ->get($modifyingAttributeID)['value'] ?? null;
+
+                            if ($bonus === null) {
+                                return null;
+                            }
+
+                            $filterId = $filterEntry['filterID'] ?? null;
+
+                            $filter = $filterId !== null
+                                ? $filters->first(
+                                    fn(IndustryTargetFilter $filter) =>
+                                    (int) $filter->_key === (int) $filterId
+                                )
+                                : null;
+
+                            return [
+                                'attribute' => $modifierType,
+                                'modifiedAttributeID' => $modifiedAttributeID,
                                 'value' => round(
-                                    $rigModifiers->get(
-                                        $modifier['modifyingAttributeID']
-                                    ),
+                                    (float) $bonus * $securityModifier,
                                     10
                                 ),
-
-                                'operation' =>
-                                $modifier['operation'],
+                                'operation' => $modifier['operation'] ?? null,
+                                'filter' => $filter ? [
+                                    '_key' => $filter->_key,
+                                    'categoryIDs' => $filter->categoryIDs,
+                                    'groupIDs' => $filter->groupIDs,
+                                    'name' => $filter->name,
+                                ] : null,
                             ];
-                        });
+                        })
+                        ->filter();
                 })
-                ->values();
+                ->values()
+                ->all();
 
             return [
                 '_key' => $rig->_key,
-                'modifiers' => $resolvedModifiers,
+                'modifiers' => $modifiers,
             ];
-        });
-
-        return response()->json($modifiers);
+        })->values()->all();
     }
 
     private function getSecurityModifier(
