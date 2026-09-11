@@ -32,7 +32,7 @@ Route::post('/set-main-character/{CharacterID}', [DashboardController::class, 's
 Route::prefix('market')
     ->middleware('auth')
     ->group(function () {
-
+        Route::get('referencePrices', [MarketController::class, 'referencePrices'])->name('market.referencePrices');
         Route::get('priceList', [MarketController::class, 'index'])->name('market.pricelists');
     });
 

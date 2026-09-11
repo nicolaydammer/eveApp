@@ -2,12 +2,10 @@ import type { IndustrySettings } from '../types/IndustrySettings.js';
 
 interface Props {
     settings: IndustrySettings;
-    data: unknown;
 }
 
 export default function ManufacturingCalculator({
     settings,
-    data,
 }: Props) {
     return (
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
@@ -20,14 +18,14 @@ export default function ManufacturingCalculator({
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
                 <Value label="Material Efficiency" value={settings.materialEfficiency} />
                 <Value label="Time Efficiency" value={settings.timeEfficiency} />
-                <Value
+                {/* <Value
                     label="Security"
                     value={settings.system?.security ?? '—'}
-                />
+                /> */}
             </div>
 
             <pre className="mt-6 overflow-auto rounded-lg bg-zinc-100 p-4 text-xs dark:bg-zinc-900">
-                {JSON.stringify(data, null, 2)}
+                {/* {JSON.stringify(data, null, 2)} */}
             </pre>
         </section>
     );

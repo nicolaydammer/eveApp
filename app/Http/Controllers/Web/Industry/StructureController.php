@@ -184,7 +184,7 @@ class StructureController
     public function getIndustryModifiers(Request $request)
     {
         $securityStatus = $request->float('securityStatus', 0.5);
-        $activity = $request->string('activity')->toString();
+        $activity = strtolower($request->string('activity')->toString());
         $rigIds = $request->input('rigIds', []);
 
         if (empty($rigIds)) {
@@ -349,20 +349,5 @@ class StructureController
                 'modifiers' => $modifiers,
             ];
         })->values()->all();
-    }
-
-    private function getSecurityModifier(
-        Collection $attributes,
-        float $securityStatus,
-    ): float {
-        $attributeId = match (true) {
-            $securityStatus >= 0.5 => 2355,
-            $securityStatus > 0.0 => 2356,
-            default => 2357,
-        };
-
-        return (float) (
-            $attributes->firstWhere('attributeID', $attributeId)['value'] ?? 1
-        );
     }
 }

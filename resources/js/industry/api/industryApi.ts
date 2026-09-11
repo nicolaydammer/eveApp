@@ -69,28 +69,47 @@ export async function getSystems(search = ''): Promise<System[]> {
     return response.data;
 }
 
-export async function getIndustryData(
-    blueprintId: number,
-    activity: IndustryActivity,
-    settings: {
-        structureId: number | null;
-        rigId: number | null;
-        systemId: number | null;
-        materialEfficiency: number;
-        timeEfficiency: number;
-    },
-): Promise<unknown> {
-
+export async function marketData() {
     const response = await axios.get(
-        route('eve.industry.data'),
-        {
-            params: {
-                blueprintId,
-                activity,
-                ...settings,
-            },
-        },
+        route('market.pricelists')
     );
 
-    return [];
+    return response.data;
+}
+
+export async function referencePrices() {
+    const response = await axios.get(
+        route('market.referencePrices')
+    );
+
+    return response.data;
+}
+
+export async function blueprintTree(_key: number) {
+    const response = await axios.get(
+        route('industry.fullTree', { _key: _key })
+    );
+
+    return response.data;
+}
+
+export async function modifiersData(securityStatus: number, activity: string, rigIds: number[]) {
+    const response = await axios.get(
+        route('industry.modifiers'), {
+        params: {
+            securityStatus: securityStatus,
+            activity: activity,
+            rigIds: rigIds
+        },
+    });
+
+    return response.data;
+}
+
+export async function systemCostIndex(systemId: number) {
+    const response = await axios.get(
+        route('eve.systemCostIndex', { system: systemId })
+    );
+
+    return response.data;
 }

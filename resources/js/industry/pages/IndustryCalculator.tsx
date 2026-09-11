@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import ActivityPlaceholder from '../components/ActivityPlaceholder.js';
 import ManufacturingCalculator from '../components/ManufacturingCalculator.js';
 import SettingsModal from '../components/SettingsModal.js';
-import { getIndustryData } from '../api/industryApi.js';
+import { marketData, blueprintTree, modifiersData, systemCostIndex, referencePrices } from '../api/industryApi.js';
 import type { IndustrySettings } from '../types/IndustrySettings.js';
 import type { Rig } from '../types/Structure.js';
 
@@ -22,12 +22,10 @@ const initialSettings: IndustrySettings = {
 export default function IndustryCalculator() {
     const [settings, setSettings] = useState(initialSettings);
     const [settingsOpen, setSettingsOpen] = useState(true);
-    const [data, setData] = useState<unknown>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!settings.blueprint || !settings.activity) {
-            setData(null);
             return;
         }
 
@@ -35,29 +33,84 @@ export default function IndustryCalculator() {
         const activity = settings.activity;
 
         const timeout = window.setTimeout(async () => {
-            // setLoading(true);
+            setLoading(true);
 
-            // try {
-            //     const result = await getIndustryData(
-            //         blueprintId,
-            //         activity,
-            //         {
-            //             structureId: settings.structure?._key ?? null,
-            //             rigIds: settings.rigs
-            //                 .filter(
-            //                     (rig): rig is Rig => rig !== null,
-            //                 )
-            //                 .map((rig) => rig._key),
-            //             systemId: settings.system?._key ?? null,
-            //             materialEfficiency: settings.materialEfficiency,
-            //             timeEfficiency: settings.timeEfficiency,
-            //         },
-            //     );
+            try {
 
-            //     setData(result);
-            // } finally {
-            //     setLoading(false);
-            // }
+                // market data (structure, region, reference prices)
+                const market = marketData();
+                //referencePrices
+                const reference = referencePrices();
+                // tree
+                const tree = blueprintTree(settings.blueprint._key);
+                // modifiers
+                let rigIds: number[] = [];
+                settings.rigs.forEach(element => {
+                    rigIds.push(element?._key);
+                });
+                const modifiers = modifiersData(settings.system?.securityStatus, settings.activity?.name, rigIds);
+                // industry cost indices
+                const indices = systemCostIndex(settings.system?._key);
+
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! calculate prices as last so ME is calculated!
+
+                // tab 1: full tree, where node show full price determined by material costs which are based on the child nodes.
+                // child nodes are configured in tab 2 where you can determine the settings per blueprint.
+                // we need to be able to make decisions on either we buy something or build it ourselfs.
+                // default build everything
+                // you need material market prices and if something has a schema then derive cost from child material nodes and keep repeating that
+                // if something is a buy from market then directly show market price for that material and cut the tree there.
+
+                // tab 2: list all schemas and configure them by setting activity to either reaction or manufacturing, system, structure and rigs.
+                // interactively have a list of market default ie <type_id> = market: c-j6, default: true so we know it can be calculated again which market to default to.
+                // default configuration for a schema is ME/TE: 0/0, modifiers: null, system: null, rigs: null
+
+
+                // we need to be able to save the entire state to the database on any momement notice.
+                // depending on performance we can make it automatically sync with a debounce or have to hit the save button.
+                // in case of a auto sync feature, we still need a manual sync button.
+
+
+                // total volume: unit_volume * quantity
+                // me: check modifier data for which is me and apply that if the group id of the node is right.
+                // te: same as above but for te
+
+                // direct buy: total price = market[<market_name>][typeID] * quantity
+                // build yourself: total price = formula.total_price * quantity
+
+                // total_price is derived data.
+                // It must be recalculated when:
+                // - market data changes
+                // - build/buy decisions change
+                // - material market selection changes
+                // - blueprint ME/TE changes
+                // - structure/rig/system/modifier settings change
+                // - relevant SDE/calculation data changes
+
+                //Retrieve inputs
+                // │
+                // ├── market data
+                // ├── tree
+                // ├── modifiers
+                // └── industry cost indices
+                //         │
+                //         ▼
+                //    Calculate tree
+                //         │
+                //         ├── quantities
+                //         ├── ME
+                //         ├── TE
+                //         ├── modifiers
+                //         ├── build/buy decisions
+                //         │
+                //         ▼
+                //    Calculate prices LAST
+                //         │
+                //         └── total_price
+
+            } finally {
+                setLoading(false);
+            }
         }, 400);
 
         return () => window.clearTimeout(timeout);
@@ -144,7 +197,6 @@ export default function IndustryCalculator() {
                 ) : settings.activity._key === ACTIVITY_MANUFACTURING ? (
                     <ManufacturingCalculator
                         settings={settings}
-                        data={data}
                     />
                 ) : (
                     <ActivityPlaceholder settings={settings} />

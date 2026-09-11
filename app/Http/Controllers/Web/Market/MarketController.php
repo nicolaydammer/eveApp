@@ -30,6 +30,11 @@ class MarketController
         return response()->json($this->fetchMarketCache($systemNames, $structureData));
     }
 
+    public function referencePrices(): JsonResponse
+    {
+        return response()->json(Cache::tags(config('cacheTags.market'))->get('referencePrices') ?? []);
+    }
+
     private function getStructureConfig(): array
     {
         if (! $this->configurationRepository->has('structure_markets')) {
