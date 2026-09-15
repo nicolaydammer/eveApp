@@ -158,6 +158,7 @@ export default function SettingsModal({
                         options={activities.map((activity) => ({
                             value: activity._key,
                             label: activity.name,
+                            table: activity.source
                         }))}
                         onChange={(value) => {
                             const activity = activities.find(

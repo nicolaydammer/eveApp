@@ -48,7 +48,7 @@ export default function IndustryCalculator() {
                 settings.rigs.forEach(element => {
                     rigIds.push(element?._key);
                 });
-                const modifiers = modifiersData(settings.system?.securityStatus, settings.activity?.name, rigIds);
+                const modifiers = modifiersData(settings.system?.securityStatus, settings.activity?.source, rigIds);
                 // industry cost indices
                 const indices = systemCostIndex(settings.system?._key);
 

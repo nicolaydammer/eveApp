@@ -16,14 +16,11 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class EsiClient
 {
-    private SSOClient $SSOClient;
     private string $baseUrl = 'https://esi.evetech.net';
     private PendingRequest $http;
 
-    public function __construct(SSOClient $SSOClient)
+    public function __construct(private SSOClient $SSOClient)
     {
-        $this->SSOClient = $SSOClient;
-
         $this->http = Http::acceptJson()
             ->withOptions([
                 'curl' => [
