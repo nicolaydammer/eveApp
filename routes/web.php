@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\Industry\BlueprintController;
 use App\Http\Controllers\Web\Industry\DirectBuyController;
 use App\Http\Controllers\Web\Industry\FullTreeController;
 use App\Http\Controllers\Web\Industry\IndustryController;
+use App\Http\Controllers\Web\Industry\PlanController;
 use App\Http\Controllers\Web\Industry\StructureController;
 use App\Http\Controllers\Web\Market\MarketController;
 use App\Http\Middleware\IsAdminUser;
@@ -48,6 +49,15 @@ Route::prefix('industry')
         Route::get('/structures', [StructureController::class, 'listStructuresByActivity'])->name('industry.structures');
         Route::get('/structures/rigs', [StructureController::class, 'listRigsByStructureAndActivity'])->name('industry.structures.rigs');
         Route::get('/modifiers', [StructureController::class, 'getIndustryModifiers'])->name('industry.modifiers');
+
+        Route::prefix('plans')->group(function () {
+            Route::get('/', [PlanController::class, 'index'])->name('industry.plans');
+            Route::get('/list', [PlanController::class, 'listPlans'])->name('industry.plans.list');
+            Route::get('/{id}', [PlanController::class, 'getPlan'])->name('industry.plans.get');
+            Route::post('/', [PlanController::class, 'savePlan'])->name('industry.plans.save');
+            Route::patch('/{id}', [PlanController::class, 'updatePlan'])->name('industry.plans.update');
+            Route::delete('/{id}', [PlanController::class, 'deletePlan'])->name('industry.plans.delete');
+        });
     });
 
 Route::prefix('eve')
