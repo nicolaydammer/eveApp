@@ -6,6 +6,7 @@ use App\Domain\IndustryCalculator\Actions\IndustryPlanAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
 
 class PlanController
 {
@@ -13,7 +14,7 @@ class PlanController
 
     public function index()
     {
-        return '';
+        return Inertia::render('IndustryPlans');
     }
 
     public function listPlans(): JsonResponse

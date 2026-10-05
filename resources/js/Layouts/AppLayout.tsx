@@ -7,6 +7,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+type Character = {
+    CharacterID: number
+    CharacterName: string
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { url } = usePage();
 
@@ -14,13 +19,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     const isAdmin = auth?.user.is_admin;
 
+    const mainCharacter = auth?.user?.characters?.find(
+        (character: Character) => character.CharacterID === auth?.user?.main_character_id
+    );
+
     const isAdminRoute = url.startsWith("/admin");
 
     const [adminOpen, setAdminOpen] = useState(isAdminRoute);
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard" },
-        { name: "Industry planner", href: "/industry" },
+        { name: "Industry planner", href: "/industry/plans" },
     ];
 
     const adminNavItems = [
@@ -64,7 +73,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <div>
                                 <button
                                     type="button"
-                                    onClick={() => setAdminOpen((open) => !open)}
+                                    onClick={() => setAdminOpen((open: boolean) => !open)}
                                     className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
                                     ${isAdminRoute
                                             ? "bg-zinc-200 dark:bg-zinc-800 font-semibold"
@@ -110,8 +119,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </nav>
                 </div>
 
-                {/* Logout Section */}
+                {/* User / Logout Section */}
                 <div className="pt-4 mt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    {auth?.user.main_character_id && (
+                        <div className="flex items-center gap-3 px-3 mb-3">
+                            <img
+                                src={`https://images.evetech.net/characters/${mainCharacter.CharacterID}/portrait?size=32`}
+                                alt={auth.user.characters}
+                                className="w-8 h-8 rounded-full"
+                            />
+
+                            <div className="min-w-0">
+                                <div className="text-sm font-medium truncate">
+                                    {mainCharacter.CharacterName}
+                                </div>
+
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                    Main character
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <Link
                         href="/logout"
                         method="post"

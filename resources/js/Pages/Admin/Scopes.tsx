@@ -158,32 +158,23 @@ export default function AdminScopes() {
         <AppLayout>
             <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1></h1>
+                    <div className="p-4">
+                        <div>
+                            <h1 className="text-2xl font-bold">
+                                Application Scopes
+                            </h1>
+                            <p className="text-sm text-zinc-400 mt-1">
+                                Configure which ESI scopes should be
+                                requested during EVE SSO authorization.
+                            </p>
+                        </div>
+                    </div>
 
                     <ThemeToggle />
                 </div>
 
                 <div className="flex justify-center">
-                    <div className="w-full max-w-6xl border border-zinc-800 rounded-xl overflow-hidden">
-                        <div className="p-4 border-b border-zinc-800">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-lg font-semibold">
-                                        Application Scopes
-                                    </h2>
-                                    <p className="text-sm text-zinc-400 mt-1">
-                                        Configure which ESI scopes should be
-                                        requested during EVE SSO authorization.
-                                    </p>
-                                </div>
-
-                                {saving && (
-                                    <span className="text-xs text-zinc-500">
-                                        Saving...
-                                    </span>
-                                )}
-                            </div>
-                        </div>
+                    <div className="w-full max-w-8xl border border-zinc-800 rounded-xl overflow-hidden">
 
                         {loading ? (
                             <div className="h-[540px] flex items-center justify-center">
@@ -264,7 +255,7 @@ export default function AdminScopes() {
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </AppLayout >
     );
 }
 

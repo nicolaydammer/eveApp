@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 
+import { ArrowLeft } from 'lucide-react';
 import ActivityPlaceholder from '../components/ActivityPlaceholder.js';
 import ManufacturingCalculator from '../components/ManufacturingCalculator.js';
 import SettingsModal from '../components/SettingsModal.js';
 import { marketData, blueprintTree, modifiersData, systemCostIndex, referencePrices } from '../api/industryApi.js';
 import type { IndustrySettings } from '../types/IndustrySettings.js';
 import type { Rig } from '../types/Structure.js';
+import ThemeToggle from '@/Components/ThemeToggle.js';
 
 const ACTIVITY_MANUFACTURING = 1;
 
@@ -19,7 +21,7 @@ const initialSettings: IndustrySettings = {
     timeEfficiency: 0,
 };
 
-export default function IndustryCalculator() {
+export default function IndustryCalculator({ planId, onBack }) {
     const [settings, setSettings] = useState(initialSettings);
     const [settingsOpen, setSettingsOpen] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -119,25 +121,52 @@ export default function IndustryCalculator() {
     return (
         <>
             <main className="mx-auto max-w-7xl space-y-6 p-6">
-                <header className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-semibold">
-                            Industry Calculator
-                        </h1>
-
-                        <p className="mt-1 text-sm text-zinc-500">
-                            Calculate industry jobs from your selected context.
-                        </p>
-                    </div>
-
+                <div className="relative">
                     <button
                         type="button"
-                        onClick={() => setSettingsOpen(true)}
-                        className="rounded-md border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+                        onClick={onBack}
+                        aria-label="Back to plans"
+                        title="Back to plans"
+                        className="absolute right-full mr-10 top-0
+            rounded-md border border-zinc-300 p-2
+            hover:bg-zinc-100 hover:border-zinc-400
+            dark:border-zinc-700 dark:hover:bg-zinc-800
+            dark:hover:border-zinc-600
+            transition-colors"
                     >
-                        Settings
+                        <ArrowLeft size={18} />
                     </button>
-                </header>
+
+                    <header className="flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex gap-4">
+                            <div>
+                                <h1 className="text-2xl font-semibold">
+                                    Industry Calculator
+                                </h1>
+
+                                <p className="mt-1 text-sm text-zinc-500">
+                                    Calculate industry jobs from your selected context.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setSettingsOpen(true)}
+                                className="rounded-md border border-zinc-300 px-4 py-2 text-sm
+                    hover:bg-zinc-100 hover:border-zinc-400
+                    dark:border-zinc-700 dark:hover:bg-zinc-800
+                    dark:hover:border-zinc-600
+                    transition-colors"
+                            >
+                                Settings
+                            </button>
+
+                            <ThemeToggle />
+                        </div>
+                    </header>
+                </div>
 
                 <div className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:grid-cols-2 lg:grid-cols-5">
                     <Summary
