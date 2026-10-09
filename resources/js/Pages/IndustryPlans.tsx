@@ -2,6 +2,8 @@ import AppLayout from '@/Layouts/AppLayout.js';
 import IndustryCalculator from '@/industry/pages/IndustryCalculator.js';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import axios from '@/lib/axios.js';
+import { route } from "ziggy-js";
 
 type IndustryPlan = {
     id: number;
@@ -10,72 +12,54 @@ type IndustryPlan = {
 
 type UpdatePlanData = {
     name: string;
+    plan: Record<string, unknown>;
 };
 
-/*
- * Mock API
- *
- * These functions intentionally mirror the real backend API.
- * Replace their contents with Axios calls once the backend is ready.
- */
-
-let mockPlans: IndustryPlan[] = [
-    {
-        id: 1,
-        name: 'Capital Component Run',
-    },
-    {
-        id: 2,
-        name: 'T2 Module Production',
-    },
-    {
-        id: 3,
-        name: 'Doctrine Resupply — Ferox',
-    },
-    {
-        id: 4,
-        name: 'Fuel Block Batch',
-    },
-];
-
-let nextPlanId = 5;
-
 async function listPlans(): Promise<IndustryPlan[]> {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    const response = await axios.get(
+        route('industry.plans.list')
+    );
 
-    return [...mockPlans];
+    return response.data;
 }
 
-async function savePlan(name: string): Promise<number> {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+async function getPlan(id: number): Promise<IndustryPlan> {
+    const response = await axios.get(
+        route('industry.plans.get', { id: id })
+    );
 
-    const plan = {
-        id: nextPlanId++,
-        name,
-    };
+    return response.data;
+}
 
-    mockPlans.push(plan);
+async function createPlan(name: string): Promise<number> {
+    const response = await axios.post(
+        route('industry.plans.create'),
+        {
+            name: name
+        }
+    );
 
-    return plan.id;
+    return response.data;
 }
 
 async function updatePlan(
     id: number,
     data: UpdatePlanData
 ): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    const response = await axios.patch(
+        route('industry.plans.update', { id: id }),
+        data
+    );
 
-    const plan = mockPlans.find((plan) => plan.id === id);
-
-    if (plan) {
-        plan.name = data.name;
-    }
+    return response.data;
 }
 
 async function deletePlan(id: number): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    const response = await axios.delete(
+        route('industry.plans.delete', { id: id })
+    );
 
-    mockPlans = mockPlans.filter((plan) => plan.id !== id);
+    return response.data;
 }
 
 export default function Industry() {
@@ -108,7 +92,7 @@ export default function Industry() {
         setSaving(true);
 
         try {
-            const id = await savePlan(name);
+            const id = await createPlan(name);
 
             setShowNewPlanModal(false);
             setNewPlanName('');
@@ -141,6 +125,7 @@ export default function Industry() {
         try {
             await updatePlan(id, {
                 name,
+                plan: {},
             });
 
             setPlans((currentPlans) =>

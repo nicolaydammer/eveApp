@@ -8,15 +8,15 @@ use Exception;
 
 class IndustryPlanAction
 {
-    public function save(array $values): int
+    public function create(string $name): int
     {
         $userId = Auth::user()->id;
-        $name = $values['name'];
 
-        $plan = IndustryPlan::query()->updateOrCreate([
+        $plan = IndustryPlan::query()->create([
             'user_id' => $userId,
-            'name' => $name
-        ], $values);
+            'name' => $name,
+            'plan' => []
+        ]);
 
         return $plan->id;
     }
@@ -39,21 +39,34 @@ class IndustryPlanAction
     public function list(): array
     {
         $userId = Auth::user()->id;
-        $data = IndustryPlan::query()->where('user_id', $userId)->get();
+        $data = IndustryPlan::query()
+            ->select(['id', 'name', 'created_at', 'updated_at'])
+            ->where('user_id', $userId)
+            ->get();
         return $data->toArray();
     }
 
-    public function update(int $id, array $data)
+    public function update(int $id, string $name, array $plan)
     {
         $userId = Auth::user()->id;
 
-        IndustryPlan::query()
-            ->where('id', $id)
-            ->where('user_id', $userId)
-            ->update([
-                'name' => $data['name'],
-                'plan' => $data['plan']
-            ]);
+        // if we only send a name in the update, dont change the plan
+        if (empty($plan)) {
+            IndustryPlan::query()
+                ->where('id', $id)
+                ->where('user_id', $userId)
+                ->update([
+                    'name' => $name,
+                ]);
+        } else {
+            IndustryPlan::query()
+                ->where('id', $id)
+                ->where('user_id', $userId)
+                ->update([
+                    'name' => $name,
+                    'plan' => $plan
+                ]);
+        }
     }
 
     public function delete(int $id)

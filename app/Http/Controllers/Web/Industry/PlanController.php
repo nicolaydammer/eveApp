@@ -27,18 +27,19 @@ class PlanController
         return response()->json($this->industryPlanAction->get($id));
     }
 
-    public function savePlan(Request $request): JsonResponse
+    public function createPlan(Request $request): JsonResponse
     {
-        $data = $request->array('data');
+        $name = $request->string('name');
 
-        return response()->json($this->industryPlanAction->save($data));
+        return response()->json($this->industryPlanAction->create($name));
     }
 
     public function updatePlan(Request $request, int $id): Response
     {
-        $data = $request->array('data');
+        $name = $request->string('name');
+        $plan = $request->array('plan');
 
-        $this->industryPlanAction->update($id, $data);
+        $this->industryPlanAction->update($id, $name, $plan);
 
         return response()->noContent();
     }

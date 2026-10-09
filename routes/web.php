@@ -54,7 +54,7 @@ Route::prefix('industry')
             Route::get('/', [PlanController::class, 'index'])->name('industry.plans');
             Route::get('/list', [PlanController::class, 'listPlans'])->name('industry.plans.list');
             Route::get('/{id}', [PlanController::class, 'getPlan'])->name('industry.plans.get');
-            Route::post('/', [PlanController::class, 'savePlan'])->name('industry.plans.save');
+            Route::post('/', [PlanController::class, 'createPlan'])->name('industry.plans.create');
             Route::patch('/{id}', [PlanController::class, 'updatePlan'])->name('industry.plans.update');
             Route::delete('/{id}', [PlanController::class, 'deletePlan'])->name('industry.plans.delete');
         });
