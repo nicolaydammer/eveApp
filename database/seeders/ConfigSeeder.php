@@ -16,7 +16,7 @@ class ConfigSeeder extends Seeder
     public function run(): void
     {
         if (! $this->configurationRepository->has('esi_scopes')) {
-            $this->configurationRepository->set('esi_scopes', []);
+            $this->configurationRepository->set('esi_scopes', ['publicData']);
         }
 
         if (! $this->configurationRepository->has('market_regions')) {

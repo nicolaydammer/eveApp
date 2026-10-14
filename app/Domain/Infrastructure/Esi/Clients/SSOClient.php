@@ -74,6 +74,10 @@ class SSOClient
 
         $scopes = json_decode(base64_decode(explode('.', $tokenData->accessToken)[1]), true)['scp'];
 
+        if (!is_array($scopes)) {
+            $scopes = [$scopes];
+        }
+
         return new VerifyOauthData(
             CharacterID: $response->json('CharacterID'),
             CharacterName: $response->json('CharacterName'),
