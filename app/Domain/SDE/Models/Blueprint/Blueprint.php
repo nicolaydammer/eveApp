@@ -19,7 +19,6 @@ class Blueprint extends Model
 
     protected $fillable = [
         '_key',
-        'blueprintTypeID',
         'maxProductionLimit',
         'copy_time',
         'research_time',
@@ -33,7 +32,7 @@ class Blueprint extends Model
 
     public function type(): BelongsTo
     {
-        return $this->belongsTo(Type::class, 'blueprintTypeID', '_key');
+        return $this->belongsTo(Type::class, '_key', '_key');
     }
 
     public function invention(): HasOne

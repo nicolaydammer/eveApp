@@ -17,7 +17,6 @@ class SkinLicense extends Model
     protected $fillable = [
         '_key',
         'duration',
-        'licenseTypeID',
         'skinID',
         'isSingleUse',
         'hash',

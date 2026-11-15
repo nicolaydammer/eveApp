@@ -22,7 +22,6 @@ class MercenaryTacticalOperation extends Model
         'developmentImpact',
         'infomorphBonus',
         'description',
-        'dungeonID',
         'name',
         'hash',
     ];

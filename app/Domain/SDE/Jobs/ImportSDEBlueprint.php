@@ -38,7 +38,6 @@ class ImportSDEBlueprint extends AbstractSDEJob implements SDEJobInterface
 
             $blueprints[$key] = [
                 '_key' => $key,
-                'blueprintTypeID' => $sdeData['blueprintTypeID'],
                 'maxProductionLimit' => $sdeData['maxProductionLimit'],
                 'hash' => $sdeData['hash'],
                 'copy_time' => $sdeData['activities']['copying']['time'] ?? 0,
@@ -71,7 +70,7 @@ class ImportSDEBlueprint extends AbstractSDEJob implements SDEJobInterface
         // Parent Inserts
         DB::transaction(function () use ($blueprints, $mfgRows, $invRows, $reacRows) {
             if (!empty($blueprints)) {
-                Blueprint::query()->upsert(array_values($blueprints), ['_key'], ['blueprintTypeID', 'maxProductionLimit', 'hash', 'copy_time', 'material_time', 'research_time']);
+                Blueprint::query()->upsert(array_values($blueprints), ['_key'], ['maxProductionLimit', 'hash', 'copy_time', 'material_time', 'research_time']);
             }
             if (!empty($mfgRows)) {
                 BlueprintManufacturing::query()->upsert(array_values($mfgRows), ['blueprintID'], ['time']);
